@@ -1,0 +1,21 @@
+[project]
+name = "cadkernel"
+version = "0.1.0"
+description = "Hand-built CAD kernel primitives (curves, surfaces, topology, modeling ops) for learning how B-rep kernels work under the hood."
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "matplotlib",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"

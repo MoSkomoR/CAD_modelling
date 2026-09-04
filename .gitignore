@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+*.egg-info/
+build/
+dist/
+
+# Obsidian vault config (personal, not shared)
+.obsidian/
+
+# Script output (plots saved by scripts, regenerable)
+scripts/**/*.png
