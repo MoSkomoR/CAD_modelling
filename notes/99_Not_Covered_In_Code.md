@@ -11,6 +11,13 @@ topic comes up during a script/note session that we decide not to implement.
 - **Variable-radius / general blend surfaces** — this repo only implements a constant-radius
   blend on simple polyhedral edges, not the general rolling-ball/spring-surface blending real
   kernels use for arbitrary edge networks.
+- **Triangular Bezier patches** — the *other* generalization of De Casteljau to two parameters
+  (barycentric lerp over a triangular control lattice, bivariate Bernstein basis). Described and
+  motivated in [[02_Surfaces/Bezier_Surfaces]], but not implemented: kernels standardize on the
+  tensor-product patch, which is what this repo follows through to NURBS.
+- **Variation diminishing for surfaces** — the curve property has no true analogue for
+  tensor-product patches. Stated in [[02_Surfaces/Bezier_Surfaces]] from the literature; unlike
+  every other property claim in that note, it is neither derived nor measured here.
 - **Exchange formats** — STEP, IGES: how B-rep data is serialized/interchanged between kernels.
 - **Robust numerical tolerancing** — how kernels handle floating-point tolerance in
   intersection/boolean algorithms so results stay topologically consistent.

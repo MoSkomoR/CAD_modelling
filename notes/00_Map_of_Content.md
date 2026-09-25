@@ -23,8 +23,13 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | NURBS (full: knots + weights) | not started | — | not started |
 
 ## 02 — Surfaces
-Not started. Planned: analytic surfaces (plane/cylinder/sphere/cone/torus), tensor-product
-Bezier/B-spline/NURBS surfaces, normals & curvature.
+| Topic | Script | Fidelity | Note |
+|---|---|---|---|
+| Bezier surfaces — tensor product, De Casteljau twice | [[../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] | exact | [[02_Surfaces/Bezier_Surfaces]] |
+| Triangular Bezier patches (barycentric De Casteljau) | not started | notes-only | [[02_Surfaces/Bezier_Surfaces]] (section) |
+| Analytic surfaces (plane/cylinder/sphere/cone/torus) | not started | — | not started |
+| B-spline & NURBS surfaces | not started | — | not started |
+| Normals & curvature | partial (`bezier_surface_normal`) | exact | [[02_Surfaces/Bezier_Surfaces]] |
 
 ## 03 — Topology
 Not started. Planned: half-edge mesh structure, Euler operators, Euler's formula derivation,
