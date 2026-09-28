@@ -101,6 +101,23 @@ def bezier_subdivide(control_points: np.ndarray, t: float) -> tuple[np.ndarray, 
     return left, right
 
 
+def bezier_elevate(control_points: np.ndarray) -> np.ndarray:
+    """The same curve, written as a Bezier curve of one degree higher (n+2 control points).
+
+        Q_0 = P_0,   Q_{n+1} = P_n,   Q_i = (i/(n+1)) P_{i-1} + (1 - i/(n+1)) P_i
+
+    Multiply C(t) by 1 = (1-t) + t and regroup: every B_i^n becomes a blend of B_i^{n+1} and
+    B_{i+1}^{n+1}, and collecting coefficients gives exactly these corner-cutting weights. The
+    shape does not change; only the representation gains a handle. Kernels need this to make two
+    curves *compatible* (same degree) before lofting or skinning between them.
+    """
+    points = np.asarray(control_points, dtype=float)
+    n = len(points) - 1
+    i = np.arange(1, n + 1)[:, None] / (n + 1)
+    interior = i * points[:-1] + (1 - i) * points[1:]
+    return np.vstack([points[:1], interior, points[-1:]])
+
+
 def rational_bezier(control_points: np.ndarray, weights: np.ndarray, t: np.ndarray) -> np.ndarray:
     """Evaluate a *rational* Bezier curve -- the R in NURBS, minus the non-uniform knots.
 

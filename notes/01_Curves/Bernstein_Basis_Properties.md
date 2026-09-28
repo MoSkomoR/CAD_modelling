@@ -117,7 +117,8 @@ The fix is not a better basis of the same kind but a **piecewise** one: replace 
 polynomial by segments glued with continuity conditions, and choose basis functions with
 **compact support** — each nonzero on only a few spans. That is the B-spline basis
 $N_{i,p}$, nonzero only on $[u_i, u_{i+p+1})$, so moving a control point perturbs at most $p+1$
-spans and nothing else. Same convex-hull and affine-invariance guarantees, now local.
+spans and nothing else. Same convex-hull and affine-invariance guarantees, now local — built
+and measured in [[B_Splines]].
 
 ## Variation diminishing
 

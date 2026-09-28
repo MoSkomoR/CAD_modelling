@@ -1,4 +1,4 @@
-Code: [[../../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] — `cadkernel/geometry/surfaces.py`
+- [ ] **Code**: [[../../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] — `cadkernel/geometry/surfaces.py`
 
 # Bezier surfaces — De Casteljau, run twice
 
@@ -119,8 +119,7 @@ settles for the simplified mesh-CSG tier.
 four corner points, is a *bilinear* patch. If the four corners are not coplanar it is a
 hyperbolic paraboloid: every isocurve is a perfectly straight line, and yet the surface is
 curved and misses the plane through three of its corners by a wide margin
-(`test_bilinear_patch_is_doubly_ruled_but_not_planar`). Straight isocurves buy you nothing about
-the surface between them.
+(`test_bilinear_patch_is_doubly_ruled_but_not_planar`). Straight isocurves buy you nothing about the surface between them.
 
 And one property genuinely **does not** generalize: **variation diminishing**. The curve version
 (no line crosses the curve more often than the control polygon) has no true analogue for
@@ -134,21 +133,17 @@ There is a second, genuinely different way to push De Casteljau into two dimensi
 worth knowing that the tensor product is a *choice*.
 
 Instead of lerping along one direction, lerp over a triangle in **barycentric coordinates**
-$(\lambda_0,\lambda_1,\lambda_2)$ with $\lambda_0+\lambda_1+\lambda_2=1$. The control points sit
-on a triangular lattice, and each step of the recursion blends *three* neighbours at a time:
-$$P^k_{\mathbf{i}} = \lambda_0 P^{k-1}_{\mathbf{i}+e_0} + \lambda_1 P^{k-1}_{\mathbf{i}+e_1}
-+ \lambda_2 P^{k-1}_{\mathbf{i}+e_2}.$$
-The triangle shrinks by one row per level and collapses to a point, exactly as before. This is
-the **Bezier triangle**, its basis is the *bivariate Bernstein* (multinomial rather than binomial)
-basis, and it keeps hull containment, affine invariance and subdivision. It has a single total
-degree instead of a bidegree, and — the point — it is naturally three-sided, which is precisely
-what tensor-product patches cannot be.
+$(\lambda_0,\lambda_1,\lambda_2)$ with $\lambda_0+\lambda_1+\lambda_2=1$: the control points sit
+on a triangular lattice, each step of the recursion blends *three* neighbours at a time instead
+of two, and it has a single total degree instead of a bidegree. This is the **Bezier triangle**
+— naturally three-sided, which is precisely what a tensor-product patch cannot be. The recursion,
+its Bernstein-form equivalence, and what it does and does not inherit from the curve case are in
+[[Bezier_Triangles]].
 
 Kernels standardize on the tensor product anyway: it composes with the B-spline knot machinery
 that fixes global support, it is what STEP and IGES interchange, and its grid structure makes
 evaluation, rendering and trimming straightforward. Bezier triangles remain the tool of choice in
-finite elements and in subdivision-surface work. Not implemented here —
-[[../99_Not_Covered_In_Code]].
+finite elements and in subdivision-surface work.
 
 ## Where this goes
 
@@ -158,10 +153,7 @@ tensor product inherited them along with everything else:
 - **Global support** → the same fix, applied per direction: B-spline bases in $u$ and $v$, giving
   local control and letting one patch cover what would otherwise need many.
 - **No exact conics** → and now with a corollary worth naming. A sphere, a cylinder and a torus
-  all have circular isocurves; a polynomial curve is never a circle
-  ([[../01_Curves/Lines_and_Arcs]], with proof); therefore **no polynomial tensor-product patch is
-  exactly a sphere, cylinder, cone or torus.** The most common surfaces in mechanical CAD are all
-  outside reach until weights arrive.
+  all have circular isocurves; a polynomial curve is never a circle ([[../01_Curves/Lines_and_Arcs]], with proof); therefore **no polynomial tensor-product patch is exactly a sphere, cylinder, cone or torus.** The most common surfaces in mechanical CAD are all outside reach until weights arrive.
 
 Add both fixes to the tensor product and you have the NURBS surface — one representation holding
 planes, cylinders, spheres, tori and free-form patches alike, with the curve algorithms of module
@@ -171,4 +163,5 @@ planes, cylinders, spheres, tori and free-form patches alike, with the curve alg
 `de_casteljau_surface_stages`, `bezier_isocurve`, `bezier_surface_partials`,
 `bezier_surface_normal`, `bezier_surface_subdivide`); every claim above with a number attached is
 covered in `tests/test_surfaces.py`, except the variation-diminishing remark, which is flagged as
-stated-not-verified. Triangular Bezier patches and rational/B-spline surfaces are not implemented.
+stated-not-verified. Triangular Bezier patches are now implemented too, in [[Bezier_Triangles]].
+Rational/B-spline surfaces are not implemented.

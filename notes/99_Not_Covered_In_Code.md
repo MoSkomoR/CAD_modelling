@@ -11,13 +11,21 @@ topic comes up during a script/note session that we decide not to implement.
 - **Variable-radius / general blend surfaces** — this repo only implements a constant-radius
   blend on simple polyhedral edges, not the general rolling-ball/spring-surface blending real
   kernels use for arbitrary edge networks.
-- **Triangular Bezier patches** — the *other* generalization of De Casteljau to two parameters
-  (barycentric lerp over a triangular control lattice, bivariate Bernstein basis). Described and
-  motivated in [[02_Surfaces/Bezier_Surfaces]], but not implemented: kernels standardize on the
-  tensor-product patch, which is what this repo follows through to NURBS.
+- **Triangular Bezier patch subdivision and degree elevation** — evaluation, corner
+  interpolation, hull containment and affine invariance for triangular Bezier patches are
+  implemented in [[02_Surfaces/Bezier_Triangles]]; subdivision (splitting one Bezier triangle
+  into sub-triangles) and degree elevation are a genuinely different derivation from the
+  tensor-product case and are not built here. Kernels standardize on the tensor-product patch
+  anyway, which is what this repo follows through to NURBS.
 - **Variation diminishing for surfaces** — the curve property has no true analogue for
   tensor-product patches. Stated in [[02_Surfaces/Bezier_Surfaces]] from the literature; unlike
   every other property claim in that note, it is neither derived nor measured here.
+- **Knot removal** — the inverse of knot insertion, within a tolerance. Without it,
+  `elevate_degree` leaves every breakpoint at multiplicity p+1: the curve is unchanged, but the
+  representation carries redundant knots ([[01_Curves/De_Boor_Algorithm]]).
+- **Least-squares curve approximation** — fitting fewer control points than data points, to a
+  tolerance, for noisy measured data. Only exact interpolation is implemented
+  ([[01_Curves/B_Spline_Interpolation]]).
 - **Exchange formats** — STEP, IGES: how B-rep data is serialized/interchanged between kernels.
 - **Robust numerical tolerancing** — how kernels handle floating-point tolerance in
   intersection/boolean algorithms so results stay topologically consistent.

@@ -260,5 +260,6 @@ tessellation — which is exactly the closure [[Lines_and_Arcs]] argued a kernel
 `de_casteljau_triangle`, `bezier_subdivide`, `bernstein_basis`, plus `rational_bezier` as an
 early taste of the R); tested in `tests/test_curves.py` — the explicit expansions, the peak and
 symmetry facts, the worked $t=\tfrac13$ evaluation (both routes, exact fractions), the tangent
-by-product and the high-degree accuracy comparison each have a test. B-splines and full NURBS not
-yet implemented — see [[../00_Map_of_Content|Map of Content]].
+by-product and the high-degree accuracy comparison each have a test. B-splines are implemented in
+[[B_Splines]], [[De_Boor_Algorithm]] and [[B_Spline_Interpolation]]; full NURBS not yet — see
+[[../00_Map_of_Content|Map of Content]].

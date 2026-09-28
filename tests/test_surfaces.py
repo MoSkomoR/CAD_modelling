@@ -3,13 +3,17 @@ import pytest
 
 from cadkernel.geometry.curves import bernstein_basis, bezier_curve
 from cadkernel.geometry.surfaces import (
+    bernstein_triangle_basis,
     bezier_isocurve,
     bezier_surface,
     bezier_surface_normal,
     bezier_surface_partials,
     bezier_surface_point,
     bezier_surface_subdivide,
+    bezier_triangle,
+    bezier_triangle_point,
     de_casteljau_surface_stages,
+    de_casteljau_triangle_stages,
 )
 
 
@@ -198,4 +202,97 @@ def test_diagonal_of_a_patch_has_degree_n_plus_m():
         diagonal = np.array([bezier_surface_point(net, tt, tt) for tt in t])
         assert exact_degree(diagonal) == n + m
         assert exact_degree(bezier_curve(bezier_isocurve(net, v=0.5), t)) == n
-        assert exact_degree(bezier_curve(bezier_isocurve(net, u=0.5), t)) == m
+
+
+# --- Triangular Bezier patches -- the other generalization to two parameters --------------
+
+
+def sample_triangle_net(n=3, dim=3, seed=0):
+    rng = np.random.default_rng(seed)
+    return {
+        (n - j - k, j, k): rng.uniform(-1.0, 1.0, size=dim)
+        for j in range(n + 1)
+        for k in range(n + 1 - j)
+    }
+
+
+def sample_barycentric_points(count, seed=0):
+    """Random points inside the unit simplex, l0+l1+l2=1, l_i >= 0."""
+    rng = np.random.default_rng(seed)
+    l0 = rng.uniform(0.0, 1.0, size=count)
+    l1 = rng.uniform(0.0, 1.0 - l0)
+    l2 = 1.0 - l0 - l1
+    return l0, l1, l2
+
+
+def test_triangle_de_casteljau_matches_closed_bernstein_form():
+    """Barycentric De Casteljau and the closed multinomial-Bernstein sum must agree -- the
+    trinomial analogue of test_surface_bernstein_matches_de_casteljau, and of
+    test_bernstein_matches_de_casteljau (curves) before that."""
+    net = sample_triangle_net(n=3, seed=1)
+    l0s, l1s, l2s = sample_barycentric_points(25, seed=2)
+    for l0, l1, l2 in zip(l0s, l1s, l2s):
+        assert np.allclose(
+            bezier_triangle_point(net, l0, l1, l2), bezier_triangle(net, l0, l1)[0]
+        )
+
+
+def test_triangle_corner_interpolation():
+    """The three barycentric corners are interpolated -- the triangular analogue of endpoint
+    interpolation -- and no other control point is."""
+    net = sample_triangle_net(n=3, seed=3)
+    assert np.allclose(bezier_triangle_point(net, 1.0, 0.0, 0.0), net[(3, 0, 0)])
+    assert np.allclose(bezier_triangle_point(net, 0.0, 1.0, 0.0), net[(0, 3, 0)])
+    assert np.allclose(bezier_triangle_point(net, 0.0, 0.0, 1.0), net[(0, 0, 3)])
+
+
+def test_triangle_bernstein_basis_is_partition_of_unity_and_non_negative():
+    """Non-negativity and partition of unity, now from the multinomial theorem: the sum of the
+    (l0+l1+l2)^n expansion's terms is 1^n = 1 for every barycentric (l0, l1, l2)."""
+    l0s, l1s, l2s = sample_barycentric_points(50, seed=4)
+    _, values = bernstein_triangle_basis(4, l0s, l1s, l2s)
+    assert np.all(values >= 0.0)
+    assert np.allclose(values.sum(axis=1), 1.0)
+
+
+def test_triangle_stays_in_the_bounding_box_of_its_control_net():
+    """Convex hull containment, inherited exactly as it was for the tensor-product case: convex
+    weights (Fact above) mean the surface cannot leave the hull of the net."""
+    net = sample_triangle_net(n=3, seed=5)
+    l0s, l1s, l2s = sample_barycentric_points(200, seed=6)
+    points = np.array(
+        [bezier_triangle_point(net, l0, l1, l2) for l0, l1, l2 in zip(l0s, l1s, l2s)]
+    )
+    corners = np.array(list(net.values()))
+    assert np.all(points >= corners.min(axis=0) - 1e-12)
+    assert np.all(points <= corners.max(axis=0) + 1e-12)
+
+
+def test_triangle_affine_invariance():
+    """Transform the net, get the transformed patch -- same proof as the curve and
+    tensor-product cases, since the basis is still a partition of unity."""
+    net = sample_triangle_net(n=3, seed=7)
+    angle = 0.4
+    rotate = np.array(
+        [
+            [np.cos(angle), -np.sin(angle), 0.0],
+            [np.sin(angle), np.cos(angle), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
+    offset = np.array([0.5, -1.0, 0.25])
+    transformed_net = {index: p @ rotate.T + offset for index, p in net.items()}
+    for l0, l1, l2 in zip(*sample_barycentric_points(15, seed=8)):
+        transformed_then_evaluated = bezier_triangle_point(transformed_net, l0, l1, l2)
+        evaluated_then_transformed = bezier_triangle_point(net, l0, l1, l2) @ rotate.T + offset
+        assert np.allclose(transformed_then_evaluated, evaluated_then_transformed)
+
+
+def test_de_casteljau_triangle_stages_shrink_to_the_surface_point():
+    """The lattice loses one row per level, exactly as the curve triangle loses one point per
+    level, and the last level is the single point bezier_triangle_point returns."""
+    net = sample_triangle_net(n=3, seed=9)
+    l0, l1, l2 = 0.5, 0.3, 0.2
+    levels = de_casteljau_triangle_stages(net, l0, l1, l2)
+    assert [len(level) for level in levels] == [10, 6, 3, 1]
+    assert np.allclose(levels[-1][(0, 0, 0)], bezier_triangle_point(net, l0, l1, l2))

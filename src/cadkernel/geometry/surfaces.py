@@ -6,9 +6,16 @@ collapses it to a point by doing that twice -- once down every column, then once
 of results. No new algorithm is needed, only the observation that the intermediate results of
 De Casteljau are points, so they can be fed straight back into De Casteljau.
 
+The bottom of the module holds the *other* generalization: triangular Bezier patches, built by
+lerping over a triangular control lattice in barycentric coordinates instead of a rectangular
+net in (u, v). See notes/02_Surfaces/Bezier_Triangles.md.
+
 Notes: notes/02_Surfaces/Bezier_Surfaces.md
 """
+
 from __future__ import annotations
+
+import math
 
 import numpy as np
 
@@ -37,7 +44,9 @@ def bezier_surface_point(control_net: np.ndarray, u: float, v: float) -> np.ndar
     curve machinery transfers without a single new derivation.
     """
     net = _as_net(control_net)
-    column_points = np.array([bezier_de_casteljau(net[:, j], u) for j in range(net.shape[1])])
+    column_points = np.array(
+        [bezier_de_casteljau(net[:, j], u) for j in range(net.shape[1])]
+    )
     return bezier_de_casteljau(column_points, v)
 
 
@@ -51,8 +60,8 @@ def bezier_surface(control_net: np.ndarray, u: np.ndarray, v: np.ndarray) -> np.
     """
     net = _as_net(control_net)
     n, m = net.shape[0] - 1, net.shape[1] - 1
-    basis_u = bernstein_basis(n, np.atleast_1d(u))          # (len(u), n+1)
-    basis_v = bernstein_basis(m, np.atleast_1d(v))          # (len(v), m+1)
+    basis_u = bernstein_basis(n, np.atleast_1d(u))  # (len(u), n+1)
+    basis_v = bernstein_basis(m, np.atleast_1d(v))  # (len(v), m+1)
     return np.einsum("ai,ijd,bj->abd", basis_u, net, basis_v)
 
 
@@ -69,15 +78,16 @@ def de_casteljau_surface_stages(control_net: np.ndarray, u: float, v: float) -> 
     q = np.array([bezier_de_casteljau(net[:, j], u) for j in range(m + 1)])
     r = np.array([bezier_de_casteljau(net[i, :], v) for i in range(n + 1)])
     return {
-        "u_pass": q,                                  # control polygon of v -> S(u, v)
-        "v_pass": r,                                  # control polygon of u -> S(u, v)
+        "u_pass": q,  # control polygon of v -> S(u, v)
+        "v_pass": r,  # control polygon of u -> S(u, v)
         "point": bezier_de_casteljau(q, v),
         "point_other_order": bezier_de_casteljau(r, u),
     }
 
 
-def bezier_isocurve(control_net: np.ndarray, *, u: float | None = None,
-                    v: float | None = None) -> np.ndarray:
+def bezier_isocurve(
+    control_net: np.ndarray, *, u: float | None = None, v: float | None = None
+) -> np.ndarray:
     """Control points of an isoparametric curve of the patch.
 
     Fixing one parameter leaves an honest Bezier curve of the *other* direction's degree, and
@@ -89,12 +99,15 @@ def bezier_isocurve(control_net: np.ndarray, *, u: float | None = None,
     if (u is None) == (v is None):
         raise ValueError("fix exactly one of u or v")
     if u is not None:
-        return np.array([bezier_de_casteljau(net[:, j], u) for j in range(net.shape[1])])
+        return np.array(
+            [bezier_de_casteljau(net[:, j], u) for j in range(net.shape[1])]
+        )
     return np.array([bezier_de_casteljau(net[i, :], v) for i in range(net.shape[0])])
 
 
-def bezier_surface_partials(control_net: np.ndarray, u: float,
-                            v: float) -> tuple[np.ndarray, np.ndarray]:
+def bezier_surface_partials(
+    control_net: np.ndarray, u: float, v: float
+) -> tuple[np.ndarray, np.ndarray]:
     """The two tangent vectors S_u(u, v) and S_v(u, v).
 
     Differentiating the Bernstein form in u drops the degree by one and replaces the control
@@ -104,8 +117,16 @@ def bezier_surface_partials(control_net: np.ndarray, u: float,
     """
     net = _as_net(control_net)
     n, m = net.shape[0] - 1, net.shape[1] - 1
-    s_u = n * bezier_surface_point(np.diff(net, axis=0), u, v) if n > 0 else np.zeros(net.shape[2])
-    s_v = m * bezier_surface_point(np.diff(net, axis=1), u, v) if m > 0 else np.zeros(net.shape[2])
+    s_u = (
+        n * bezier_surface_point(np.diff(net, axis=0), u, v)
+        if n > 0
+        else np.zeros(net.shape[2])
+    )
+    s_v = (
+        m * bezier_surface_point(np.diff(net, axis=1), u, v)
+        if m > 0
+        else np.zeros(net.shape[2])
+    )
     return s_u, s_v
 
 
@@ -117,8 +138,9 @@ def bezier_surface_normal(control_net: np.ndarray, u: float, v: float) -> np.nda
     return normal / length if length > 0 else normal
 
 
-def bezier_surface_subdivide(control_net: np.ndarray, u: float,
-                             v: float) -> list[list[np.ndarray]]:
+def bezier_surface_subdivide(
+    control_net: np.ndarray, u: float, v: float
+) -> list[list[np.ndarray]]:
     """Split the patch at (u, v) into four sub-patches, returned as [[SW, SE], [NW, NE]].
 
     Subdivision -- the property that makes De Casteljau worth its O(n^2) on curves -- survives
@@ -129,11 +151,126 @@ def bezier_surface_subdivide(control_net: np.ndarray, u: float,
     as it does on curves. This is the backbone of real surface/surface intersection.
     """
     net = _as_net(control_net)
-    lower, upper = (np.stack(halves, axis=1) for halves in zip(
-        *(bezier_subdivide(net[:, j], u) for j in range(net.shape[1]))))
+    lower, upper = (
+        np.stack(halves, axis=1)
+        for halves in zip(
+            *(bezier_subdivide(net[:, j], u) for j in range(net.shape[1]))
+        )
+    )
     quadrants = []
     for half in (lower, upper):
-        left, right = (np.stack(pieces, axis=0) for pieces in zip(
-            *(bezier_subdivide(half[i, :], v) for i in range(half.shape[0]))))
+        left, right = (
+            np.stack(pieces, axis=0)
+            for pieces in zip(
+                *(bezier_subdivide(half[i, :], v) for i in range(half.shape[0]))
+            )
+        )
         quadrants.append([left, right])
     return quadrants
+
+
+# --- Triangular Bezier patches ---------------------------------------------------------------
+#
+# The *other* generalization of De Casteljau to two parameters: lerp over a triangular control
+# lattice in barycentric coordinates (l0, l1, l2), l0+l1+l2=1, instead of a rectangular net in
+# (u, v). Control points sit at multi-indices (i, j, k) with i+j+k=n -- there is no natural
+# "rows and columns" shape to a triangular lattice, so a dict {(i, j, k): point} is the natural
+# container instead of an ndarray. See notes/02_Surfaces/Bezier_Triangles.md.
+
+
+def _triangle_indices(n: int) -> list[tuple[int, int, int]]:
+    """All C(n+2, 2) multi-indices (i, j, k) with i + j + k = n and i, j, k >= 0."""
+    return [(n - j - k, j, k) for j in range(n + 1) for k in range(n + 1 - j)]
+
+
+def _triangle_degree(control_net: dict[tuple[int, int, int], np.ndarray]) -> int:
+    return max(sum(index) for index in control_net)
+
+
+def de_casteljau_triangle_stages(
+    control_net: dict[tuple[int, int, int], np.ndarray], l0: float, l1: float, l2: float
+) -> list[dict[tuple[int, int, int], np.ndarray]]:
+    """Every level of the shrinking triangle for barycentric De Casteljau at (l0, l1, l2).
+
+    Level 0 is the control net itself. Each later level blends *three* neighbours -- the points
+    one step along each of the three lattice directions -- at the same fixed barycentric
+    weights, the direct three-term analogue of the curve recursion:
+
+        P^0_(i,j,k) = P_(i,j,k)
+        P^s_(i,j,k) = l0 P^(s-1)_(i+1,j,k) + l1 P^(s-1)_(i,j+1,k) + l2 P^(s-1)_(i,j,k+1)
+
+    for s = 1..n, over every (i, j, k) with i+j+k = n-s. Level n holds a single point, indexed
+    (0, 0, 0): C(l0, l1, l2). Mirrors de_casteljau_triangle in curves.py, one dimension up; used
+    to draw the collapsing lattice in the interactive script.
+    """
+    n = _triangle_degree(control_net)
+    levels = [{index: np.asarray(p, dtype=float) for index, p in control_net.items()}]
+    for s in range(1, n + 1):
+        prev = levels[-1]
+        levels.append(
+            {
+                (n - s - j - k, j, k): (
+                    l0 * prev[(n - s - j - k + 1, j, k)]
+                    + l1 * prev[(n - s - j - k, j + 1, k)]
+                    + l2 * prev[(n - s - j - k, j, k + 1)]
+                )
+                for j in range(n - s + 1)
+                for k in range(n - s + 1 - j)
+            }
+        )
+    return levels
+
+
+def bezier_triangle_point(
+    control_net: dict[tuple[int, int, int], np.ndarray], l0: float, l1: float, l2: float
+) -> np.ndarray:
+    """Evaluate a Bezier triangle at (l0, l1, l2): the single point left by barycentric De
+    Casteljau (de_casteljau_triangle_stages), l0+l1+l2 = 1.
+    """
+    return de_casteljau_triangle_stages(control_net, l0, l1, l2)[-1][(0, 0, 0)]
+
+
+def bernstein_triangle_basis(
+    n: int, l0: np.ndarray, l1: np.ndarray, l2: np.ndarray
+) -> tuple[list[tuple[int, int, int]], np.ndarray]:
+    """All C(n+2, 2) trivariate (multinomial) Bernstein basis functions of degree n,
+
+        B_(i,j,k)^n(l0,l1,l2) = n!/(i! j! k!) * l0^i l1^j l2^k,   i+j+k=n,
+
+    evaluated at each row of (l0, l1, l2). Returns (indices, values), values of shape
+    (len(l0), C(n+2, 2)) with columns matching indices. The bivariate analogue of
+    bernstein_basis: the same non-negativity and partition-of-unity facts hold, now by the
+    multinomial theorem instead of the binomial one (notes/02_Surfaces/Bezier_Triangles.md).
+    """
+    l0 = np.atleast_1d(np.asarray(l0, dtype=float))
+    l1 = np.atleast_1d(np.asarray(l1, dtype=float))
+    l2 = np.atleast_1d(np.asarray(l2, dtype=float))
+    indices = _triangle_indices(n)
+    values = np.array(
+        [
+            math.factorial(n) / (math.factorial(i) * math.factorial(j) * math.factorial(k))
+            # NumPy evaluates 0.0 ** 0 as 1.0, matching the convention the corners need.
+            * l0**i * l1**j * l2**k
+            for i, j, k in indices
+        ]
+    ).T
+    return indices, values
+
+
+def bezier_triangle(
+    control_net: dict[tuple[int, int, int], np.ndarray], l0: np.ndarray, l1: np.ndarray
+) -> np.ndarray:
+    """Evaluate a Bezier triangle at many barycentric points at once via the closed multinomial
+    Bernstein form -- the bulk-evaluation counterpart to bezier_triangle_point, the same trade
+    as bezier_surface vs. running bezier_de_casteljau pointwise.
+
+    l2 is implied as 1 - l0 - l1; points with l0 + l1 > 1 evaluate the same polynomial
+    extrapolated outside the triangle, exactly as bezier_curve extrapolates outside [0, 1].
+    """
+    n = _triangle_degree(control_net)
+    l0 = np.atleast_1d(np.asarray(l0, dtype=float))
+    l1 = np.atleast_1d(np.asarray(l1, dtype=float))
+    l2 = 1.0 - l0 - l1
+    indices, values = bernstein_triangle_basis(n, l0, l1, l2)
+    points = np.array([control_net[index] for index in indices])
+    return values @ points

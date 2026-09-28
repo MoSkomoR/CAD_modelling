@@ -19,14 +19,16 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | De Casteljau: ⇔ Bernstein, subdivision, stability | [[../scripts/01_curves/02_bezier_de_casteljau.py]] | exact (proof) | [[01_Curves/De_Casteljau_Derivation]] |
 | Bernstein basis & the property proofs | [[../scripts/01_curves/03_bezier_properties.py]] | exact (proofs) | [[01_Curves/Bernstein_Basis_Properties]] |
 | Rational Bezier — why a circle needs it | [[../scripts/01_curves/04_circle_needs_rational.py]] | exact | [[01_Curves/Lines_and_Arcs]] |
-| B-splines (Cox-de Boor) | not started | — | not started |
+| B-splines — Cox–de Boor basis, local support, continuity | [[../scripts/01_curves/05_bspline_basis.py]], [[../scripts/01_curves/06_bspline_local_control.py]] | exact (proofs; continuity measured) | [[01_Curves/B_Splines]] |
+| De Boor, knot insertion, Bezier decomposition, degree elevation | [[../scripts/01_curves/06_bspline_local_control.py]] | exact (no knot removal) | [[01_Curves/De_Boor_Algorithm]] |
+| B-spline interpolation & parametrization choice | [[../scripts/01_curves/07_bspline_interpolation.py]] | exact | [[01_Curves/B_Spline_Interpolation]] |
 | NURBS (full: knots + weights) | not started | — | not started |
 
 ## 02 — Surfaces
 | Topic | Script | Fidelity | Note |
 |---|---|---|---|
 | Bezier surfaces — tensor product, De Casteljau twice | [[../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] | exact | [[02_Surfaces/Bezier_Surfaces]] |
-| Triangular Bezier patches (barycentric De Casteljau) | not started | notes-only | [[02_Surfaces/Bezier_Surfaces]] (section) |
+| Triangular Bezier patches (barycentric De Casteljau) | [[../scripts/02_surfaces/02_bezier_triangle_de_casteljau.py]] | exact (subdivision not-started) | [[02_Surfaces/Bezier_Triangles]] |
 | Analytic surfaces (plane/cylinder/sphere/cone/torus) | not started | — | not started |
 | B-spline & NURBS surfaces | not started | — | not started |
 | Normals & curvature | partial (`bezier_surface_normal`) | exact | [[02_Surfaces/Bezier_Surfaces]] |
