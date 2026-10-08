@@ -26,14 +26,36 @@ Cost: $p(p+1)/2$ lerps, independent of how many control points the curve has
 
 ## Equivalence to the basis sum
 
-**Claim.** For $1 \le r \le p$,
-$$\sum_i N_{i,p}(t)\,P_i = \sum_i N_{i,p-r}(t)\,P_i^{r}.$$
-At $r = p$ the right side is $\sum_i N_{i,0}(t)P_i^p = P_k^p$, since exactly one box is on.
+**Claim.** For each fixed level $r \in \{0, 1, \dots, p\}$ — a separate equation per $r$, with
+**no summation over $r$** —
+$$\sum_{i=k-p}^{k} N_{i,p}(t)\,P_i \;=\; \sum_{i=k-p+r}^{k} N_{i,p-r}(t)\,P_i^{r}.$$
+The left side is $C(t)$ and does not involve $r$; the claim is that the right side has the *same
+value at every level*. Each level lowers the basis degree by one and replaces the points by lerped
+ones, and the two changes cancel — a conserved quantity, like $\sum_i N_{i,d}$ in the
+partition-of-unity proof. At $r = 0$ it is trivial ($P_i^0 = P_i$); at $r = p$ the right side is
+$N_{k,0}(t)\,P_k^p = P_k^p$, since exactly one box is on.
 
-*Proof (one level; repeat).* Substitute Cox–de Boor ([[B_Splines]]) for $N_{i,d}$, $d = p-r+1$:
+The sum ranges matter: $P_i^r$ only exists for $i = k-p+r,\dots,k$, and that is exactly the range
+on which $N_{i,p-r}(t) \neq 0$ by local support. So nothing outside the range is being dropped —
+those terms are zero. (Below, $\sum_i$ is shorthand for these ranges.)
+
+*Proof.* It suffices to show that level $r-1$ and level $r$ give the same value, for each
+$r = 1,\dots,p$; chaining these equalities from the trivial $r=0$ case up to $r=p$ finishes it.
+Fix $r$, write $d = p-r+1$ (the basis degree at level $r-1$), and substitute Cox–de Boor
+([[B_Splines]]) for $N_{i,d}$:
 $$\sum_i N_{i,d}P_i^{r-1} = \sum_i \frac{t-u_i}{u_{i+d}-u_i}N_{i,d-1}P_i^{r-1}
 + \sum_i \frac{u_{i+d+1}-t}{u_{i+d+1}-u_{i+1}}N_{i+1,d-1}P_i^{r-1}.$$
-Shift the second sum's index ($i+1 \to i$) so both multiply $N_{i,d-1}$:
+Both sums run over $i = k-p+r-1,\dots,k$, where $P_i^{r-1}$ exists. To combine them they must
+multiply the same function, so substitute $j = i+1$ in the second sum — replacing *every* $i$,
+including the knot indices and the point's index — and rename $j$ back to $i$. That only
+relabels the terms; the sum's value is unchanged. The second sum becomes
+$\sum_{i=k-p+r}^{k+1}\frac{u_{i+d}-t}{u_{i+d}-u_i}N_{i,d-1}P_{i-1}^{r-1}$: same function as the first
+sum now, but its range has slid up by one. The two ranges overlap on $k-p+r,\dots,k$, and the
+one leftover term at each end is zero by local support:
+- second sum, $i = k+1$: $N_{k+1,d-1}$ is supported on $[u_{k+1},\dots)$, but $t < u_{k+1}$;
+- first sum, $i = k-p+r-1$: $N_{i,d-1}$ is supported on $[u_i, u_{i+d}) = [u_i, u_k)$, but $t \ge u_k$.
+
+So both sums run over $k-p+r,\dots,k$ and can be added term by term:
 $$= \sum_i N_{i,d-1}\left[\frac{t-u_i}{u_{i+d}-u_i}P_i^{r-1} + \frac{u_{i+d}-t}{u_{i+d}-u_i}P_{i-1}^{r-1}\right]
 = \sum_i N_{i,d-1}\Big[\alpha_{i,r}P_i^{r-1} + (1-\alpha_{i,r})P_{i-1}^{r-1}\Big],$$
 since $u_{i+d} = u_{i+p+1-r}$. The bracket is $P_i^r$. $\blacksquare$
