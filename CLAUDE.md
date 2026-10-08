@@ -30,6 +30,11 @@ files that implement them. `.obsidian/` is gitignored.
 Curves → surfaces → topology (half-edge + Euler operators) → modeling ops → booleans/fillets.
 Each stage depends on the ones before it.
 
+**Modules are revisited, not closed.** The order is a dependency order, not a schedule: Bezier
+surfaces (02) landed before B-splines (01), because tensor-product patches only need the Bezier
+machinery. A module is "done" when `00_Map_of_Content.md` says so, row by row — never assume an
+earlier module is finished because a later one has content.
+
 Booleans and fillets are deliberately the **simplified tier**: BSP-tree mesh CSG, and
 constant-radius blends on simple polyhedral edges — not the exact NURBS surface-surface
 intersection and trimming real kernels use, which is out of scope. Notes in that section must
@@ -83,10 +88,38 @@ The formulas are the easy part — the repo exists for the reasoning. Every note
 - Open with a `Code:` link to the implementing script/module; close with a `**Status**:` line
   giving fidelity (exact / simplified / notes-only) and what is tested or visualized.
 - Cross-link liberally with `[[wikilinks]]`.
+- **Say which epistemic footing every claim is on.** This repo's notes mix three kinds of
+  statement, and the `**Status**:` line must separate them explicitly:
+  1. **proved inline** — the derivation is in the note (Bernstein ⇔ De Casteljau, Cox–de Boor
+     partition of unity, de Boor ⇔ the basis sum, trinomial Pascal);
+  2. **stated and measured** — the theorem is asserted, and a test produces numbers consistent
+     with it ($C^{p-k}$ continuity at a knot of multiplicity $k$; the $n+m$ diagonal degree);
+  3. **cited, not proved** — imported from the literature and flagged as such (blossoming for
+     knot insertion, Schoenberg–Whitney for the interpolation matrix, variation diminishing).
+  Never let (2) or (3) read as (1). A cited theorem names its source.
+- **Every number in a note names the test that produced it**, inline, in backticks —
+  `` (`test_parametrization_comparison`) ``. If there is no test, there should be no number.
 - **Be honest when a demo undercuts the tidy story.** The polynomial-vs-circle case is the
   worked example: polynomial fits reach ~1e-15 by degree 13, so "not accurate enough" is the
   *wrong* argument for rational curves; the real arguments are exactness in principle, cost, and
   semantics. Measure first, then write the note around what actually happened.
+- **Where a textbook default exists, measure the alternatives and let the measurement pick the
+  default in code.** Put the comparison table in the note, including where the standard choice
+  loses. `interpolate_points` defaults to *centripetal* parametrization because chord length —
+  the usual textbook default — was worst on two of three data sets
+  (`test_parametrization_comparison`). State the limits of such evidence: three data sets is
+  evidence, not a theorem.
+
+## Notation and sources
+
+Follow **Piegl & Tiller, _The NURBS Book_** for B-spline/NURBS notation, in notes and code alike:
+control points $P_0..P_n$, degree $p$, knots $u_0 \le .. \le u_m$ with $m = n+p+1$, valid domain
+$[u_p, u_{n+1}]$, clamped knot vectors by default. Keep Bezier notation as module 01 set it
+(degree $n$, basis $B_i^n$) — the two meet in the "Bezier is the special case" results, so the
+symbols must line up there.
+
+Library modules pair with their tests one-to-one: `geometry/<topic>.py` ↔ `tests/test_<topic>.py`
+(`curves`/`surfaces`/`bspline`). Keep that pairing for new topics.
 
 ## Style
 
