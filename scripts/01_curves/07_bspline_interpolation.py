@@ -30,7 +30,9 @@ from cadkernel.geometry.bspline import bspline_curve, interpolate_points
 from cadkernel.geometry.curves import bernstein_basis, bezier_curve
 from cadkernel.viz.interactive import DraggableControlPoints, add_checkbuttons, run
 
-DATA = np.array([[0, 0], [0.1, 0.3], [0.2, 0.1], [3, 1], [3.2, 0.8], [3.1, 1.2], [6, 0]], float)
+DATA = np.array(
+    [[0, 0], [0.1, 0.3], [0.2, 0.1], [3, 1], [3.2, 0.8], [3.1, 1.2], [6, 0]], float
+)
 T = np.linspace(0.0, 1.0, 1501)
 METHODS = {"uniform": "tab:blue", "chord": "tab:red", "centripetal": "tab:green"}
 
@@ -79,24 +81,38 @@ def main():
             residual = np.abs(bspline_curve(control, knots, 3, params) - data).max()
             state[method] = (curve, residual)
             if method in shown:
-                artists.extend(ax.plot(*curve.T, color=METHODS[method], lw=2.2, label=method))
+                artists.extend(
+                    ax.plot(*curve.T, color=METHODS[method], lw=2.2, label=method)
+                )
                 loop = "LOOPS" if self_intersects(curve) else "no loop"
                 report.append(f"{method}: resid {residual:.0e}, {loop}")
             if method == "centripetal" and show_polygon:
-                artists.extend(ax.plot(*control.T, "s--", color="tab:green", ms=6, lw=1, alpha=0.7))
+                artists.extend(
+                    ax.plot(*control.T, "s--", color="tab:green", ms=6, lw=1, alpha=0.7)
+                )
 
         if show_polynomial:
             _, _, params = interpolate_points(data, 3, "centripetal")
             bezier = np.linalg.solve(bernstein_basis(len(data) - 1, params), data)
             curve = bezier_curve(bezier, T)
             state["polynomial"] = curve
-            artists.extend(ax.plot(*curve.T, color="0.25", lw=1.6, ls="--", label="single polynomial"))
+            artists.extend(
+                ax.plot(
+                    *curve.T, color="0.25", lw=1.6, ls="--", label="single polynomial"
+                )
+            )
 
-        artists.append(ax.legend(loc="upper left", bbox_to_anchor=(1.01, 0.45), fontsize=9))
-        ax.set_title("cubic B-spline interpolation\n" + "   |   ".join(report), fontsize=10)
+        artists.append(
+            ax.legend(loc="upper left", bbox_to_anchor=(1.01, 0.45), fontsize=9)
+        )
+        ax.set_title(
+            "cubic B-spline interpolation\n" + "   |   ".join(report), fontsize=10
+        )
         fig.canvas.draw_idle()
 
-    widget = DraggableControlPoints(ax, DATA.copy(), on_change=redraw, show_polygon=False, color="black")
+    widget = DraggableControlPoints(
+        ax, DATA.copy(), on_change=redraw, show_polygon=False, color="black"
+    )
     widget.artist.set_label("data points")
     check = add_checkbuttons(
         fig,
@@ -111,7 +127,9 @@ def main():
     def smoke():
         for method in METHODS:
             assert state[method][1] < 1e-13, f"{method} curve misses a data point"
-        assert self_intersects(state["uniform"][0]), "uniform loops on this data (as measured)"
+        assert self_intersects(state["uniform"][0]), (
+            "uniform loops on this data (as measured)"
+        )
         assert not self_intersects(state["centripetal"][0])
 
         widget.simulate_drag(3, (3.0, 2.0))

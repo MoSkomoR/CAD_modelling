@@ -63,9 +63,7 @@ contributes nothing). The curve is
 $$C(t) = \sum_{i=0}^n N_{i,p}(t)\,P_i.$$
 
 Read the recursion as a construction. Degree 0 is a row of **box functions**, one per knot span.
-Each step blends two neighbouring functions with linear ramps, producing one that is a span wider
-and one degree smoother. Script 05 draws it level by level — the "level d" slider turns boxes into
-tents into bumps.
+Each step blends two neighbouring functions with linear ramps, producing one that is a span wider and one degree smoother. Script 05 draws it level by level — the "level d" slider turns boxes into tents into bumps.
 
 ### The three facts, proved
 
