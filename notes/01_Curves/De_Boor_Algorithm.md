@@ -67,13 +67,129 @@ de Boor against the basis sum agree to $10^{-14}$ on uneven knots
 
 ## The derivative
 
-Differentiating Cox–de Boor gives the B-spline analogue of the Bezier hodograph: $C'(t)$ is a
-degree-$(p-1)$ B-spline on the knot vector with its first and last knot removed, with control points
-$$Q_i = \frac{p}{u_{i+p+1}-u_{i+1}}\,(P_{i+1}-P_i), \qquad i = 0,\dots,n-1.$$
-On Bezier knots every denominator is 1 and this is $n(P_{i+1}-P_i)$. It is stated here, not
-derived; `bspline_derivative` implements it and matches central differences to $10^{-7}$
+For Bezier curves, [[De_Casteljau_Derivation]] ("The derivative, for free") derives the
+derivative in two equivalent forms: **constant points times a basis**,
+$C'(t) = \sum_j B_j^{n-1}(t)\,n(P_{j+1}-P_j)$ (the *hodograph*), and **the last level of the
+algorithm**, $C'(t) = n(P_1^{n-1} - P_0^{n-1})$. B-splines have both forms too, and they are derived
+here in the same order: first the derivative of one basis function, then the curve, then the
+algorithm.
+
+Throughout, $0/0 := 0$ as in Cox–de Boor, and derivatives are taken inside a span
+$u_k < t < u_{k+1}$. At a knot the curve may only be $C^{p-\text{mult}}$ ([[B_Splines]]), so there
+the formulas give the one-sided derivative.
+
+### Step 1 — the derivative of one basis function
+
+**Claim.** For $d \ge 1$,
+$$N_{i,d}'(t) = d\left[\frac{N_{i,d-1}(t)}{u_{i+d}-u_i} - \frac{N_{i+1,d-1}(t)}{u_{i+d+1}-u_{i+1}}\right].$$
+This is the B-spline version of $\frac{d}{dt}B_i^n = n\big[B_{i-1}^{n-1} - B_i^{n-1}\big]$: a degree-$d$
+function differentiates to $d$ times a difference of its two degree-$(d-1)$ parents, except that each
+parent is now divided by the width of its own support.
+
+*Proof by induction on $d$.* Write the two Cox–de Boor ramps as
+$$\omega_{i,d}(t) = \frac{t-u_i}{u_{i+d}-u_i}, \qquad\text{so}\qquad
+N_{i,d} = \omega_{i,d}\,N_{i,d-1} + (1-\omega_{i+1,d})\,N_{i+1,d-1},$$
+since $1-\omega_{i+1,d} = \frac{u_{i+d+1}-t}{u_{i+d+1}-u_{i+1}}$. The ramps are linear, with
+$\omega_{i,d}' = \frac{1}{u_{i+d}-u_i}$.
+
+*Base case* ($d=1$): boxes are constant inside a span, so only the ramps get differentiated:
+$N_{i,1}' = \frac{N_{i,0}}{u_{i+1}-u_i} - \frac{N_{i+1,0}}{u_{i+2}-u_{i+1}}$ — the hat function rises
+with slope $1/(\text{width})$ on its first span and falls on its second. ✓
+
+*Inductive step* ($d \ge 2$, claim true for $d-1$). Product rule on Cox–de Boor:
+$$N_{i,d}' = \underbrace{\frac{N_{i,d-1}}{u_{i+d}-u_i} - \frac{N_{i+1,d-1}}{u_{i+d+1}-u_{i+1}}}_{\text{ramps differentiated}}
+\;+\; \underbrace{\omega_{i,d}\,N_{i,d-1}' + (1-\omega_{i+1,d})\,N_{i+1,d-1}'}_{\text{parents differentiated}}.$$
+The first group is one copy of the bracket in the claim. So it suffices to show that the second
+group is $d-1$ more copies:
+$$\omega_{i,d}\,N_{i,d-1}' + (1-\omega_{i+1,d})\,N_{i+1,d-1}'
+\;\overset{?}{=}\; (d-1)\left[\frac{N_{i,d-1}}{u_{i+d}-u_i} - \frac{N_{i+1,d-1}}{u_{i+d+1}-u_{i+1}}\right].$$
+(This is the same split as the Bezier "factor $n$" argument: the last lerp gives one copy, the
+moving parents give the rest.) Both sides are combinations of the three degree-$(d-2)$ functions
+$N_{i,d-2}$, $N_{i+1,d-2}$, $N_{i+2,d-2}$: expand the left side with the induction hypothesis, the
+right side with Cox–de Boor, and compare coefficients. Abbreviate the four knots involved,
+$$a = u_i,\quad b = u_{i+1},\quad c = u_{i+d},\quad e = u_{i+d+1},$$
+and write $u_{i+d-1}$ and $u_{i+2}$ out where they appear. Dropping the common factor $d-1$:
+
+- $N_{i,d-2}$: left $\dfrac{\omega_{i,d}}{u_{i+d-1}-a} = \dfrac{t-a}{(c-a)(u_{i+d-1}-a)}$; right
+  $\dfrac{\omega_{i,d-1}}{c-a} = \dfrac{t-a}{(u_{i+d-1}-a)(c-a)}$. ✓
+- $N_{i+2,d-2}$: left $-\dfrac{1-\omega_{i+1,d}}{e-u_{i+2}} = -\dfrac{e-t}{(e-b)(e-u_{i+2})}$; right
+  $-\dfrac{1-\omega_{i+2,d-1}}{e-b} = -\dfrac{e-t}{(e-u_{i+2})(e-b)}$. ✓
+- $N_{i+1,d-2}$ (the middle one, which both parents share): left
+  $\dfrac{1-\omega_{i,d}-\omega_{i+1,d}}{c-b} = \dfrac{1}{c-b}\left[\dfrac{c-t}{c-a} - \dfrac{t-b}{e-b}\right]$;
+  right $\dfrac{1-\omega_{i+1,d-1}}{c-a} - \dfrac{\omega_{i+1,d-1}}{e-b}
+  = \dfrac{c-t}{(c-b)(c-a)} - \dfrac{t-b}{(c-b)(e-b)}$. ✓
+
+(The middle line uses $1-\omega_{i,d} = \frac{c-t}{c-a}$ and $\omega_{i+1,d-1} = \frac{t-b}{c-b}$.)
+All three coefficients match, so the second group is $d-1$ copies of the bracket, and
+$N_{i,d}' = d\,[\dots]$. $\blacksquare$
+
+### Step 2 — the curve: constant points times a basis
+
+Differentiate $C(t) = \sum_{i=0}^{n} N_{i,p}(t)\,P_i$ term by term with Step 1:
+$$C'(t) = \sum_{i=0}^{n} \frac{p\,N_{i,p-1}}{u_{i+p}-u_i}\,P_i \;-\; \sum_{i=0}^{n} \frac{p\,N_{i+1,p-1}}{u_{i+p+1}-u_{i+1}}\,P_i.$$
+To combine them, make both multiply $N_{i+1,p-1}$: substitute $i \to i+1$ in the first sum, so it
+runs over $i = -1,\dots,n-1$ and its term becomes $\frac{p\,N_{i+1,p-1}}{u_{i+p+1}-u_{i+1}}P_{i+1}$ —
+the *same* coefficient as the second sum's. Two leftover terms remain, and on a clamped knot vector
+both vanish:
+- first sum, $i = -1$: $N_{0,p-1}$, supported on $[u_0, u_p)$, which is empty because $u_0 = \dots = u_p$;
+- second sum, $i = n$: $N_{n+1,p-1}$, supported on $[u_{n+1}, u_{n+p+1}) = [u_{n+1}, u_m)$, empty because
+  $u_{n+1} = \dots = u_m$.
+
+What is left runs over $i = 0,\dots,n-1$:
+$$C'(t) = \sum_{i=0}^{n-1} N_{i+1,p-1}(t)\,Q_i, \qquad
+Q_i = \frac{p}{u_{i+p+1}-u_{i+1}}\,(P_{i+1}-P_i). \qquad\blacksquare$$
+**Why the end knots disappear.** $N_{i+1,p-1}$ is built from the knots $u_{i+1},\dots,u_{i+p+1}$; as $i$
+runs over $0,\dots,n-1$, these use $u_1,\dots,u_{m-1}$ and never $u_0$ or $u_m$. Renaming $u'_j = u_{j+1}$
+turns $N_{i+1,p-1}$ on the old knots into $N_{i,p-1}$ on the trimmed vector $u'_0,\dots,u'_{m-2}$, so
+$C'$ is a degree-$(p-1)$ B-spline with control points $Q_0,\dots,Q_{n-1}$ on the knot vector with
+its first and last knot removed. The count checks: one point and one degree fewer is two knots
+fewer, $m' = (n-1) + (p-1) + 1 = m - 2$.
+
+As for Bezier, the $Q_i$ are constant — scaled edge vectors of the control polygon — and all of the
+$t$-dependence is in the basis. The scale is $p$ divided by $u_{i+p+1}-u_{i+1}$, the width of the
+knot window $P_i$ and $P_{i+1}$ share, where Bezier had just $n$. On Bezier knots $0^{p+1}1^{p+1}$
+every such window is $[0,1]$ and $n = p$, so the formula is exactly the Bezier one.
+`bspline_derivative` implements it and matches central differences to $10^{-7}$
 (`test_bspline_derivative_matches_finite_differences`). Applying it repeatedly is how the continuity
 claim in [[B_Splines]] was measured.
+
+### Step 3 — the last level of de Boor
+
+**Claim.** In the span $u_k \le t < u_{k+1}$,
+$$C'(t) = \frac{p}{u_{k+1}-u_k}\,\big(P_k^{p-1}(t) - P_{k-1}^{p-1}(t)\big).$$
+
+The Bezier proof read the two points off a split sum. Here the cleaner route is to show something
+stronger: **scaled differences of de Boor points are the de Boor points of the derivative.** Define,
+at every level $r = 0,\dots,p-1$,
+$$D_i^r = \frac{p}{u_{i+p-r}-u_i}\,\big(P_i^r - P_{i-1}^r\big), \qquad i = k-p+r+1,\dots,k.$$
+(The range is where both $P_i^r$ and $P_{i-1}^r$ exist. The denominators are never zero: for these
+$i$, $u_i \le u_k$ and $u_{i+p-r} \ge u_{k+1}$, so the window contains the non-empty span.)
+
+- *Level 0.* $D_i^0 = \frac{p}{u_{i+p}-u_i}(P_i - P_{i-1}) = Q_{i-1}$: the control points of the
+  derivative from Step 2, for $i = k-p+1,\dots,k$ — that is $Q_{k-p},\dots,Q_{k-1}$, exactly the $p$
+  points a degree-$(p-1)$ curve uses in this span.
+- *Each level is one de Boor step of the derivative.* Substitute the recursion
+  $P_i^r = (1-\alpha_{i,r})P_{i-1}^{r-1} + \alpha_{i,r}P_i^{r-1}$ for both points and collect, checking
+  the coefficient of $P_{i-1}^{r-1}$ (which appears in both):
+  $$P_i^r - P_{i-1}^r = \alpha_{i,r}\big(P_i^{r-1} - P_{i-1}^{r-1}\big) + (1-\alpha_{i-1,r})\big(P_{i-1}^{r-1} - P_{i-2}^{r-1}\big).$$
+  Replace each difference by its $D$ (the window at level $r-1$ is one knot wider), and use
+  $\alpha_{i,r}\,(u_{i+p+1-r}-u_i) = t-u_i$ and $(1-\alpha_{i-1,r})\,(u_{i+p-r}-u_{i-1}) = u_{i+p-r}-t$:
+  $$D_i^r = \frac{(t-u_i)\,D_i^{r-1} + (u_{i+p-r}-t)\,D_{i-1}^{r-1}}{u_{i+p-r}-u_i}
+  = (1-\beta_{i,r})\,D_{i-1}^{r-1} + \beta_{i,r}\,D_i^{r-1}, \qquad \beta_{i,r} = \frac{t-u_i}{u_{i+p-r}-u_i}.$$
+  And $\beta_{i,r}$ is exactly de Boor's ratio for a degree-$(p-1)$ curve on the trimmed knots
+  ($\alpha'_{j,r} = \frac{t-u'_j}{u'_{j+p-r}-u'_j}$ with $j = i-1$, $u'_j = u_{j+1}$).
+
+So $D^0, D^1, \dots, D^{p-1}$ is de Boor's algorithm run on the derivative curve of Step 2, and
+by the equivalence proved above, its last point is that curve's value: $C'(t) = D_k^{p-1}$, which
+is the claim. $\blacksquare$
+
+The one difference from Bezier is the scale: De Casteljau's last lerp runs over $[0,1]$, de Boor's
+over the span $[u_k, u_{k+1}]$ (its $\alpha_{k,p} = (t-u_k)/(u_{k+1}-u_k)$), and dividing by the span
+width converts "per unit of $\alpha$" into "per unit of $t$". On Bezier knots every window is
+$[0,1]$, $D$ is just $n$ times the difference, and this proof *is* a second proof of the Bezier
+result. The two forms agree to $1.1\times10^{-14}$ for degrees 1–4 on uneven knots
+(`test_derivative_from_the_last_de_boor_level`). So de Boor, like De Casteljau, hands out the
+tangent at no extra cost.
 
 ## Knot insertion — the B-spline form of subdivision
 
@@ -139,6 +255,6 @@ remove the redundant knots in the same pass.
 
 **Status**: exact. `de_boor`, `de_boor_stages`, `bspline_derivative`, `insert_knot`,
 `bspline_to_bezier`, `bezier_elevate`, `elevate_degree` implemented and tested in
-`tests/test_bspline.py`. Proved inline: de Boor ≡ basis sum, Bezier degree elevation. Knot insertion
-is proved *given* the blossoming theorem, which is cited, not proved; the derivative formula is
-stated and verified numerically. Knot removal is notes-only.
+`tests/test_bspline.py`. Proved inline: de Boor ≡ basis sum, the basis derivative, both derivative forms (hodograph and
+last de Boor level), Bezier degree elevation; the derivative forms are also measured. Knot insertion
+is proved *given* the blossoming theorem, which is cited, not proved. Knot removal is notes-only.

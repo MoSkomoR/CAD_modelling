@@ -190,6 +190,23 @@ def test_bspline_derivative_matches_finite_differences():
         assert np.allclose(bspline_curve(d_points, d_knots, d_p, [t]), fd, atol=1e-7)
 
 
+def test_derivative_from_the_last_de_boor_level():
+    """The de Boor counterpart of the Bezier last-lerp tangent, stated in
+    notes/01_Curves/De_Boor_Algorithm.md: in span k, C'(t) = p (P_k^{p-1} - P_{k-1}^{p-1}) /
+    (u_{k+1} - u_k). Compared against the hodograph from bspline_derivative."""
+    worst = 0.0
+    for p in (1, 2, 3, 4):
+        points, knots, _ = sample_curve(interior=[0.1, 0.35, 0.4, 0.8], n_ctrl=p + 5, seed=12, p=p)
+        d_points, d_knots, d_p = bspline_derivative(points, knots, p)
+        for t in np.linspace(0.0, 0.999, 57):
+            stages = de_boor_stages(points, knots, p, t)
+            k, last = stages["span"], stages["levels"][p - 1]
+            from_last_level = p * (last[1] - last[0]) / (knots[k + 1] - knots[k])
+            from_hodograph = bspline_curve(d_points, d_knots, d_p, [t])[0]
+            worst = max(worst, np.abs(from_last_level - from_hodograph).max())
+    assert worst < 1e-12
+
+
 # --- Knot insertion, Bezier decomposition, degree elevation --------------------------------------
 
 
