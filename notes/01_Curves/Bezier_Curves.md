@@ -157,7 +157,7 @@ Same point, $\left(\tfrac79, 2\right)$, as it must be. (Pinned in
 | cost per parameter value        | $\Theta(n)$ with a Horner-style scheme     | $\Theta(n^2)$                                                                                                         |
 | needs binomials & powers        | yes                                        | no — only $t$ and $1-t$                                                                                               |
 | intermediate quantities         | scalars: numbers with no geometric meaning | **points**: every one lies in the hull, and the whole triangle is on screen in script 02                              |
-| by-products                     | none                                       | both half-curves' control polygons, and $C'(t)=n\,(P_1^{n-1}-P_0^{n-1})$ — the last lerp's direction *is* the tangent |
+| by-products                     | none                                       | both half-curves' control polygons, and $C'(t)=n\,(P_1^{n-1}-P_0^{n-1})$ — the last lerp's direction *is* the tangent ([[De_Casteljau_Derivation]], with proof) |
 | extends to surfaces / rationals | needs new algebra                          | unchanged (affine combinations only)                                                                                  |
 
 The bottom two rows are the whole argument. Route 1 turns the control points into numbers and

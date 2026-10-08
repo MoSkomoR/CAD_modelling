@@ -181,6 +181,23 @@ def test_last_lerp_gives_the_tangent():
             assert np.allclose(tangent, finite_difference, rtol=1e-6)
 
 
+def test_bezier_hodograph_is_a_degree_n_minus_1_bezier_of_differences():
+    """The derivation in notes/01_Curves/De_Casteljau_Derivation.md ("The derivative"): C'(t) is
+    the degree-(n-1) Bezier curve on the constant points n (P_{j+1} - P_j), and evaluating that
+    curve by De Casteljau gives the same vector as the last level of the original triangle."""
+    rng = np.random.default_rng(11)
+    worst = 0.0
+    for n in (1, 2, 3, 5, 8):
+        control_points = rng.uniform(-1.0, 1.0, size=(n + 1, 3))
+        hodograph = n * np.diff(control_points, axis=0)
+        for t in np.linspace(0.0, 1.0, 11):
+            from_differences = bezier_de_casteljau(hodograph, t)
+            penultimate = np.asarray(de_casteljau_triangle(control_points, t)[n - 1])
+            from_last_level = n * (penultimate[1] - penultimate[0])
+            worst = max(worst, np.abs(from_differences - from_last_level).max())
+    assert worst < 1e-14
+
+
 def test_closed_form_and_de_casteljau_agree_at_high_degree():
     """The measurement behind the corrected stability claim in the notes.
 

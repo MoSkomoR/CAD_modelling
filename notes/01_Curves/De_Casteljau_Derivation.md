@@ -1,9 +1,9 @@
-Code: [[../../scripts/01_curves/02_bezier_de_casteljau.py]] — `bezier_de_casteljau`, `de_casteljau_triangle`, `bezier_subdivide` in `cadkernel/geometry/curves.py`
+- [ ] Code: [[../../scripts/01_curves/02_bezier_de_casteljau.py]] — `bezier_de_casteljau`, `de_casteljau_triangle`, `bezier_subdivide` in `cadkernel/geometry/curves.py`
 
 # De Casteljau's algorithm — the algorithm, and why kernels use it
 
 This note is about the **algorithm**: what it computes, why it equals the Bernstein form, and
-the two things it gives us that the closed form doesn't. The *properties* of the resulting curve
+the things it gives us besides the point (subdivision, the derivative). The *properties* of the resulting curve
 (convex hull, affine invariance, global support) are proved separately in
 [[Bernstein_Basis_Properties]]; the *motivation* for Bezier curves at all is in [[Bezier_Curves]].
 
@@ -84,6 +84,47 @@ tessellation (subdivide until each control polygon is flat to within tolerance �
 property is what makes "flat polygon ⇒ flat curve" a *guarantee* rather than a hope), ray
 casting, and trimming. Nothing comparable falls out of evaluating $\sum_i B_i^n(t) P_i$.
 
+## The derivative, for free
+
+The second by-product: the last two points of the triangle give the derivative.
+$$C'(t) = n\,\big(P_1^{n-1}(t) - P_0^{n-1}(t)\big).$$
+$C'(t)$ is the exact velocity vector, differentiated coordinate by coordinate, in any dimension:
+its direction is the tangent, its length the parametric speed (it is not normalized).
+
+**Proof.** Two ingredients: the binomial identities
+$i\binom{n}{i} = n\binom{n-1}{i-1}$ and $(n-i)\binom{n}{i} = n\binom{n-1}{i}$, and the claim proved
+above, $P_i^k(t) = \sum_{j=0}^{k} B_j^k(t)\,P_{i+j}$.
+
+1. *One basis function.* Product rule on $B_i^n = \binom{n}{i}t^i(1-t)^{n-i}$, then the identities:
+$$\frac{d}{dt}B_i^n(t) = \binom{n}{i}\Big[i\,t^{i-1}(1-t)^{n-i} - (n-i)\,t^i(1-t)^{n-i-1}\Big]
+= n\Big[B_{i-1}^{n-1}(t) - B_i^{n-1}(t)\Big],$$
+with the same convention $B_j^k \equiv 0$ outside $0 \le j \le k$.
+
+2. *The curve.* Substitute into $C(t) = \sum_{i=0}^{n} B_i^n(t)P_i$ and re-index the first sum
+($j = i-1$), the same move as in the equivalence proof:
+$$C'(t) = n\sum_{i=0}^{n}\Big[B_{i-1}^{n-1} - B_i^{n-1}\Big]P_i
+= \sum_{j=0}^{n-1} B_j^{n-1}(t)\;\underbrace{n\,(P_{j+1} - P_j)}_{\text{constant points}}.$$
+This is already a result worth keeping: **the derivative of a degree-$n$ Bezier curve is a
+degree-$(n-1)$ Bezier curve** (the *hodograph*), whose control points are the scaled edge vectors
+of the control polygon. They do not depend on $t$; all of the $t$-dependence is in the basis.
+
+3. *Evaluate it with De Casteljau.* Split the sum in two. By the claim with $k = n-1$,
+$$\sum_{j=0}^{n-1} B_j^{n-1}P_{j+1} = P_1^{n-1}(t), \qquad \sum_{j=0}^{n-1} B_j^{n-1}P_j = P_0^{n-1}(t),$$
+so $C'(t) = n\big(P_1^{n-1}(t) - P_0^{n-1}(t)\big)$. $\blacksquare$
+
+So there are two ways to write the same vector: **constant points times a basis** (step 2), or
+**the last level of the algorithm** (step 3). They agree to $1.3\times10^{-15}$ for degrees 1–8
+(`test_bezier_hodograph_is_a_degree_n_minus_1_bezier_of_differences`), and the last-level form
+matches a central difference (`test_last_lerp_gives_the_tangent`).
+
+**Where the factor $n$ comes from.** Algebraically, from differentiating $t^i$: the exponent comes
+down, $i\binom{n}{i} = n\binom{n-1}{i-1}$. Geometrically, the last step is $C = (1-t)A + tB$ with
+$A = P_0^{n-1}(t)$, $B = P_1^{n-1}(t)$ — but $A$ and $B$ move with $t$ too, so the product rule gives
+$$C' = (B - A) + \big[(1-t)A' + tB'\big].$$
+The last lerp itself contributes one copy of $B - A$; the motion of its two end points contributes
+the other $n-1$. Only for a line ($n = 1$), where $A = P_0$ and $B = P_1$ are fixed, is the
+derivative just $P_1 - P_0$.
+
 ## Numerical stability
 
 Every step of the recursion is a convex combination with weights $(1-t)$ and $t$, both in
@@ -120,5 +161,6 @@ places the closed form would need re-deriving:
   exactly how `rational_bezier` handles the weights that make exact circles possible
   ([[Lines_and_Arcs]]).
 
-**Status**: implemented exactly in code; the equivalence proof above is complete, and the
-subdivision and stability claims are covered by tests.
+**Status**: implemented exactly in code. Proved inline: the Bernstein equivalence and the
+derivative (hodograph and last-level forms). Stated and measured: subdivision, stability, and the
+agreement of the two derivative forms, all in `tests/test_curves.py`.
