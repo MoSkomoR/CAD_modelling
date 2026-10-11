@@ -12,8 +12,6 @@ from cadkernel.geometry.curves import (
     bezier_subdivide,
     de_casteljau_triangle,
     line,
-    rational_arc_quadratic,
-    rational_bezier,
 )
 
 
@@ -254,29 +252,6 @@ def test_bezier_subdivide_halves_meet_on_curve():
     left, right = bezier_subdivide(control_points, s)
     assert np.allclose(left[-1], right[0])
     assert np.allclose(left[-1], bezier_curve(control_points, s)[0])
-
-
-# --- Rational Bezier: what polynomials provably cannot do ---------------------------------
-
-
-def test_rational_quadratic_is_an_exact_circular_arc():
-    """A polynomial Bezier can only approximate a circle; the rational quadratic *is* one,
-    to machine precision. This is the claim script 04 demonstrates visually."""
-    center, radius = np.array([0.3, -0.7]), 2.4
-    cps, weights = rational_arc_quadratic(center, radius, theta0=0.2, theta1=0.2 + np.pi / 2)
-    pts = rational_bezier(cps, weights, np.linspace(0, 1, 101))
-    err = np.abs(np.linalg.norm(pts - center, axis=1) - radius)
-    assert err.max() < 1e-13, f"max radial error {err.max():.2e}"
-
-
-def test_rational_bezier_reduces_to_polynomial_when_weights_equal():
-    control_points = np.array([[0.0, 0.0], [1.0, 3.0], [2.0, -1.0], [4.0, 2.0]])
-    t = np.linspace(0, 1, 25)
-    unit = np.ones(len(control_points))
-    assert np.allclose(rational_bezier(control_points, unit, t), bezier_curve(control_points, t))
-    # ... and weights are scale-invariant: only their ratios matter.
-    assert np.allclose(rational_bezier(control_points, 3.7 * unit, t),
-                       bezier_curve(control_points, t))
 
 
 # --- Affine invariance ---------------------------------------------------------------------

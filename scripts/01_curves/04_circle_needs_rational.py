@@ -24,19 +24,16 @@ Tick "rational quadratic" to see 3 control points land on the circle at machine 
 (The polynomial fit is least-squares in the natural uniform-angle parametrization. A cleverer
 parametrization moves the constant, never the conclusion.)
 
-Notes: notes/01_Curves/Lines_and_Arcs.md, notes/01_Curves/Bezier_Curves.md
+Notes: notes/01_Curves/Lines_and_Arcs.md, notes/01_Curves/Bezier_Curves.md,
+       notes/01_Curves/NURBS.md
 Run:   python scripts/01_curves/04_circle_needs_rational.py
 """
 
 import matplotlib.pyplot as plt
 import numpy as np
 
-from cadkernel.geometry.curves import (
-    bernstein_basis,
-    bezier_curve,
-    rational_arc_quadratic,
-    rational_bezier,
-)
+from cadkernel.geometry.curves import bernstein_basis, bezier_curve
+from cadkernel.geometry.nurbs import rational_arc_quadratic, rational_bezier
 from cadkernel.viz.interactive import add_checkbuttons, add_slider, run
 
 CENTRE = np.array([0.0, 0.0])

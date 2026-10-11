@@ -24,7 +24,7 @@ def arc(center: np.ndarray, radius: float, t: np.ndarray,
     with theta linearly interpolated between theta0 and theta1 as t goes 0 -> 1.
 
     This is the "analytic" way to represent a circle: exact, but not a polynomial curve,
-    which is exactly why Bezier/B-spline curves (rational forms, see NURBS) exist -- CAD
+    which is exactly why Bezier/B-spline curves (rational forms, see geometry/nurbs.py) exist -- CAD
     kernels need a *single* curve representation that can do lines, conics, and free-form
     shapes, and plain trig functions don't compose with that machinery.
     """
@@ -116,52 +116,6 @@ def bezier_elevate(control_points: np.ndarray) -> np.ndarray:
     i = np.arange(1, n + 1)[:, None] / (n + 1)
     interior = i * points[:-1] + (1 - i) * points[1:]
     return np.vstack([points[:1], interior, points[-1:]])
-
-
-def rational_bezier(control_points: np.ndarray, weights: np.ndarray, t: np.ndarray) -> np.ndarray:
-    """Evaluate a *rational* Bezier curve -- the R in NURBS, minus the non-uniform knots.
-
-    Each control point gets a weight w_i. The trick is that a rational curve in d dimensions is
-    just an ordinary polynomial Bezier curve in d+1 *homogeneous* dimensions, projected back
-    down: lift (P_i, w_i) -> (w_i P_i, w_i), run plain De Casteljau up there, then divide by the
-    last coordinate.
-
-        C(t) = sum_i B_i^n(t) w_i P_i / sum_i B_i^n(t) w_i
-
-    This is why "rational" costs the kernel almost nothing in new machinery, and it buys
-    something polynomials provably cannot do: exact circles and other conics (see the
-    impossibility proof in notes/01_Curves/Lines_and_Arcs.md).
-    """
-    points = np.asarray(control_points, dtype=float)
-    w = np.asarray(weights, dtype=float)
-    homogeneous = np.concatenate([points * w[:, None], w[:, None]], axis=1)
-    t = np.atleast_1d(np.asarray(t, dtype=float))
-    lifted = np.array([bezier_de_casteljau(homogeneous, ti) for ti in t])
-    return lifted[:, :-1] / lifted[:, -1:]
-
-
-def rational_arc_quadratic(center: np.ndarray, radius: float, theta0: float,
-                            theta1: float) -> tuple[np.ndarray, np.ndarray]:
-    """Control points and weights of the *exact* rational quadratic Bezier for a circular arc.
-
-    Requires a sweep of less than pi (a full circle is built from several such arcs). The
-    endpoints sit on the circle; the middle control point is where the two endpoint tangents
-    meet, at distance radius / cos(delta/2) along the angle bisector; the weights are
-    (1, cos(delta/2), 1) where delta = theta1 - theta0.
-
-    Used by scripts/01_curves/04_circle_needs_rational.py to show the error against a true
-    circle collapse from "small but never zero" (polynomial) to machine epsilon (rational).
-    """
-    center = np.asarray(center, dtype=float)
-    delta = theta1 - theta0
-    if not 0 < abs(delta) < np.pi:
-        raise ValueError("rational quadratic arc requires 0 < |theta1 - theta0| < pi")
-    mid_angle = 0.5 * (theta0 + theta1)
-    on_circle = lambda a: center + radius * np.array([np.cos(a), np.sin(a)])
-    p1 = center + (radius / np.cos(delta / 2)) * np.array([np.cos(mid_angle), np.sin(mid_angle)])
-    control_points = np.array([on_circle(theta0), p1, on_circle(theta1)])
-    weights = np.array([1.0, np.cos(delta / 2), 1.0])
-    return control_points, weights
 
 
 def de_casteljau_triangle(control_points: np.ndarray, t: float) -> list[np.ndarray]:
