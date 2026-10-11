@@ -88,6 +88,9 @@ The formulas are the easy part — the repo exists for the reasoning. Every note
 - Open with a `Code:` link to the implementing script/module; close with a `**Status**:` line
   giving fidelity (exact / simplified / notes-only) and what is tested or visualized.
 - Cross-link liberally with `[[wikilinks]]`.
+- Notes are hard-wrapped, and the vault uses Obsidian's "Strict line breaks", so a single newline
+  is never a visible break. Use a blank line, a list item or a `$$` block when one is needed.
+  Don't nest tables inside list items; Obsidian renders them unreliably.
 - **Say which epistemic footing every claim is on.** This repo's notes mix three kinds of
   statement, and the `**Status**:` line must separate them explicitly:
   1. **proved inline** — the derivation is in the note (Bernstein ⇔ De Casteljau, Cox–de Boor
@@ -119,7 +122,7 @@ $[u_p, u_{n+1}]$, clamped knot vectors by default. Keep Bezier notation as modul
 symbols must line up there.
 
 Library modules pair with their tests one-to-one: `geometry/<topic>.py` ↔ `tests/test_<topic>.py`
-(`curves`/`surfaces`/`bspline`). Keep that pairing for new topics.
+(`curves`/`surfaces`/`bspline`/`nurbs`). Keep that pairing for new topics.
 
 ## Style
 
