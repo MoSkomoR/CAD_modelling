@@ -16,7 +16,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backend_bases import MouseEvent
-from matplotlib.widgets import CheckButtons, Slider
+from matplotlib.widgets import CheckButtons, RadioButtons, Slider
 
 
 def in_smoke_mode() -> bool:
@@ -92,6 +92,11 @@ class DraggableControlPoints:
         self.points[index] = xy
         self._refresh()
 
+    def set_points(self, points) -> None:
+        """Replace every control point (the count may change), firing the callback once."""
+        self.points = np.array(points, dtype=float)
+        self._refresh()
+
     def simulate_drag(self, index: int, to_xy) -> None:
         """Synthesize a real press/motion/release sequence, so smoke runs exercise the actual
         picking and dragging handlers rather than bypassing them."""
@@ -117,6 +122,15 @@ def add_slider(fig, rect, label, valmin, valmax, valinit, on_change=None, valfmt
 def add_checkbuttons(fig, rect, labels, states, on_change=None):
     ax = fig.add_axes(rect)
     buttons = CheckButtons(ax, labels, states)
+    if on_change is not None:
+        buttons.on_clicked(on_change)
+    return buttons
+
+
+def add_radiobuttons(fig, rect, labels, active=0, on_change=None):
+    """One-of-many choice (presets). on_change receives the selected label."""
+    ax = fig.add_axes(rect)
+    buttons = RadioButtons(ax, labels, active=active)
     if on_change is not None:
         buttons.on_clicked(on_change)
     return buttons
