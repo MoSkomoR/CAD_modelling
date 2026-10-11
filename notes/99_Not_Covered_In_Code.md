@@ -23,6 +23,13 @@ topic comes up during a script/note session that we decide not to implement.
 - **Knot removal** — the inverse of knot insertion, within a tolerance. Without it,
   `elevate_degree` leaves every breakpoint at multiplicity p+1: the curve is unchanged, but the
   representation carries redundant knots ([[01_Curves/De_Boor_Algorithm]]).
+- **Arc-length parametrization** — the NURBS circle is exact in shape but not in speed
+  ($|C'|$ varies by a factor $\approx 1.17$, [[01_Curves/NURBS]]), and no rational parametrization
+  of the circle has constant speed (cited, not proved). Kernels reparametrize numerically when
+  arc length matters; not implemented here.
+- **NURBS degree elevation, Bezier decomposition, knot removal** — all follow by applying the
+  B-spline versions to the lifted points $(w_iP_i, w_i)$ ([[01_Curves/NURBS_Derivations]] §9); only
+  knot insertion is wired up for NURBS (`nurbs_insert_knot`).
 - **Least-squares curve approximation** — fitting fewer control points than data points, to a
   tolerance, for noisy measured data. Only exact interpolation is implemented
   ([[01_Curves/B_Spline_Interpolation]]).

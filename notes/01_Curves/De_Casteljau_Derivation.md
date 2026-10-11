@@ -158,7 +158,7 @@ places the closed form would need re-deriving:
 - **tensor-product surfaces** — run it in $u$ across rows of the control net, then in $v$ on the
   results;
 - **rational curves** — run it in homogeneous coordinates and project at the end, which is
-  exactly how `rational_bezier` handles the weights that make exact circles possible
+  exactly how `rational_bezier` (`geometry/nurbs.py`) handles the weights that make exact circles possible
   ([[Lines_and_Arcs]]).
 
 **Status**: implemented exactly in code. Proved inline: the Bernstein equivalence and the

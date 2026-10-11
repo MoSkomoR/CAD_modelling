@@ -115,7 +115,8 @@ polynomial curve in homogeneous coordinates and projected back down, gives
 $$C(t) = \frac{\sum_i B_i^n(t)\,w_i P_i}{\sum_i B_i^n(t)\,w_i},$$
 and a circular arc becomes an *exact* rational quadratic: three control points (the two arc
 endpoints and the intersection of their tangents) with weights $(1, \cos(\delta/2), 1)$ for a
-sweep of $\delta$. Verified to 3.3e-16 in `test_rational_quadratic_is_an_exact_circular_arc`.
+sweep of $\delta$. Verified to 3.3e-16 in `test_rational_quadratic_is_an_exact_circular_arc`; proved in
+[[NURBS_Derivations]] §3.
 
 That is the **R** in NURBS, and it is why the letter is there: rational is not a refinement of
 the polynomial case, it is the thing that makes conics representable at all. The **NU** —
@@ -123,5 +124,7 @@ non-uniform knots, giving local control — is the other half of the story, moti
 of [[Bernstein_Basis_Properties]] and in [[Bezier_Curves]].
 
 **Status**: lines, arcs, and the exact rational quadratic arc implemented in code
-(`cadkernel.geometry.curves.line`, `.arc`, `.rational_arc_quadratic`, `.rational_bezier`);
+(`cadkernel.geometry.curves.line`, `.arc`; `cadkernel.geometry.nurbs.rational_arc_quadratic`,
+`.rational_bezier`); the general NURBS machinery and the arc proof are in [[NURBS]] and
+[[NURBS_Derivations]];
 impossibility proof complete above; approximation behaviour measured, not assumed.

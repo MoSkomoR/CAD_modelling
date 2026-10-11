@@ -22,7 +22,7 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | B-splines — Cox–de Boor basis, local support, continuity | [[../scripts/01_curves/05_bspline_basis.py]], [[../scripts/01_curves/06_bspline_local_control.py]] | exact (proofs; continuity measured) | [[01_Curves/B_Splines]] |
 | De Boor, knot insertion, Bezier decomposition, degree elevation | [[../scripts/01_curves/06_bspline_local_control.py]] | exact (no knot removal) | [[01_Curves/De_Boor_Algorithm]] |
 | B-spline interpolation & parametrization choice | [[../scripts/01_curves/07_bspline_interpolation.py]] | exact | [[01_Curves/B_Spline_Interpolation]] |
-| NURBS (full: knots + weights) | not started | — | not started |
+| NURBS — weights, exact conics, projective invariance | [[../scripts/01_curves/08_nurbs_weights.py]] | exact (proofs; one classification cited) | [[01_Curves/NURBS]], [[01_Curves/NURBS_Derivations]] |
 
 ## 02 — Surfaces
 | Topic | Script | Fidelity | Note |

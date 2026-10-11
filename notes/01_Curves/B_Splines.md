@@ -4,7 +4,7 @@ Code: [[../../scripts/01_curves/05_bspline_basis.py]], [[../../scripts/01_curves
 
 The motivation hub for B-splines. The evaluation algorithm, knot insertion and degree elevation
 are in [[De_Boor_Algorithm]]; fitting a curve *through* points is in [[B_Spline_Interpolation]].
-The rational extension (the R in NURBS) comes after.
+The rational extension (the R in NURBS) comes after, in [[NURBS]].
 
 ## The problem being fixed
 
@@ -146,7 +146,7 @@ them reaches 1.
   them.
 - **Still polynomial.** Every piece is a polynomial, so the circle proof in [[Lines_and_Arcs]]
   applies unchanged: no B-spline of any degree or knot vector is exactly a circle. That is the
-  remaining limitation, and the one weights fix.
+  remaining limitation, and the one weights fix ([[NURBS]]).
 - **Evaluation needs a span search.** Bezier evaluation starts immediately; a B-spline must first
   find which span $t$ is in (`find_span`, a binary search). Cheap, but a source of real bugs at the
   right end of the domain, where the half-open spans would otherwise leave $t = u_{n+1}$ uncovered

@@ -91,7 +91,8 @@ you rotate and shear.)
 argument breaks — the denominators don't distribute. Polynomial Bezier curves are affinely but
 not projectively invariant. Rational curves are both, because a projective map is just a linear
 map upstairs in homogeneous coordinates, which is precisely where `rational_bezier` does its
-work. One more reason NURBS is the representation kernels standardize on ([[Bezier_Curves]]).
+work. One more reason NURBS is the representation kernels standardize on ([[Bezier_Curves]]); the
+proof, and the catch that the weights change, are in [[NURBS_Derivations]] §5.
 
 ## Global support (and why B-splines exist)
 

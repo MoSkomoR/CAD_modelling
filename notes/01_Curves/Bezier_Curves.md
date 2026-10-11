@@ -249,7 +249,7 @@ $$C(t) = \frac{\sum_i B_i^n(t)\,w_i P_i}{\sum_i B_i^n(t)\,w_i}.$$
 This buys the exact conics — circles, ellipses, parabolas, hyperbolas — at three control points
 instead of fourteen, and it upgrades affine invariance to **projective** invariance, since a
 projective map is just a linear map one dimension up. The weights are also an extra shape handle
-in their own right.
+in their own right — less of one than this suggests, as [[NURBS]] measures.
 
 The two fixes compose, and the result is the single representation kernels standardize on and
 STEP/IGES interchange: NURBS can express every line, arc and conic *exactly*, every free-form
@@ -257,9 +257,7 @@ shape to tolerance, with local control, one code path for intersection, offsetti
 tessellation — which is exactly the closure [[Lines_and_Arcs]] argued a kernel cannot do without.
 
 **Status**: implemented exactly in code (`bezier_curve`, `bezier_de_casteljau`,
-`de_casteljau_triangle`, `bezier_subdivide`, `bernstein_basis`, plus `rational_bezier` as an
-early taste of the R); tested in `tests/test_curves.py` — the explicit expansions, the peak and
+`de_casteljau_triangle`, `bezier_subdivide`, `bernstein_basis`); tested in `tests/test_curves.py` — the explicit expansions, the peak and
 symmetry facts, the worked $t=\tfrac13$ evaluation (both routes, exact fractions), the tangent
 by-product and the high-degree accuracy comparison each have a test. B-splines are implemented in
-[[B_Splines]], [[De_Boor_Algorithm]] and [[B_Spline_Interpolation]]; full NURBS not yet — see
-[[../00_Map_of_Content|Map of Content]].
+[[B_Splines]], [[De_Boor_Algorithm]] and [[B_Spline_Interpolation]], and the weights in [[NURBS]].
