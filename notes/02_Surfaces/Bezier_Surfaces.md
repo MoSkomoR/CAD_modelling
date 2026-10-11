@@ -157,11 +157,12 @@ tensor product inherited them along with everything else:
 
 Add both fixes to the tensor product and you have the NURBS surface — one representation holding
 planes, cylinders, spheres, tori and free-form patches alike, with the curve algorithms of module
-01 still doing the work underneath, one direction at a time.
+01 still doing the work underneath, one direction at a time. Delivered in [[NURBS_Surfaces]], and
+the sphere, cylinder, cone and torus in [[Surfaces_of_Revolution]].
 
 **Status**: implemented exactly in code (`bezier_surface_point`, `bezier_surface`,
 `de_casteljau_surface_stages`, `bezier_isocurve`, `bezier_surface_partials`,
 `bezier_surface_normal`, `bezier_surface_subdivide`); every claim above with a number attached is
 covered in `tests/test_surfaces.py`, except the variation-diminishing remark, which is flagged as
 stated-not-verified. Triangular Bezier patches are now implemented too, in [[Bezier_Triangles]].
-Rational/B-spline surfaces are not implemented.
+Rational and B-spline surfaces are in [[NURBS_Surfaces]].

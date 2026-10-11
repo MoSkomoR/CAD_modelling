@@ -29,9 +29,9 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 |---|---|---|---|
 | Bezier surfaces — tensor product, De Casteljau twice | [[../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] | exact | [[02_Surfaces/Bezier_Surfaces]] |
 | Triangular Bezier patches (barycentric De Casteljau) | [[../scripts/02_surfaces/02_bezier_triangle_de_casteljau.py]] | exact (subdivision not-started) | [[02_Surfaces/Bezier_Triangles]] |
-| Analytic surfaces (plane/cylinder/sphere/cone/torus) | not started | — | not started |
-| B-spline & NURBS surfaces | not started | — | not started |
-| Normals & curvature | partial (`bezier_surface_normal`) | exact | [[02_Surfaces/Bezier_Surfaces]] |
+| B-spline & NURBS surfaces — curve of curves, local support, weights | [[../scripts/02_surfaces/03_bspline_surface_tensor.py]] | exact | [[02_Surfaces/NURBS_Surfaces]] |
+| Analytic surfaces (cylinder/cone/sphere/torus) as NURBS surfaces of revolution; poles | [[../scripts/02_surfaces/04_surface_of_revolution.py]] | exact (hairy ball theorem cited) | [[02_Surfaces/Surfaces_of_Revolution]] |
+| Normals & curvature | partial (`bezier_surface_normal`, `nurbs_surface_normal`; no curvature) | exact | [[02_Surfaces/Bezier_Surfaces]], [[02_Surfaces/Surfaces_of_Revolution]] |
 
 ## 03 — Topology
 Not started. Planned: half-edge mesh structure, Euler operators, Euler's formula derivation,

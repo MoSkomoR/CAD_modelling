@@ -30,6 +30,14 @@ topic comes up during a script/note session that we decide not to implement.
 - **NURBS degree elevation, Bezier decomposition, knot removal** — all follow by applying the
   B-spline versions to the lifted points $(w_iP_i, w_i)$ ([[01_Curves/NURBS_Derivations]] §9); only
   knot insertion is wired up for NURBS (`nurbs_insert_knot`).
+- **Trimmed surfaces** — a NURBS patch restricted to a region of its $(u, v)$ domain bounded by
+  curves (a plate with a hole, a face cut by a boolean). Every B-rep face in a real kernel is one;
+  this repo's surfaces are always the full parameter rectangle ([[02_Surfaces/NURBS_Surfaces]]).
+- **NURBS surface degree elevation, Bezier decomposition, knot removal** — the curve versions
+  applied per direction to the lifted net; only knot insertion is wired up for surfaces
+  (`nurbs_surface_insert_knot`).
+- **Pole-free sphere parametrizations** — multi-patch spheres (e.g. six patches on a cube) that
+  avoid the collapsed rows of the single revolved patch ([[02_Surfaces/Surfaces_of_Revolution]]).
 - **Least-squares curve approximation** — fitting fewer control points than data points, to a
   tolerance, for noisy measured data. Only exact interpolation is implemented
   ([[01_Curves/B_Spline_Interpolation]]).
