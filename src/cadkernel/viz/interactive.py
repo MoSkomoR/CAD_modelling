@@ -16,7 +16,7 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.backend_bases import MouseEvent
-from matplotlib.widgets import CheckButtons, RadioButtons, Slider
+from matplotlib.widgets import Button, CheckButtons, RadioButtons, Slider
 
 
 def in_smoke_mode() -> bool:
@@ -134,6 +134,19 @@ def add_radiobuttons(fig, rect, labels, active=0, on_change=None):
     if on_change is not None:
         buttons.on_clicked(on_change)
     return buttons
+
+
+def add_button(fig, rect, label, on_click=None):
+    ax = fig.add_axes(rect)
+    button = Button(ax, label)
+    if on_click is not None:
+        button.on_clicked(on_click)
+    return button
+
+
+def press(button) -> None:
+    """Fire a button's click callbacks, as a real click would (for smoke hooks)."""
+    button._observers.process("clicked", None)
 
 
 def run(fig, smoke_hook=None) -> None:
