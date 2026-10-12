@@ -122,7 +122,7 @@ $[u_p, u_{n+1}]$, clamped knot vectors by default. Keep Bezier notation as modul
 symbols must line up there.
 
 Library modules pair with their tests one-to-one: `geometry/<topic>.py` ↔ `tests/test_<topic>.py`
-(`curves`/`surfaces`/`bspline`/`nurbs`/`nurbs_surfaces`). Keep that pairing for new topics.
+(`curves`/`surfaces`/`bspline`/`nurbs`/`nurbs_surfaces`, and `topology/halfedge.py` ↔ `tests/test_halfedge.py`). Keep that pairing for new topics.
 
 ## Style
 

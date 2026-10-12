@@ -46,6 +46,10 @@ topic comes up during a script/note session that we decide not to implement.
   intersection/boolean algorithms so results stay topologically consistent.
 - **Non-manifold topology, sheet bodies, lattice/cellular topology** — this repo's half-edge
   structure targets manifold solids only.
+- **Multi-shell solids (internal voids)** — the operators allow more than one shell, but no
+  construction here builds one, and shells are counted, not stored ([[03_Topology/B_Rep_Topology]]).
+- **Self-intersection checks** — `check` validates topology and planarity, not whether faces pass
+  through each other; that is a geometric test with tolerances ([[03_Topology/B_Rep_Topology]]).
 - **Adaptive tessellation** — real kernels tessellate curved surfaces adaptively (denser mesh
   where curvature is higher) for display/export; this repo uses uniform parameter-space
   sampling throughout.

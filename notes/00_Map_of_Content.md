@@ -34,8 +34,11 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | Normals & curvature | partial (`bezier_surface_normal`, `nurbs_surface_normal`; no curvature) | exact | [[02_Surfaces/Bezier_Surfaces]], [[02_Surfaces/Surfaces_of_Revolution]] |
 
 ## 03 — Topology
-Not started. Planned: half-edge mesh structure, Euler operators, Euler's formula derivation,
-shared-edge queries, solid/manifold validity checks.
+| Topic                                                                    | Script                                               | Fidelity                                      | Note                            |
+| ------------------------------------------------------------------------ | ---------------------------------------------------- | --------------------------------------------- | ------------------------------- |
+| B-rep topology — why topology, why half-edges                            | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact (polyhedral)                            | [[03_Topology/B_Rep_Topology]]  |
+| Half-edge structure: invariants, navigation, orientation, validity check | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact                                         | [[03_Topology/Half_Edge]]       |
+| Euler operators, Euler's formula, Euler–Poincaré, genus                  | [[../scripts/03_topology/02_euler_operators.py]]     | exact (Euler–Poincaré and completeness cited) | [[03_Topology/Euler_Operators]] |
 
 ## 04 — Modeling operations
 Not started. Planned: extrude, revolve, sweep (Frenet frames & twist), loft.
