@@ -15,10 +15,20 @@ So the question is not whether to interpolate but **with what**. The answer is a
 reason is exactly the one that made B-splines worth building ([[B_Splines]]): low degree, piecewise,
 local.
 
-## Why not one polynomial
+## Why not one polynomial: Runge's phenomenon
 
-Runge's function $1/(1+25x^2)$, sampled at equally spaced $x$ on $[-1,1]$, interpolated by one
-polynomial through all the points versus a cubic B-spline through the same points and parameters
+Through $n+1$ points with distinct parameters there is exactly one polynomial of degree $n$ (its
+$n+1$ coefficients are fixed by the $n+1$ conditions). Using it looks like the natural way to
+interpolate. **Runge's phenomenon** is why it is not: as more equally spaced points are added,
+that polynomial oscillates more and more between them, worst near the ends of the interval, even
+when the function being sampled is perfectly smooth.
+
+Carl Runge (1901) showed it with what is now called **Runge's function**
+$$f(x) = \frac{1}{1 + 25x^2}, \qquad x \in [-1, 1],$$
+a smooth bell-shaped curve. Sample it at $n+1$ equally spaced $x$ and let $p_n$ be the degree-$n$
+polynomial through those samples. Then the largest error $\max_{x\in[-1,1]} |f(x) - p_n(x)|$
+grows without bound as $n \to \infty$. That is cited, not proved here. Measured, with the same
+points and parameters given to one polynomial and to a cubic B-spline
 (`test_piecewise_interpolation_escapes_runge`):
 
 | points | one polynomial: max error | cubic B-spline: max error |
@@ -56,11 +66,31 @@ for $A$ to be non-singular. That condition is cited, not proved here.
 
 ## Choosing the parameters — measured, not assumed
 
-Three standard rules for $t_k$, all normalized to run from 0 to 1:
+Think of $t$ as time running from 0 to 1: the curve is at $Q_k$ at time $t_k$, so a rule for the
+$t_k$ decides how much time the curve gets to travel from each point to the next. Let
+$$d_k = |Q_k - Q_{k-1}|, \qquad k = 1,\dots,n$$
+be the distance between consecutive data points (the length of the **chord**, the straight
+segment joining them). The three standard rules all take the form
+$$t_0 = 0, \qquad t_k = t_{k-1} + \frac{d_k^{\,e}}{\sum_{j=1}^{n} d_j^{\,e}},$$
+so that $t_n = 1$, and differ only in the exponent $e$:
 
-- **uniform** — equal steps, ignoring geometry;
-- **chord length** — steps proportional to $|Q_k - Q_{k-1}|$;
-- **centripetal** — steps proportional to $\sqrt{|Q_k - Q_{k-1}|}$ (Lee, 1989).
+- **uniform**, $e = 0$: every step gets the same time, $1/n$, whatever the distance;
+- **chord length**, $e = 1$: time proportional to distance;
+- **centripetal**, $e = \tfrac12$: time proportional to the square root of the distance
+  (Lee, 1989, who named it).
+
+On the "uneven" data set of script 07, whose gaps are $d = 0.32, 0.22, 2.94, 0.28, 0.41, 3.14$
+(`test_parameters_on_the_uneven_data`):
+
+| rule | $t_0$ | $t_1$ | $t_2$ | $t_3$ | $t_4$ | $t_5$ | $t_6$ |
+|---|---|---|---|---|---|---|---|
+| uniform | 0 | 0.17 | 0.33 | 0.50 | 0.67 | 0.83 | 1 |
+| chord length | 0 | 0.04 | 0.07 | 0.48 | 0.51 | 0.57 | 1 |
+| centripetal | 0 | 0.10 | 0.18 | 0.48 | 0.58 | 0.69 | 1 |
+
+Uniform gives the 0.22 gap as much time as the 2.94 gap. Chord length gives the long gaps almost
+all the time. Centripetal sits between: the square root shrinks the ratio of the longest to the
+shortest gap from about 13 to about 3.7.
 
 Chord length is the default in most textbooks. Measured on three deliberately awkward data sets
 (cubic; "stray" is the largest distance from the curve to the data polyline)
@@ -98,6 +128,6 @@ passes *near* the points within a tolerance — which is a different solve and i
 ([[../99_Not_Covered_In_Code]]). End-derivative constraints (clamped tangents) are also left out.
 
 **Status**: exact. `interpolation_parameters`, `averaged_knots`, `interpolate_points`
-implemented; residuals, the Runge comparison, the parametrization table and the polynomial
-contrast are all produced by `tests/test_bspline.py`. The Schoenberg–Whitney condition is cited,
-not proved.
+implemented; residuals, the parameter values, the Runge comparison, the parametrization table and
+the polynomial contrast are all produced by `tests/test_bspline.py`. Cited, not proved: the
+Schoenberg–Whitney condition, and that Runge's interpolants diverge (Runge 1901).

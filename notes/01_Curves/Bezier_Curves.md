@@ -28,8 +28,10 @@ the representation a numerical analyst reaches for first, and it fails as a *des
 
 **Interpolation through points.** Store $k$ points and pass a single polynomial through all of
 them (Lagrange). Now the numbers *are* geometric — but:
-- **Runge oscillation**: high-degree interpolants wiggle violently between the points, worst near
-  the ends. The curve does things you did not ask for.
+- **Runge's phenomenon**: as points are added, the interpolating polynomial (whose degree grows
+  with the number of points) oscillates more and more between them, worst near the ends. The
+  curve does things you did not ask for. Defined and measured in
+  [[B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]].
 - Still no local control, and no containment guarantee.
 - Interpolation is the wrong interface anyway: a designer wants to *pull* a shape into place,
   not to guess a sequence of points the curve must hit exactly.

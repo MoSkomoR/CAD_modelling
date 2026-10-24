@@ -14,6 +14,7 @@ from cadkernel.geometry.bspline import (
     find_span,
     insert_knot,
     interpolate_points,
+    interpolation_parameters,
 )
 from cadkernel.geometry.curves import (
     bernstein_basis,
@@ -290,6 +291,21 @@ PARAMETRIZATION_DATA = {
     "uneven": [[0, 0], [0.1, 0.3], [0.2, 0.1], [3, 1], [3.2, 0.8], [3.1, 1.2], [6, 0]],
     "cluster": [[0, 0], [4, 0], [4.1, 0.05], [4.15, 0.2], [4.1, 0.35], [4, 0.4], [0, 0.4]],
 }
+
+
+def test_parameters_on_the_uneven_data():
+    """The three rules on the "uneven" set, whose gaps are short, short, long, short, short, long.
+    Quoted in script 07 and B_Spline_Interpolation.md."""
+    data = np.asarray(PARAMETRIZATION_DATA["uneven"], dtype=float)
+    gaps = np.linalg.norm(np.diff(data, axis=0), axis=1)
+    assert np.allclose(gaps.round(2), [0.32, 0.22, 2.94, 0.28, 0.41, 3.14])
+    expected = {
+        "uniform": [0, 0.17, 0.33, 0.5, 0.67, 0.83, 1],
+        "chord": [0, 0.04, 0.07, 0.48, 0.51, 0.57, 1],
+        "centripetal": [0, 0.1, 0.18, 0.48, 0.58, 0.69, 1],
+    }
+    for method, params in expected.items():
+        assert np.allclose(interpolation_parameters(data, method).round(2), params)
 
 
 def test_parametrization_comparison():

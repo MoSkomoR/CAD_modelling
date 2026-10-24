@@ -126,8 +126,8 @@ and measured in [[B_Splines]].
 Stated without proof (it follows from the corner-cutting view of subdivision): **no straight
 line crosses the curve more often than it crosses the control polygon.** So the curve cannot
 oscillate more than its control polygon suggests — no Runge-style wiggles appearing between the
-points you placed. This is the formal version of "Bezier curves do what they look like they will
-do", and it is a large part of why the control-point paradigm is usable for design at all.
+points you placed ([[B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]]). This
+is the formal version of "Bezier curves do what they look like they will do", and it is a large part of why the control-point paradigm is usable for design at all.
 
 **Status**: proofs complete for the four properties above; variation diminishing is stated and
 referenced, not derived. All four are exercised interactively by

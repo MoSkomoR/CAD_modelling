@@ -1,23 +1,75 @@
 """Interpolation: drag the *data points*, and a cubic B-spline is solved to pass through them.
 
-Everywhere else in module 01 you drag control points and the curve follows them loosely. Here
-the dragged points are data the curve must hit exactly, and the control points are an *output*:
-one linear solve, sum_i N_{i,p}(t_k) P_i = Q_k, per redraw. Tick "control polygon" to see the
-solved control points (for the centripetal curve) -- they are nowhere near the data.
+WHAT YOU SEE
+------------
+Seven black dots are the data points Q_0 .. Q_6. Up to three coloured curves pass exactly
+through all of them -- blue, red and green. They differ only in one choice (below). Drag any
+dot and all three curves are re-solved at once.
 
-Before the solve you must choose which parameter t_k each data point is hit at, and the choice
-matters far more than it looks. The starting data set is the "uneven" one from
-test_parametrization_comparison:
-  * uniform      ignores spacing -- here it loops,
-  * chord length (the usual default) -- here it overshoots by ~5 units,
-  * centripetal  (square-root chord) -- the only one clean on all three test sets.
-The title reports, for each shown curve, the worst interpolation residual (always ~1e-16 -- every
-curve does hit every point) and whether it self-intersects.
+Checkboxes on the right:
+  * uniform / chord / centripetal -- show or hide each of the three curves.
+  * control polygon  -- the control points that were *solved for* to make the green curve hit
+                        the dots. Note how far from the data they sit.
+  * single polynomial -- the dashed grey curve: one polynomial through all seven dots, instead
+                        of a spline, for comparison (see "Runge's phenomenon" below).
+The title prints, per curve, the worst miss at a data point (always about 1e-16, i.e. it hits
+every dot) and whether the curve crosses itself ("LOOPS").
 
-Tick "single polynomial" for the Runge contrast: one polynomial through all the points (solved in
-the Bernstein basis, centripetal parameters). On the starting data it strays 4.1 units from the
-data polygon against the centripetal spline's 0.72 -- same points, same parameters, one piece
-instead of four.
+WHAT IS DIFFERENT FROM THE OTHER SCRIPTS
+----------------------------------------
+Everywhere else in module 01 you drag *control points* and the curve follows them loosely. Here
+the curve must pass through the dragged points, so the control points P_0 .. P_6 become the
+unknowns. A cubic B-spline is C(t) = sum_i N_{i,3}(t) P_i, and requiring it to pass through
+Q_k at parameter t_k gives one linear equation per data point:
+
+    sum_i N_{i,3}(t_k) P_i = Q_k,      k = 0 .. 6
+
+Seven equations, seven unknown control points: one linear solve per redraw.
+
+THE CHOICE THAT MATTERS: WHICH t_k BELONGS TO WHICH POINT
+---------------------------------------------------------
+Before solving, each data point needs a parameter value t_k: "the curve is at Q_k when t = t_k".
+Think of t as time running from 0 to 1. The rule picks how much time the curve gets to travel
+from one point to the next. With d_k = |Q_k - Q_{k-1}| the distance between neighbouring points,
+t_0 = 0, and each rule normalised so that t_6 = 1:
+
+  * uniform      (blue)  every step gets the same time:        t_k - t_{k-1} proportional to 1
+  * chord length (red)   time proportional to distance:         ... proportional to d_k
+  * centripetal  (green) time proportional to sqrt(distance):   ... proportional to sqrt(d_k)
+
+("Chord" is the straight segment between two consecutive points, so "chord length" is just
+d_k. "Centripetal" is Lee's 1989 name; the square root sits between the other two.)
+
+On the starting data the gaps are short, short, long, short, short, long
+(d = 0.32, 0.22, 2.94, 0.28, 0.41, 3.14), and the rules give (test_parameters_on_the_uneven_data):
+
+    uniform      0  0.17  0.33  0.50  0.67  0.83  1
+    chord        0  0.04  0.07  0.48  0.51  0.57  1
+    centripetal  0  0.10  0.18  0.48  0.58  0.69  1
+
+Why this changes the shape:
+  * uniform gives a 0.22 gap and a 2.94 gap the same time, so the curve crawls through the
+    cluster and must sprint across the gap. Arriving fast, it swings round and loops.
+  * chord length makes the speed roughly constant, so the curve enters the tight cluster at full
+    speed and has to swing wide to turn: on this data it strays ~5 units from the dots.
+  * centripetal compresses the long/short ratio (sqrt(2.94/0.22) ~ 3.7 instead of ~13) and
+    behaves on all three test data sets.
+Measured in test_parametrization_comparison; that is why interpolate_points defaults to
+centripetal, even though chord length is the usual textbook default.
+
+RUNGE'S PHENOMENON (the "single polynomial" checkbox)
+------------------------------------------------------
+Through n+1 points there is exactly one polynomial of degree n. Interpolating with it seems
+natural, but as more points are added that polynomial tends to oscillate more and more
+violently between them, worst near the ends. This is Runge's phenomenon, named after Carl Runge
+(1901), who showed it for the function f(x) = 1 / (1 + 25 x^2) sampled at equally spaced x on
+[-1, 1]: the error of the degree-n interpolant grows without bound as n grows (cited, not proved
+here; measured in test_piecewise_interpolation_escapes_runge -- 0.62, 3.66, 59.8 at 7, 13, 21
+points, against 0.13, 0.0069, 0.0032 for the cubic spline).
+A spline avoids it by staying degree 3 however many points there are: each piece only answers
+to a few neighbouring points. The dashed curve here is the degree-6 polynomial through the same
+seven dots with the same centripetal t_k: it strays 4.1 units from the data polygon against the
+green spline's 0.72 (test_single_polynomial_strays_further_than_the_spline).
 
 Notes: notes/01_Curves/B_Spline_Interpolation.md
 Run:   python scripts/01_curves/07_bspline_interpolation.py
