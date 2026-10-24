@@ -14,6 +14,7 @@ case_of_bspline) -- a B-spline is a Bezier curve that has been allowed to break 
 Notes: notes/01_Curves/B_Splines.md, notes/01_Curves/De_Boor_Algorithm.md,
        notes/01_Curves/B_Spline_Interpolation.md
 """
+
 from __future__ import annotations
 
 import numpy as np
@@ -30,7 +31,9 @@ def clamped_knots(n_ctrl: int, p: int, interior=None) -> np.ndarray:
     """
     count = n_ctrl - p - 1
     if count < 0:
-        raise ValueError(f"degree {p} needs at least {p + 1} control points, got {n_ctrl}")
+        raise ValueError(
+            f"degree {p} needs at least {p + 1} control points, got {n_ctrl}"
+        )
     if interior is None:
         interior = np.linspace(0.0, 1.0, count + 2)[1:-1]
     interior = np.sort(np.asarray(interior, dtype=float))
@@ -95,7 +98,9 @@ def bspline_basis(knots: np.ndarray, p: int, t) -> np.ndarray:
     return bspline_basis_levels(knots, p, t)[-1]
 
 
-def bspline_curve(control_points: np.ndarray, knots: np.ndarray, p: int, t) -> np.ndarray:
+def bspline_curve(
+    control_points: np.ndarray, knots: np.ndarray, p: int, t
+) -> np.ndarray:
     """Evaluate the curve at many parameters at once: C(t) = sum_i N_{i,p}(t) P_i.
 
     Bulk evaluation through the basis matrix -- the same fast-path trade as bezier_surface; de_boor
@@ -105,7 +110,9 @@ def bspline_curve(control_points: np.ndarray, knots: np.ndarray, p: int, t) -> n
     return bspline_basis(knots, p, t) @ points
 
 
-def de_boor_stages(control_points: np.ndarray, knots: np.ndarray, p: int, t: float) -> dict:
+def de_boor_stages(
+    control_points: np.ndarray, knots: np.ndarray, p: int, t: float
+) -> dict:
     """Every level of de Boor's algorithm at t, for drawing.
 
     Only the p+1 control points P_{k-p} .. P_k of the span k containing t are touched -- the
@@ -131,7 +138,9 @@ def de_boor_stages(control_points: np.ndarray, knots: np.ndarray, p: int, t: flo
     return {"span": k, "levels": levels, "point": levels[-1][0]}
 
 
-def de_boor(control_points: np.ndarray, knots: np.ndarray, p: int, t: float) -> np.ndarray:
+def de_boor(
+    control_points: np.ndarray, knots: np.ndarray, p: int, t: float
+) -> np.ndarray:
     """One point on the curve via de Boor's algorithm (see de_boor_stages)."""
     return de_boor_stages(control_points, knots, p, t)["point"]
 
@@ -177,7 +186,9 @@ def insert_knot(
         raise ValueError("t must lie strictly inside the valid domain")
     multiplicity = int(np.sum(knots == t))
     if multiplicity >= p:
-        raise ValueError(f"knot {t} already has multiplicity {multiplicity} >= degree {p}")
+        raise ValueError(
+            f"knot {t} already has multiplicity {multiplicity} >= degree {p}"
+        )
     k = int(find_span(knots, p, t))
     new = np.empty((n + 2, points.shape[1]))
     new[: k - p + 1] = points[: k - p + 1]
@@ -189,8 +200,12 @@ def insert_knot(
 
 
 def _require_clamped(knots: np.ndarray, p: int) -> None:
-    if not (np.all(knots[: p + 1] == knots[0]) and np.all(knots[-p - 1 :] == knots[-1])):
-        raise ValueError("expected a clamped knot vector (end knots repeated p+1 times)")
+    if not (
+        np.all(knots[: p + 1] == knots[0]) and np.all(knots[-p - 1 :] == knots[-1])
+    ):
+        raise ValueError(
+            "expected a clamped knot vector (end knots repeated p+1 times)"
+        )
 
 
 def bspline_to_bezier(
@@ -225,17 +240,26 @@ def elevate_degree(
     (notes/99_Not_Covered_In_Code.md).
     """
     knots = np.asarray(knots, dtype=float)
-    segments = [bezier_elevate(segment) for segment in bspline_to_bezier(control_points, knots, p)]
+    segments = [
+        bezier_elevate(segment)
+        for segment in bspline_to_bezier(control_points, knots, p)
+    ]
     q = p + 1
     points = np.vstack([segments[0]] + [segment[1:] for segment in segments[1:]])
     breaks = np.unique(knots)
     new_knots = np.concatenate(
-        [np.full(q + 1, breaks[0]), np.repeat(breaks[1:-1], q), np.full(q + 1, breaks[-1])]
+        [
+            np.full(q + 1, breaks[0]),
+            np.repeat(breaks[1:-1], q),
+            np.full(q + 1, breaks[-1]),
+        ]
     )
     return points, new_knots, q
 
 
-def interpolation_parameters(points: np.ndarray, method: str = "centripetal") -> np.ndarray:
+def interpolation_parameters(
+    points: np.ndarray, method: str = "centripetal"
+) -> np.ndarray:
     """Parameter values t_0 = 0 < ... < t_n = 1 at which the curve should hit each data point.
 
     "uniform":     equal steps, ignoring geometry.
