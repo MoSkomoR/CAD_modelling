@@ -35,6 +35,11 @@ surfaces (02) landed before B-splines (01), because tensor-product patches only 
 machinery. A module is "done" when `00_Map_of_Content.md` says so, row by row — never assume an
 earlier module is finished because a later one has content.
 
+Two side notes sit next to the module folders: `notes/99_Not_Covered_In_Code.md` (deliberate
+gaps) and `notes/98_Open_Questions.md` (the user's questions, parked for the end of the repo).
+Add a question to `98_Open_Questions.md` **only when the user explicitly asks**, in their
+wording, and do not answer it there or in chat; every other question is answered in chat.
+
 Booleans and fillets are deliberately the **simplified tier**: BSP-tree mesh CSG, and
 constant-radius blends on simple polyhedral edges — not the exact NURBS surface-surface
 intersection and trimming real kernels use, which is out of scope. Notes in that section must
@@ -71,6 +76,13 @@ They do **not** write PNGs or feed anything into Obsidian.
   ```
   The real visual check is the user running them normally, from an editor.
 - Keep shared logic in `cadkernel`; scripts should demonstrate, not reimplement.
+- **Scripts build intuition; tests verify.** Each script visualizes a construction from a
+  specific section of a note (the curve of curves, the half-edge walk, the parameter choice),
+  so the reader can watch the idea work. Scripts that mostly print residuals or error tables are
+  the wrong kind: that evidence belongs in tests, and the note quotes the test.
+- The module docstring is the script's manual: what is on screen, what each control does, and
+  the mathematical idea being shown, with every term defined (or a pointer to the note section
+  that defines it). Don't use a term like "chord length" or "Runge" undefined.
 
 ## Notes are motivation-first
 
@@ -88,6 +100,9 @@ The formulas are the easy part — the repo exists for the reasoning. Every note
 - Open with a `Code:` link to the implementing script/module; close with a `**Status**:` line
   giving fidelity (exact / simplified / notes-only) and what is tested or visualized.
 - Cross-link liberally with `[[wikilinks]]`.
+- Write mathematics as rendered LaTeX and **define every symbol** where it is introduced. Explain
+  with the mathematics itself, not with analogies ("time", "speed") that stand in for it; if an
+  intuitive word helps, say exactly which mathematical object it names.
 - Notes are hard-wrapped, and the vault uses Obsidian's "Strict line breaks", so a single newline
   is never a visible break. Use a blank line, a list item or a `$$` block when one is needed.
   Don't nest tables inside list items; Obsidian renders them unreliably.
@@ -122,7 +137,9 @@ $[u_p, u_{n+1}]$, clamped knot vectors by default. Keep Bezier notation as modul
 symbols must line up there.
 
 Library modules pair with their tests one-to-one: `geometry/<topic>.py` ↔ `tests/test_<topic>.py`
-(`curves`/`surfaces`/`bspline`/`nurbs`/`nurbs_surfaces`, and `topology/halfedge.py` ↔ `tests/test_halfedge.py`). Keep that pairing for new topics.
+(`curves`/`surfaces`/`bspline`/`nurbs`/`nurbs_surfaces`/`entities`/`skinning`),
+`topology/halfedge.py` ↔ `tests/test_halfedge.py`, and `ops/<op>.py` ↔ `tests/test_<op>.py`
+(`extrude`, `revolve`, `loft`, `measure`). Keep that pairing for new topics.
 
 ## Style
 
