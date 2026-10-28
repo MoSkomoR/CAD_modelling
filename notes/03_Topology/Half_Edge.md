@@ -34,7 +34,9 @@ A structure is valid when all of these hold. `check` tests each one and reports 
    below.
 4. **Euler–Poincaré** holds for the counts ([[Euler_Operators]]).
 5. **Faces are planar** — geometry, not topology, and checkable only to a tolerance. It is
-   switched off for the intermediate states of a construction.
+   switched off for the intermediate states of a construction. Once faces carry surfaces
+   (module 04), this becomes "the geometry agrees with the topology"
+   ([[../04_Modeling_Operations/Modeling_Operations#Binding geometry to topology]]).
 
 Breaking a single twin pointer, or a single `next`, is caught
 (`test_check_catches_a_broken_twin`, `test_check_catches_a_broken_next`). The broken `next`

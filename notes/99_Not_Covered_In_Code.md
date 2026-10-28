@@ -32,7 +32,9 @@ topic comes up during a script/note session that we decide not to implement.
   knot insertion is wired up for NURBS (`nurbs_insert_knot`).
 - **Trimmed surfaces** — a NURBS patch restricted to a region of its $(u, v)$ domain bounded by
   curves (a plate with a hole, a face cut by a boolean). Every B-rep face in a real kernel is one;
-  this repo's surfaces are always the full parameter rectangle ([[02_Surfaces/NURBS_Surfaces]]).
+  this repo's curved faces are always the full parameter rectangle ([[02_Surfaces/NURBS_Surfaces]]).
+  The one exception is the plane: a planar face is the region its edge curves enclose, which
+  needs no trimming in parameter space ([[04_Modeling_Operations/Extrude]]).
 - **NURBS surface degree elevation, Bezier decomposition, knot removal** — the curve versions
   applied per direction to the lifted net; only knot insertion is wired up for surfaces
   (`nurbs_surface_insert_knot`).
@@ -48,8 +50,21 @@ topic comes up during a script/note session that we decide not to implement.
   structure targets manifold solids only.
 - **Multi-shell solids (internal voids)** — the operators allow more than one shell, but no
   construction here builds one, and shells are counted, not stored ([[03_Topology/B_Rep_Topology]]).
-- **Self-intersection checks** — `check` validates topology and planarity, not whether faces pass
-  through each other; that is a geometric test with tolerances ([[03_Topology/B_Rep_Topology]]).
+- **Self-intersection checks** — `check` validates topology, planarity and that edge curves lie on
+  their faces, not whether faces pass through each other; that is a geometric test with
+  tolerances ([[03_Topology/B_Rep_Topology]]). `extrude` likewise accepts a self-intersecting
+  profile, or holes that leave the profile ([[04_Modeling_Operations/Extrude]]).
+- **Extrude to a face** ("up to next", "through all") — needs the extrusion to be cut by other
+  geometry, i.e. surface intersection ([[04_Modeling_Operations/Extrude]]).
+- **Parameter-space curves (pcurves) and degenerated edges** — real kernels store, for every edge
+  of a face, its curve in the face's $(u, v)$ rectangle as well as in 3D: two different pcurves for
+  the two sides of a seam, and a pcurve with no 3D curve at a pole. This repo stores 3D curves
+  only, so a pole is just a vertex ([[04_Modeling_Operations/Revolve]]).
+- **Revolve about any axis, with holes in the profile** — `revolve` turns about the $z$-axis only,
+  and its profile has no holes ([[04_Modeling_Operations/Revolve]]).
+- **Loft refinements** — sections with different edge counts, automatic vertex correspondence
+  (minimizing twist), guide curves, and closed lofts that join the last section back to the first
+  ([[04_Modeling_Operations/Loft]]).
 - **Adaptive tessellation** — real kernels tessellate curved surfaces adaptively (denser mesh
   where curvature is higher) for display/export; this repo uses uniform parameter-space
   sampling throughout.

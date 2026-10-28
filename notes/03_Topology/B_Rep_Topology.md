@@ -31,8 +31,8 @@ The split pays three ways:
   (`check` in `halfedge.py`). Geometry can only be checked to a tolerance.
 - Algorithms can navigate without geometry at all, as [[Half_Edge]] shows.
 
-In this repo, for now, vertices carry positions and nothing else. Edges and faces get curves and
-surfaces in module 04.
+In module 03, vertices carry positions and nothing else. Edges and faces get curves and surfaces
+in module 04 ([[../04_Modeling_Operations/Modeling_Operations]]).
 
 ## The hierarchy
 

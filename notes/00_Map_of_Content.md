@@ -3,6 +3,7 @@
 Vault root = repo root, so links below resolve to both notes and the `.py` files that
 implement them. See [[../README|README]] for how to run scripts. See
 [[99_Not_Covered_In_Code]] for the running list of concepts that are notes-only by design.
+Questions parked for the end of the repo are in [[98_Open_Questions]].
 
 Fidelity legend: **exact** = real math, no shortcuts · **simplified** = a real but simplified
 stand-in technique (documented gap to the real kernel algorithm) · **notes-only** = not
@@ -41,7 +42,14 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | Euler operators, Euler's formula, Euler–Poincaré, genus                  | [[../scripts/03_topology/02_euler_operators.py]]     | exact (Euler–Poincaré and completeness cited) | [[03_Topology/Euler_Operators]] |
 
 ## 04 — Modeling operations
-Not started. Planned: extrude, revolve, sweep (Frenet frames & twist), loft.
+| Topic | Script | Fidelity | Note |
+|---|---|---|---|
+| Why operations work from profiles; binding curves and surfaces to topology; consistency, face sense; volume | [[../scripts/04_modeling_ops/01_extrude.py]] | exact (untrimmed curved faces) | [[04_Modeling_Operations/Modeling_Operations]] |
+| Extrude — Euler-operator sweep, extruded surface, holes, orientation, volume by quadrature, tilt | [[../scripts/04_modeling_ops/01_extrude.py]] | exact | [[04_Modeling_Operations/Extrude]] |
+| Revolve — partial and full turns, seams, closed edges, poles, Stokes orientation check, Pappus | [[../scripts/04_modeling_ops/02_revolve.py]] | exact (Stokes, Green cited) | [[04_Modeling_Operations/Revolve]] |
+| Loft — compatible sections, skinning, shared parameters, spacing measured | [[../scripts/04_modeling_ops/03_loft.py]] | exact through the sections | [[04_Modeling_Operations/Loft]] |
+
+Planned next: sweep (Frenet versus rotation-minimizing frames; simplified).
 
 ## 05 — Booleans & fillets (simplified tier)
 Not started. Planned: BSP-tree mesh CSG, boolean union/cut/intersect, constant-radius fillet
