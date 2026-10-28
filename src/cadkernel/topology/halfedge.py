@@ -1,8 +1,9 @@
 """Half-edge boundary representation (B-rep) of polyhedral solids, built with Euler operators.
 
 Topology is *who touches whom*: which faces meet along which edges, which edges meet at which
-vertices. Geometry is *where*: here only vertex positions (curves and surfaces are bound to edges
-and faces in module 04). The two are kept apart so the same connectivity can carry any geometry.
+vertices. Geometry is *where*: vertex positions, and optionally a curve on each edge and a surface
+on each face (bound by the modeling operations of module 04; a solid built here in module 03 has
+none and is polyhedral). The two are kept apart so the same connectivity can carry any geometry.
 
 The structure is Mantyla's half-edge data structure (An Introduction to Solid Modeling, 1988):
 
@@ -52,12 +53,13 @@ class Vertex:
 
 
 class Edge:
-    __slots__ = ("he1", "he2", "id")
+    __slots__ = ("he1", "he2", "id", "curve")
 
     def __init__(self):
         self.he1: HalfEdge | None = None
         self.he2: HalfEdge | None = None
         self.id = next(_ids)
+        self.curve = None  # optional geometry; runs from he1.origin to he2.origin (attach_curve)
 
 
 class HalfEdge:
@@ -106,13 +108,15 @@ class Loop:
 
 
 class Face:
-    __slots__ = ("solid", "outer", "loops", "id")
+    __slots__ = ("solid", "outer", "loops", "id", "surface", "sense")
 
     def __init__(self, solid: Solid):
         self.solid = solid
         self.outer: Loop | None = None
         self.loops: list[Loop] = []
         self.id = next(_ids)
+        self.surface = None  # optional geometry: a Plane or a NurbsSurface (geometry/entities.py)
+        self.sense = 1  # +1 if S_u x S_v points out of the solid, -1 if into it
         solid.faces.append(self)
 
     @property
@@ -495,15 +499,74 @@ def signed_volume(solid: Solid) -> float:
     return float(total)
 
 
+# --- Binding geometry ------------------------------------------------------------------------------
+
+
+def attach_curve(edge: Edge, curve, tol: float = 1e-9, along: HalfEdge | None = None) -> None:
+    """Give `edge` its curve, oriented to run from edge.he1.origin to edge.he2.origin.
+
+    The direction is fixed by the topology, not by how the caller happened to build the curve:
+    then a half-edge traverses the curve forwards exactly when it is he1, which is what loop
+    integrals (vector area, volume) need. A closed curve (a full circle on a closed edge, whose
+    two ends are the same vertex) cannot be oriented by its endpoints: the caller says which
+    half-edge `along` runs with the curve, and it is stored so that he1 does.
+    """
+    a, b = edge.he1.origin.point, edge.he2.origin.point
+    if np.allclose(curve.start, curve.end, atol=tol):
+        if along is None or along.edge is not edge:
+            raise ValueError("a closed curve needs `along`: the half-edge that runs with it")
+        if not np.allclose(curve.start, a, atol=tol):
+            raise ValueError("the closed curve does not pass through the edge's vertex")
+        edge.curve = curve if along is edge.he1 else curve.reversed()
+    elif np.allclose(curve.start, a, atol=tol) and np.allclose(curve.end, b, atol=tol):
+        edge.curve = curve
+    elif np.allclose(curve.start, b, atol=tol) and np.allclose(curve.end, a, atol=tol):
+        edge.curve = curve.reversed()
+    else:
+        raise ValueError("the curve's endpoints are not the edge's vertices")
+
+
+def _geometry_problems(solid: Solid, tol: float, samples: int = 5) -> list[str]:
+    """Is the bound geometry consistent with the topology?
+
+    A vertex of a face must lie on the face's surface; an edge curve must start and end at its
+    vertices and lie on the surfaces of *both* faces it separates. That last condition is what
+    makes a B-rep watertight: the two faces meet exactly along the edge, with no gap or overlap.
+    Tested at a few interior parameters of each curve -- a check, not a proof.
+    """
+    problems = []
+    t = np.linspace(0.0, 1.0, samples + 2)[1:-1]
+    for face in solid.faces:
+        if face.surface is None:
+            continue
+        p = np.vstack([loop_points(loop) for loop in face.loops])
+        if face.surface.distance(p).max() > tol:
+            problems.append(f"a vertex of {face} is off its surface")
+    for edge in solid.edges:
+        if edge.curve is None:
+            continue
+        a, b = edge.he1.origin.point, edge.he2.origin.point
+        if not (np.allclose(edge.curve.start, a, atol=tol)
+                and np.allclose(edge.curve.end, b, atol=tol)):
+            problems.append(f"curve of edge {edge.id} does not run between its vertices")
+        inside = edge.curve(t)
+        for face in edge_faces(edge):
+            if face.surface is not None and face.surface.distance(inside).max() > tol:
+                problems.append(f"curve of edge {edge.id} leaves the surface of {face}")
+    return problems
+
+
 # --- Validity --------------------------------------------------------------------------------------
 
 
-def check(solid: Solid, geometric: bool = True, planar_tol: float = 1e-9) -> list[str]:
+def check(solid: Solid, geometric: bool = True, planar_tol: float = 1e-9,
+          geometry_tol: float = 1e-7) -> list[str]:
     """Every structural invariant, as a list of violations (empty = valid).
 
     `geometric=False` checks topology only. Intermediate states of a construction (a wire, a
     lamina, a face with spikes sticking out of its plane) are valid topology but not valid
-    geometry, so the construction steps are checked that way.
+    geometry, so the construction steps are checked that way. With geometry bound (module 04),
+    faces carrying a surface are checked against it instead of for planarity.
     """
     problems = []
     halfedges = solid.halfedges()
@@ -529,7 +592,7 @@ def check(solid: Solid, geometric: bool = True, planar_tol: float = 1e-9) -> lis
             if loop.face is not face or any(he.loop is not loop for he in loop.halfedges()):
                 problems.append(f"loop of {face} has foreign half-edges")
         p = np.vstack([loop_points(loop) for loop in face.loops])
-        if geometric and len(p) >= 3:
+        if geometric and face.surface is None and len(p) >= 3:
             n = face_normal(face)
             if np.linalg.norm(n) > 0 and np.abs((p - p[0]) @ n).max() > planar_tol:
                 problems.append(f"{face} is not planar")
@@ -543,6 +606,8 @@ def check(solid: Solid, geometric: bool = True, planar_tol: float = 1e-9) -> lis
     lhs, rhs = euler_poincare(solid.counts())
     if lhs != rhs:
         problems.append(f"Euler-Poincare fails: {lhs} != {rhs}")
+    if geometric:
+        problems += _geometry_problems(solid, geometry_tol)
     return problems
 
 

@@ -1,9 +1,10 @@
-"""Drawing helpers for half-edge solids (module 03 scripts)."""
+"""Drawing helpers for half-edge solids (module 03 and 04 scripts)."""
 from __future__ import annotations
 
 import numpy as np
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 
+from ..ops.measure import halfedge_points
 from ..topology.halfedge import HalfEdge, face_normal
 
 
@@ -37,3 +38,10 @@ def halfedge_arrow(he: HalfEdge, inset: float = 0.08, trim: float = 0.15):
     left = np.cross(face_normal(he.face), d / length)
     start = a + trim * d + inset * left
     return start, (1 - 2 * trim) * d
+
+
+def loop_polyline(loop, samples: int = 24) -> np.ndarray:
+    """A loop drawn through its edge curves, each half-edge sampled in its own direction (the
+    straight segment where an edge has no curve)."""
+    t = np.linspace(0.0, 1.0, samples + 1)[:-1]
+    return np.vstack([halfedge_points(he, t) for he in loop.halfedges()])
