@@ -4,6 +4,7 @@ import pytest
 from cadkernel.geometry.bspline import bspline_curve, clamped_knots, insert_knot
 from cadkernel.geometry.curves import bezier_curve
 from cadkernel.geometry.nurbs import (
+    nurbs_arc,
     nurbs_basis,
     nurbs_circle,
     nurbs_curve,
@@ -288,3 +289,24 @@ def test_negative_weight_leaves_the_convex_hull():
     assert curve[:, 1].min() == pytest.approx(-2.0)  # the triangle has y >= 0
     # Zero weight: the middle point is switched off and the curve is the chord.
     assert np.abs(rational_bezier(control, [1, 0, 1], T)[:, 1]).max() == 0.0
+
+
+def test_arc_of_a_full_turn_is_the_circle():
+    """nurbs_arc cuts the sweep into pieces of at most pi/2; a full turn gives nurbs_circle's four
+    quarters, up to rounding of cos and sin."""
+    arc = nurbs_arc(np.zeros(2), 1.0, 2 * np.pi)
+    circle = nurbs_circle(np.zeros(2), 1.0)
+    for a, b in zip(arc, circle):
+        assert np.allclose(a, b, atol=1e-15)
+
+
+def test_arcs_of_any_sweep_are_exact():
+    """Every point is at the radius, the end is at the sweep angle, and a sweep of up to k
+    quarter turns uses k pieces (2k + 1 control points)."""
+    t = np.linspace(0, 1, 201)
+    for sweep, pieces in [(0.3, 1), (np.pi / 2, 1), (2.0, 2), (np.pi, 2), (5.0, 4)]:
+        points, weights, knots, p = nurbs_arc(np.array([0.5, -1.0]), 2.0, sweep)
+        assert len(points) == 2 * pieces + 1
+        c = nurbs_curve(points, weights, knots, p, t)
+        assert np.allclose(np.linalg.norm(c - [0.5, -1.0], axis=1), 2.0, atol=1e-14)
+        assert np.allclose(c[-1], [0.5 + 2 * np.cos(sweep), -1.0 + 2 * np.sin(sweep)])

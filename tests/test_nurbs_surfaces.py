@@ -14,6 +14,8 @@ from cadkernel.geometry.nurbs_surfaces import (
     nurbs_surface_normal,
     nurbs_surface_partials,
     nurbs_torus,
+    sphere_profile,
+    surface_of_revolution,
 )
 from cadkernel.geometry.surfaces import bezier_surface
 
@@ -140,6 +142,16 @@ def test_revolution_factors_into_profile_times_circle():
     assert np.ptp(np.hypot(parallel[:, 0], parallel[:, 1])) < 1e-14
     meridian = sphere[1:-1, 37]
     assert np.ptp(np.arctan2(meridian[:, 1], meridian[:, 0])) < 1e-14
+
+
+def test_partial_revolution_turns_by_the_angle():
+    """With an angle, the circle becomes nurbs_arc: still a surface of revolution (distance to
+    the axis and height depend on u only), and the v = 1 meridian sits at the angle."""
+    for angle in (0.4, np.pi / 2, 2.5, 4.0):
+        surface = evaluate(surface_of_revolution(*sphere_profile(1.5), angle))
+        assert np.allclose(np.linalg.norm(surface, axis=-1), 1.5, atol=1e-14)
+        end = surface[1:-1, -1]
+        assert np.allclose(np.arctan2(end[:, 1], end[:, 0]) % (2 * np.pi), angle % (2 * np.pi))
 
 
 def test_sphere_net_is_five_by_nine_with_product_weights():

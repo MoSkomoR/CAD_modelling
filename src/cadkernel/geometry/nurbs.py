@@ -161,6 +161,29 @@ def nurbs_circle(center: np.ndarray, radius: float) -> tuple[np.ndarray, np.ndar
     return center + radius * square, weights, knots, 2
 
 
+def nurbs_arc(center: np.ndarray, radius: float,
+              sweep: float) -> tuple[np.ndarray, np.ndarray, np.ndarray, int]:
+    """The exact arc from angle 0 to angle `sweep` (0 < sweep <= 2 pi) as one degree-2 NURBS.
+
+    nurbs_circle generalized: the sweep is cut into ceil(sweep / (pi/2)) equal pieces, each a
+    rational_arc_quadratic (so each piece turns by at most pi/2, well inside the < pi that one
+    quadratic piece allows), joined end to end with every interior knot doubled. A full turn
+    gives the four quarter arcs of nurbs_circle again (test_arc_of_a_full_turn_is_the_circle).
+    Returns (control_points, weights, knots, p).
+    """
+    if not 0 < sweep <= 2 * np.pi + 1e-12:
+        raise ValueError("the sweep must lie in (0, 2 pi]")
+    pieces = int(np.ceil(sweep / (np.pi / 2) - 1e-9))
+    angles = np.linspace(0.0, sweep, pieces + 1)
+    points, weights = [], []
+    for k, (a0, a1) in enumerate(zip(angles[:-1], angles[1:])):
+        p, w = rational_arc_quadratic(center, radius, a0, a1)
+        points.append(p if k == 0 else p[1:])
+        weights.append(w if k == 0 else w[1:])
+    breaks = np.repeat(np.arange(1, pieces) / pieces, 2)
+    return np.vstack(points), np.concatenate(weights), clamped_knots(2 * pieces + 1, 2, breaks), 2
+
+
 def projective_map(matrix: np.ndarray, points: np.ndarray) -> np.ndarray:
     """Apply a 3x3 projective map (homography) to 2D points: lift to (x, y, 1), multiply, project."""
     points = np.asarray(points, dtype=float)

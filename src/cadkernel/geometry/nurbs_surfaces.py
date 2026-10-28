@@ -25,7 +25,7 @@ from __future__ import annotations
 import numpy as np
 
 from .bspline import bspline_basis, bspline_curve, bspline_derivative, clamped_knots, insert_knot
-from .nurbs import _project, nurbs_circle
+from .nurbs import _project, nurbs_arc, nurbs_circle
 from .surfaces import _as_net
 
 
@@ -165,8 +165,9 @@ def nurbs_surface_insert_knot(control_net, weights, knots, degree: int, t: float
 # --- Surfaces of revolution ----------------------------------------------------------------------
 
 
-def surface_of_revolution(profile_points, profile_weights, profile_knots, p: int):
-    """Revolve a NURBS profile in the xz-plane about the z-axis, exactly.
+def surface_of_revolution(profile_points, profile_weights, profile_knots, p: int,
+                          angle: float = 2 * np.pi):
+    """Revolve a NURBS profile in the xz-plane about the z-axis by `angle`, exactly.
 
     The profile point (r_i, z_i) is carried round on its own circle: it is copied onto the nine
     control points of nurbs_circle (the circumscribed square), scaled by its distance r_i from
@@ -179,11 +180,16 @@ def surface_of_revolution(profile_points, profile_weights, profile_knots, p: int
     (notes/02_Surfaces/Surfaces_of_Revolution.md). Profile points on the axis (r_i = 0) collapse
     a whole row of the net to one point: a pole.
 
+    A partial `angle` replaces the circle by nurbs_arc; nothing else changes.
+
     Returns (net, weights, knots_u, knots_v, p, q) with u along the profile, v around the axis.
     """
     profile = np.asarray(profile_points, dtype=float)
     pw = np.asarray(profile_weights, dtype=float)
-    square, circle_w, knots_v, q = nurbs_circle(np.zeros(2), 1.0)
+    if np.isclose(angle, 2 * np.pi):
+        square, circle_w, knots_v, q = nurbs_circle(np.zeros(2), 1.0)
+    else:
+        square, circle_w, knots_v, q = nurbs_arc(np.zeros(2), 1.0, angle)
     r, z = profile[:, 0], profile[:, 1]
     net = np.empty((len(profile), len(square), 3))
     net[..., 0] = r[:, None] * square[None, :, 0]
