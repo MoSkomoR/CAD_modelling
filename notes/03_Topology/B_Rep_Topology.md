@@ -44,9 +44,7 @@ shell is made of **faces**. A face is bounded by **loops**: one outer loop, plus
 This repo follows Mäntylä, *An Introduction to Solid Modeling* (1988), where each edge is used
 twice — once by each face it bounds — as two directed **half-edges**. Production kernels use the
 same layers under other names. OpenCASCADE's `TopoDS` has solids, shells, faces, wires (loops),
-edges and vertices; ACIS calls the half-edge a "coedge". Both are cited, not tested here. The repo
-doesn't store shells as objects: every solid it builds has one, and `count_shells` counts them by
-connectivity.
+edges and vertices; ACIS calls the half-edge a "coedge". Both are cited, not tested here.
 
 ## Why the half-edge, and not something simpler
 
@@ -89,6 +87,21 @@ the shared vertex has two separate fans, and `check` reports it as non-manifold
 **What `check` does not check:** whether the geometry intersects itself. Two faces may pass through
 each other while every pointer is consistent. That is a geometric test with tolerances; real
 kernels run one, and this repo does not ([[../99_Not_Covered_In_Code]]).
+
+## In this implementation
+
+- **Shells are not objects.** The hierarchy above has a shell layer between solid and faces; the
+  code doesn't. A `Solid` holds flat lists of faces, edges and vertices, because every solid built
+  here has a single shell. $S$ is computed when needed by `count_shells`, which joins vertices
+  along edges and joins the loops of each face to each other
+  ([[Euler_Operators#In this implementation]] says why the second join is needed).
+- **The genus is a counter.** `Solid.genus` is changed by `kfmrh` and `mfkrh`, and nothing else
+  reads it from the structure ([[Euler_Operators#The general form: Euler–Poincaré]]).
+- **The manifold test** compares two numbers at each vertex: how many half-edges leave it, and
+  how many the star walk (`twin.next`) visits. They differ exactly when the faces around the
+  vertex form more than one fan.
+- The layout of the half-edges themselves, and what is stored versus derived, is in
+  [[Half_Edge#In this implementation]].
 
 **Status**: exact (polyhedral; vertices carry positions only). Implemented and tested in
 `tests/test_halfedge.py`: the half-edge structure, Euler operators, queries, `check`,

@@ -36,8 +36,7 @@ the last coordinate:
 $$C(t) = \frac{\sum_i N_{i,p}(t)\,w_iP_i}{\sum_j N_{j,p}(t)\,w_j} = \sum_i R_{i,p}(t)\,P_i,
 \qquad R_{i,p} = \frac{w_iN_{i,p}}{\sum_j w_jN_{j,p}} .$$
 Every algorithm from the polynomial case runs unchanged on the lifted points, and one division
-comes at the end ([[NURBS_Derivations]] §1). `nurbs.py` contains no new evaluation algorithm at
-all — `nurbs_curve` is lift, `bspline_curve`, project.
+comes at the end ([[NURBS_Derivations]] §1). No new evaluation algorithm is needed.
 
 ## What carries over, what is new, what is lost
 
@@ -133,6 +132,18 @@ works for tensor-product surfaces, one direction at a time, and closes the gap
 [[../02_Surfaces/Bezier_Surfaces]] named: sphere, cylinder, cone and torus all have circular
 isocurves, so none of them is a polynomial patch — and all of them are NURBS surfaces. That is the
 next step, in module 02.
+
+## In this implementation
+
+- `nurbs.py` contains no new evaluation algorithm. `nurbs_curve` lifts the control points to
+  $(w_iP_i, w_i)$ (`_lift`), calls `bspline_curve`, and divides the curve points by their last
+  coordinate (`_project`). `nurbs_insert_knot` and `nurbs_derivative` also work on the lifted
+  points; a function that returns new *control points* splits them back into points and weights
+  with `_unlift`.
+- Weights are a separate array next to the control points, not a fourth (or third) coordinate
+  stored in them. The lifted form exists only inside those calls.
+- Later modules reuse `_lift` and `_unlift` wherever they change a rational curve's
+  representation (`compatible` in [[../04_Modeling_Operations/Loft]]).
 
 **Status**: exact. `nurbs_curve`, `nurbs_basis`, `nurbs_derivative`, `nurbs_insert_knot`,
 `nurbs_circle`, `nurbs_projective_map`, `rational_bezier`, `rational_arc_quadratic` implemented and

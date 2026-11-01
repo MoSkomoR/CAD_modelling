@@ -148,9 +148,18 @@ them reaches 1.
   applies unchanged: no B-spline of any degree or knot vector is exactly a circle. That is the
   remaining limitation, and the one weights fix ([[NURBS]]).
 - **Evaluation needs a span search.** Bezier evaluation starts immediately; a B-spline must first
-  find which span $t$ is in (`find_span`, a binary search). Cheap, but a source of real bugs at the
-  right end of the domain, where the half-open spans would otherwise leave $t = u_{n+1}$ uncovered
+  find which span $t$ is in, by a binary search over the knots. Cheap, but a source of real bugs
+  at the right end of the domain: the spans $[u_k, u_{k+1})$ are half-open, so none of them
+  contains $t = u_{n+1}$, and that point has to be assigned to the last non-empty span by hand
   (`test_find_span_covers_the_closed_domain`).
+
+## In this implementation
+
+- `find_span` is `np.searchsorted(knots, t, side="right") - 1`, a vectorized binary search, then
+  clipped to $[p, n]$. The clip is what puts $t = u_{n+1}$ into the last non-empty span, and it
+  also keeps a $t$ slightly outside the domain from indexing past the knot vector.
+- `clamped_knots` builds knot vectors on $[0, 1]$, with interior knots spaced uniformly unless
+  the caller passes them.
 
 **Status**: exact. `clamped_knots`, `find_span`, `bspline_basis_levels`, `bspline_basis`,
 `bspline_curve` implemented; every claim above with a number is covered in

@@ -23,11 +23,11 @@ onto itself, and that needs three things the earlier constructions never did: **
 
 - **The profile:** a closed loop of NURBS curves in the $xz$-plane, with $x \ge 0$. The
   coordinate $x = r$ is the distance from the axis, the $z$-axis. A sketch drawn in coordinates
-  $(r, z)$ is placed there by `xz`, which maps $(r, z) \mapsto (r, 0, z)$.
+  $(r, z)$ is placed there by $(r, z) \mapsto (r, 0, z)$.
 - **The angle:** $a \in (0, 2\pi]$. The value $a = 2\pi$ is a full turn.
 
 The profile may touch the axis in only one way: **one whole edge lying on the axis**. Every other
-point must have $r > 0$. `revolve` checks this through the control points:
+point must have $r > 0$. This can be checked through the control points alone:
 - the profile lies in the $xz$-plane and has $x \ge 0$ if its control points do. A curve point is
   a combination of control points with coefficients $R_{i,p}(t) \ge 0$ summing to 1 (the argument
   of [[Extrude#The input]]);
@@ -42,9 +42,9 @@ the boundary is not a 2-manifold, and the half-edge structure can't represent it
 Both are rejected (`test_bad_input_is_rejected`).
 
 **Orientation.** At angle 0, a point $(r, 0, z)$ of the profile starts to move in the direction
-$+e_y$. `revolve` orients the profile counter-clockwise seen from the tip of $e_y$. That is
-extrude's rule, with $\mathbf d$ replaced by $e_y$. As there, input of either orientation gives
-the same solid (`test_orientation_does_not_depend_on_the_input`).
+$+e_y$. The profile is oriented counter-clockwise seen from the tip of $e_y$, and reversed first
+if it runs the other way. That is extrude's rule, with $\mathbf d$ replaced by $e_y$. As there,
+input of either orientation gives the same solid (`test_orientation_does_not_depend_on_the_input`).
 
 ## The revolved surface
 
@@ -96,15 +96,14 @@ $e_\varphi(a) = (-\sin a, \cos a, 0)$.
 ## A partial turn: the extrusion construction
 
 For $a < 2\pi$ the far copy of the profile is a different set of points, and the topology is
-extrude's: a lamina, a rail from every vertex, a side face for every edge. `sweep_lamina` in
-[[../../src/cadkernel/ops/extrude.py]] is that construction, and extrude, revolve and loft all
-call it, each with its own geometry:
+extrude's: a lamina, a rail from every vertex, a side face for every edge
+([[Extrude#The construction]]). Only the geometry differs:
 
 | | extrude | partial revolve |
 |---|---|---|
-| rail of vertex $v$ | segment to $v + \mathbf d$ | `turning_arc(v, a)`, the arc $v$ traces |
+| rail of vertex $v$ | the segment from $v$ to $v + \mathbf d$ | the arc of angle $a$ that $v$ traces about the axis |
 | far copy of edge $k$ | $C_k + \mathbf d$ | $C_k$ turned by $a$ (rotation is linear, so turning the control points is exact) |
-| side face $k$ | `extruded_surface` | `revolved_surface(C_k, a)` |
+| side face $k$ | the extruded surface $C_k(u) + v\,\mathbf d$ | the surface of revolution of $C_k$, through angle $a$ |
 | caps | planes with normals $\mp\mathbf n$ | planes with normals $-e_y$ and $e_\varphi(a)$ |
 
 **Poles in a partial turn.** A vertex on the axis doesn't move, so it gets no rail, and its far
@@ -204,8 +203,9 @@ pole is just a vertex.
 
 ## Orientation of the closed edges
 
-A circle has two directions, and a closed edge can't be oriented by its endpoints. So
-`attach_curve` takes the half-edge `along` that runs with the curve.
+A circle has two directions, and a closed edge can't be oriented by its endpoints
+([[Modeling_Operations#Binding geometry to topology]], question 3). The direction has to be
+chosen, and the choice decides whether the loops run the way the faces' senses say.
 
 **Claim.** If the circle of vertex $k$ runs with *increasing* angle along its half-edge in the face
 of edge $k-1$, every face's loop runs counter-clockwise around the outward normal.
@@ -293,6 +293,41 @@ angle.
 - **Holes in the profile.** Each would add a through-hole on a full turn. Not implemented.
 - **Self-intersecting profiles**, as for extrude.
 - **Helical motion** (turning while moving along the axis): that is a sweep, not a revolve.
+
+## In this implementation
+
+**Placing a sketch.** `xz` maps curves drawn in $(r, z)$ to $(r, 0, z)$ by placing their control
+points; `revolve` takes the result.
+
+**Checking and orienting the profile** (`_prepare`).
+- Every control point must have $\lvert y\rvert \le 10^{-9}$ and $x \ge -10^{-9}$ (`AXIS_TOL`).
+- An edge counts as *on the axis* if all its control points have $\lvert x\rvert < 10^{-9}$. At
+  most one may.
+- Every other edge must keep its interior control points at $x \ge 10^{-9}$, and only the two
+  ends of the axis edge may be vertices on the axis.
+- The profile is oriented by extrude's `_oriented` with $\mathbf d = e_y$. Then its curve list is
+  rotated so that the axis edge, if any, comes last. The pole construction numbers the vertices
+  that way.
+
+**Which construction.** The angle must lie in $(0, 2\pi]$. If it is `np.isclose` to $2\pi$, the
+full-turn construction runs (`_full_turn`, or `_full_turn_with_poles` with an axis edge).
+Otherwise `sweep_lamina` runs ([[Extrude#In this implementation]]), with:
+- rails `turning_arc(v, a)`, or `None` for a vertex on the axis;
+- far copies `C_k.rotated(a)`, which turns the control points about $z$;
+- sides `revolved_surface(C_k, a)`, or `None` for the axis edge.
+
+**Full turns use the low-level operators.** In both full-turn constructions, `mef` and `mekr` join
+two half-edges that leave the same vertex. Naming that vertex doesn't say which two half-edges
+are meant, so the vertex-addressed `mef(face, v1, v2)` can't express the step. The code calls
+`lmekr` and `lmef` with the half-edges themselves
+([[../03_Topology/Euler_Operators#In this implementation]]).
+
+**Attaching a circle.** `_attach_circle` passes as `along` the circle's half-edge in the face of
+edge $k-1$, so the curve runs with increasing angle there, as the claim in
+[[#Orientation of the closed edges]] requires.
+
+**Pappus.** `profile_area_and_centroid` evaluates the two Green integrals by Gauss–Legendre
+quadrature on each knot span of each profile curve, with the same 12 points as `volume`.
 
 **Status**: exact (planar and revolved NURBS faces, untrimmed). Implemented and tested: `revolve`
 for partial and full turns, with and without an edge on the axis, in `tests/test_revolve.py`;

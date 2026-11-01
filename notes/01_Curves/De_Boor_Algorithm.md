@@ -244,14 +244,21 @@ $$Q_i = \frac{i}{n+1}\,P_{i-1} + \Big(1-\frac{i}{n+1}\Big)P_i, \qquad Q_0 = P_0,
 Corner cutting again — the new polygon lies inside the old one's hull
 (`bezier_elevate`, `test_bezier_degree_elevation_keeps_the_curve`).
 
-**B-splines.** `elevate_degree` decomposes into Bezier pieces, elevates each, and stitches them
-back (`test_bspline_degree_elevation_keeps_the_curve`). **The honest caveat:** the stitched knot
-vector has every breakpoint at multiplicity $p+1$, which by [[B_Splines]] only *promises* $C^0$.
+**B-splines.** The simplest method decomposes into Bezier pieces, elevates each, and stitches
+them back (`test_bspline_degree_elevation_keeps_the_curve`). **The honest caveat:** the stitched
+knot vector has every breakpoint at multiplicity $p+1$, which by [[B_Splines]] only *promises* $C^0$.
 The curve itself is as smooth as before — elevation never changes a curve — but the representation
 has forgotten it and carries redundant knots and control points. Getting them back out needs **knot
 removal**, which is not implemented ([[../99_Not_Covered_In_Code]]). Production implementations
 (e.g. algorithm A5.9 in Piegl & Tiller's *The NURBS Book*) do the same decompose-and-elevate, then
 remove the redundant knots in the same pass.
+
+## In this implementation
+
+- `elevate_degree` is the simple method above: `bspline_to_bezier`, then `bezier_elevate` on each
+  piece, then the pieces stitched together, with no knot removal. Every curve it returns carries
+  the redundant knots. [[../04_Modeling_Operations/Loft]] inherits this: lofted sections that
+  needed elevation have larger control nets than necessary.
 
 **Status**: exact. `de_boor`, `de_boor_stages`, `bspline_derivative`, `insert_knot`,
 `bspline_to_bezier`, `bezier_elevate`, `elevate_degree` implemented and tested in

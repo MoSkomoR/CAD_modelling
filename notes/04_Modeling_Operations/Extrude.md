@@ -21,9 +21,10 @@ plane stays in that plane. So control points in one plane imply a curve in that 
 
 Let $\mathbf n$ be the unit normal of the profile's plane. Throughout, the profile is oriented
 **counter-clockwise seen from the tip of $\mathbf d$**: its vector area $\mathbf A$ (defined
-under [[#Volume]]) satisfies $\mathbf A \cdot \mathbf d > 0$. `extrude` reverses a profile that
-runs the other way, so the caller doesn't have to care. Clockwise input and a downward
-$\mathbf d$ give the same solid (`test_orientation_does_not_depend_on_the_input`).
+under [[#Volume]]) satisfies $\mathbf A \cdot \mathbf d > 0$. A profile that runs the other way
+is reversed first: the order of its curves and the direction of each. Since the solid depends
+only on the region and $\mathbf d$, clockwise input and a downward $\mathbf d$ give the same solid
+(`test_orientation_does_not_depend_on_the_input`).
 
 ## The construction
 
@@ -38,8 +39,9 @@ generalized from 4 edges to $n$, with geometry attached as each operator runs:
 | 4 | $n$ × `mef` | side face $k$, between the straight edges at vertices $k$ and $k+1$ | the top copy of edge $k$ gets $C_k + \mathbf d$; the face gets the extruded surface (next section) |
 
 After step 4 the remaining lamina face is the top, the plane moved by $\mathbf d$ with normal
-$+\mathbf n$. Steps 1–4 are `sweep_lamina`, which [[Revolve]] (a partial turn) and [[Loft]] call
-with their own rails and surfaces.
+$+\mathbf n$. Nothing in steps 1–4 depends on the rails being straight or the side surfaces being
+extruded: [[Revolve]] (a partial turn) and [[Loft]] run the same steps with their own rails and
+surfaces.
 
 **Counts.** A profile of $n$ edges gives $V = 2n$ (each profile vertex and its copy), $E = 3n$
 (profile edges, top copies, straight edges) and $F = n + 2$ (the sides, top, bottom). Then
@@ -171,7 +173,7 @@ span:
 |---|---|---|---|---|---|---|---|
 | $\lvert V - \pi\rvert$ | 0.17 | $7.1\cdot10^{-3}$ | $2.9\cdot10^{-4}$ | $1.2\cdot10^{-5}$ | $1.9\cdot10^{-8}$ | $2.9\cdot10^{-11}$ | $\sim 10^{-15}$ |
 
-So `volume` uses $N = 12$ by default.
+At $N = 12$ the error is at rounding level.
 
 Measured volumes (`test_volumes`), all with height $h = 1.5$:
 - the unit circle gives $\pi h$;
@@ -217,6 +219,34 @@ quarter-cylinder. `check` reports exactly one problem, naming that side face
 - **Holes that leave the profile or touch each other.** Same reason.
 - **Extruding to a face** ("up to next", "through all"). That needs intersections, which this repo
   doesn't do ([[../99_Not_Covered_In_Code]]).
+
+## In this implementation
+
+**The input.** A profile is a list of `NurbsCurve`s. `_check_profile` requires at least two
+curves, each ending where the next starts, to within $10^{-9}$. Planarity is tested on the control
+points of the profile and the holes together: each must lie within $10^{-9}$ of the plane through
+the profile's first vertex, normal to its vector area. A direction with
+$\lvert\mathbf n \cdot \mathbf d\rvert < 10^{-12}$ is rejected as lying in the plane.
+
+**Orientation.** `_oriented` computes the profile's vector area by quadrature and, if
+$\mathbf A \cdot \mathbf d < 0$, reverses the list and every curve in it.
+
+**One construction for three operations.** Steps 1–4 are two functions in `ops/extrude.py`:
+- `lamina(profile)`: steps 1 and 2. It returns the solid, the two lamina faces and the vertices.
+- `sweep_lamina(profile, far, rails, sides, start, end)`: steps 3 and 4. `far[k]` is the far copy
+  of edge $k$, `rails[k]` the curve vertex $k$ travels along, `sides[k]` the surface edge $k$
+  sweeps, and `start`, `end` the planes of the caps. A rail of `None` marks a vertex that doesn't
+  move, and a side of `None` an edge that sweeps no face; [[Revolve]] needs both for an edge on
+  the axis. Every side face gets sense $+1$.
+
+`extrude` passes segments as rails and `extruded_surface` as the sides; `revolve` and `loft` pass
+their own.
+
+**Holes** are drilled by `_drill` after `sweep_lamina`, with the operators listed under
+[[#The construction]].
+
+**Quadrature.** 12 points per knot span, the table's last column
+([[Modeling_Operations#In this implementation]]).
 
 **Status**: exact (planar and extruded NURBS faces, untrimmed). Implemented and tested:
 `extrude`, with holes, upright and tilted, in `tests/test_extrude.py`; quadrature in

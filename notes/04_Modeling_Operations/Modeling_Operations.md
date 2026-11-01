@@ -36,11 +36,13 @@ every surface exactly.
 
 Each topological element now carries geometry:
 
-| element | carries | in this repo |
-|---|---|---|
-| vertex | a point | `Vertex.point` |
-| edge | a curve | `Edge.curve`, a `NurbsCurve` on $t \in [0, 1]$; closed for a full circle |
-| face | a surface | `Face.surface`, a `Plane` or a `NurbsSurface` on $[0,1]^2$ |
+| element | carries |
+|---|---|
+| vertex | a point |
+| edge | a curve, running between the edge's two vertices; a closed curve (a full circle) if both ends are the same vertex |
+| face | a surface: a plane, or a parametric patch $S(u, v)$ |
+
+How these are stored here is under [[#In this implementation]].
 
 **The rejected alternative: faceting.** An operation could stay polyhedral, for example revolving
 a profile in $N$ discrete steps. That would reuse module 03 unchanged. But a revolved circle
@@ -58,9 +60,9 @@ must say the same thing:
 - every edge curve lies on the surfaces of **both** faces it separates.
 
 The last condition is what makes the boundary watertight: two faces meet exactly along their
-shared edge, with no gap and no overlap. `check` now tests all three, at sample points of each
-curve (a check, not a proof). The distance from a point $x$ to a NURBS surface $S$ is found by
-Gauss–Newton:
+shared edge, with no gap and no overlap. Testing it needs the distance from a point to a
+surface, at sample points of each curve (a check, not a proof). The distance from a point $x$ to
+a NURBS surface $S$ is found by Gauss–Newton:
 
 - linearize: $S(u + \Delta u, v + \Delta v) \approx S + S_u\,\Delta u + S_v\,\Delta v$, where
   $S_u$, $S_v$ are the partial derivatives;
@@ -82,21 +84,18 @@ $\sigma$ is the sense, is not something `check` sees; the tests check it with a 
 ([[Revolve#Checking the orientation: Stokes]]).
 
 **3. Which way does an edge curve run?** The two half-edges of an edge run in opposite
-directions, so the curve can't run "with" both of them. `attach_curve` fixes the convention: the
-curve runs from `edge.he1.origin` to `edge.he2.origin`, reversing it if it was built the other
-way. A half-edge then traverses its curve forwards exactly when it is `he1`. Loop integrals need
-this (see volume, below). A closed curve (a full circle) has the same start and end, so its
-direction can't be read off the vertices; the caller names the half-edge that runs with it.
+directions, so the curve can't run "with" both of them. One of them traverses the curve
+forwards, the other backwards, and every loop integral (vector area, volume, below) has to know
+which. So the structure must record, for each half-edge, whether it runs with its edge's curve.
+For an open curve the endpoints decide it: the half-edge that starts at the curve's start runs
+with it. A closed curve (a full circle) has the same start and end, so its direction can't be
+read off the vertices and has to be stated explicitly.
 
-**A constraint from module 03.** `mev` always creates a *new* vertex at the far end of the new
-edge, so a profile built edge by edge with `mev` can't contain an edge that starts and ends at
-the same vertex. A circle in a profile therefore becomes several arcs, each with its own two
-vertices (`circle_arcs`, four quarter arcs by default). Real kernels store a full circle as one
-closed edge with one vertex. That costs extra edges and faces here, and nothing else.
-
-`mef` and `mekr` *can* make a closed edge: they join two half-edges' origins, and when both
-half-edges leave the same vertex the new edge is closed. A full revolve uses exactly that, along
-with *seams*, edges whose two half-edges lie in the same face ([[Revolve#A full turn: seams and closed edges]]).
+**Which operators can make a closed edge.** `mev` always creates a *new* vertex at the far end of
+the new edge, so it can't make an edge that starts and ends at the same vertex. `mef` and `mekr`
+*can*: they join two half-edges' origins, and when both half-edges leave the same vertex the new
+edge is closed. A full revolve uses exactly that, along with *seams*, edges whose two half-edges
+lie in the same face ([[Revolve#A full turn: seams and closed edges]]).
 
 ## Measuring a solid with curved faces: volume
 
@@ -110,9 +109,45 @@ forms:
 - **a planar face bounded by curves:** $\tfrac13\,\mathbf A \cdot p$, where $p$ is any point of
   the face and $\mathbf A = \tfrac12 \oint x \times dx$ is the vector area of its loops.
 
-`volume` evaluates both by Gauss–Legendre quadrature on each knot span. With no curves bound it
+Both are evaluated by Gauss–Legendre quadrature on each knot span. With no curves bound it
 reduces to the polyhedral formula, and agrees with `signed_volume` on the module 03 solids
 (`test_volume_agrees_with_signed_volume_on_polyhedra`).
+
+## In this implementation
+
+**The geometry objects** (`geometry/entities.py`) wrap the arrays of modules 01–02:
+- `NurbsCurve` and `NurbsSurface` hold control points, weights, knots and degrees, and evaluate
+  by calling the existing functions (`nurbs_curve`, `nurbs_surface`, ...). No new evaluation
+  algorithm lives in them.
+- Every curve and surface is clamped with knots normalized to $[0, 1]$, so every parameter runs
+  over $[0, 1]$. Points are 3D.
+- `Plane` stores a point and a unit normal.
+
+**Where they hang.** `Vertex.point`, `Edge.curve` and `Face.surface` (`None` until bound, so the
+module 03 solids are unchanged), and `Face.sense` ($\pm 1$).
+
+**The direction convention** (question 3). The structure doesn't store a per-half-edge flag.
+Instead `attach_curve` fixes one rule: the curve runs from `edge.he1.origin` to
+`edge.he2.origin`, and is reversed on attaching if it was built the other way. A half-edge then
+traverses its curve forwards exactly when it is `he1`. For a closed curve the caller passes
+`along`, the half-edge that runs with it, and `attach_curve` stores the curve reversed if `along`
+is `he2`, so the rule still holds.
+
+**Circles in a profile become arcs.** The profile builder (`lamina` in `ops/extrude.py`) makes
+its edges with `mev`, which can't close an edge. So a circle in a profile is cut into several
+arcs, each with its own two vertices (`circle_arcs`, four quarter arcs by default). Real kernels
+store a full circle as one closed edge with one vertex. That costs extra edges and faces here,
+and nothing else.
+
+**The consistency check.**
+- `check` tests the three conditions of question 1 at 5 interior parameters of each curve, with
+  tolerance $10^{-7}$ (`geometry_tol`).
+- `NurbsSurface.closest_parameters` starts Gauss–Newton from the nearest point of a
+  $17 \times 17$ grid of parameters, clips each step to $[0,1]^2$, and stops after 30 iterations
+  or when the step is below $10^{-14}$.
+
+**Quadrature.** `volume`, `loop_vector_area` and `surface_vector_area` use 12 Gauss–Legendre
+points per knot span (`GAUSS_POINTS`), chosen from the error table in [[Extrude#Volume]].
 
 **Status**: exact geometry (planes and NURBS), untrimmed curved faces only. Implemented and tested:
 the geometry objects, `attach_curve` (closed curves included), the consistency checks in `check`,

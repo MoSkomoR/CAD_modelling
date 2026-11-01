@@ -9,8 +9,11 @@ leaving validity: how solids are built and edited.
 
 `from_polygons` builds a half-edge solid in one go from a finished list of faces. That works for
 importing a complete mesh, but a modeller does something else: it edits. It splits a face, adds an
-edge, opens a hole. Doing that by rewiring pointers by hand is where invalid structures come from.
-A missed `prev` is invisible until a traversal loops forever.
+edge, opens a hole. Each such edit changes several pointers that must agree with each other:
+splitting a face means new half-edges, new `next` links on both sides of the cut, a new loop,
+and every moved half-edge re-assigned to it. Doing that by rewiring pointers by hand is where
+invalid structures come from. A wrong `next` is invisible when it is made. It shows up later,
+when a walk round a face never returns to its start or wanders into another face.
 
 **Euler operators** are a small vocabulary of local edits. Each one:
 - changes a handful of pointers;
@@ -55,25 +58,25 @@ and is cited.
 
 Measured on five solids (`test_euler_poincare_on_known_solids`):
 
-| solid | $V$ | $E$ | $F$ | $R$ | $S$ | $G$ | both sides |
-|---|---|---|---|---|---|---|---|
-| tetrahedron | 4 | 6 | 4 | 0 | 1 | 0 | 2 |
-| cube | 8 | 12 | 6 | 0 | 1 | 0 | 2 |
-| octahedron | 6 | 12 | 8 | 0 | 1 | 0 | 2 |
-| block with a square through-hole | 16 | 24 | 10 | 2 | 1 | 1 | 0 |
-| $8 \times 6$ quad torus | 48 | 96 | 48 | 0 | 1 | 1 | 0 |
+| solid                            | $V$ | $E$ | $F$ | $R$ | $S$ | $G$ | both sides |
+| -------------------------------- | --- | --- | --- | --- | --- | --- | ---------- |
+| tetrahedron                      | 4   | 6   | 4   | 0   | 1   | 0   | 2          |
+| cube                             | 8   | 12  | 6   | 0   | 1   | 0   | 2          |
+| octahedron                       | 6   | 12  | 8   | 0   | 1   | 0   | 2          |
+| block with a square through-hole | 16  | 24  | 10  | 2   | 1   | 1   | 0          |
+| $8 \times 6$ quad torus          | 48  | 96  | 48  | 0   | 1   | 1   | 0          |
 
 **The genus is not stored by the topology.** Nothing in the pointers says "this solid has a
-handle". Mäntylä *computes* $G$ from the formula. Here the solid tracks $G$ through the operators
-that change it, so the formula is a genuine check rather than a definition. For `from_polygons`
-the genus is passed in.
+handle". So either $G$ is *computed* from the formula, as Mäntylä does, and then the formula
+checks nothing; or $G$ is tracked separately, through the operators that change it, and then the
+formula is a genuine check. This repo does the second
+([[#In this implementation]]).
 
 **Shells must be counted through faces, not just edges.** On the block with a hole, right after
 `kemr`, no edge connects the hole's square to the rest of the solid. The two are joined only
 because both are loops of the top face. Counting connected components of the vertex–edge graph
 alone gives $S = 2$ and breaks the formula; joining each face's loops gives $S = 1$
-(`test_a_ring_is_connected_to_its_shell_only_through_its_face`). That bug happened during
-development, and the formula caught it.
+(`test_a_ring_is_connected_to_its_shell_only_through_its_face`).
 
 ## The operators
 
@@ -81,13 +84,13 @@ Each operator changes $(V, E, F, R, S, G)$ by a fixed amount. Write $\Delta L$ f
 the left side of the formula, $V - E + F - R$, and $\Delta R_{\text{hs}}$ for the change in the
 right side, $2(S - G)$:
 
-| operator | what it does | $\Delta V$ | $\Delta E$ | $\Delta F$ | $\Delta R$ | $\Delta S$ | $\Delta G$ | $\Delta L$ | $\Delta R_{\text{hs}}$ |
-|---|---|---|---|---|---|---|---|---|---|
-| `mvfs` | make vertex, face, shell: the seed | 1 | 0 | 1 | 0 | 1 | 0 | 2 | 2 |
-| `mev` | make edge and vertex | 1 | 1 | 0 | 0 | 0 | 0 | 0 | 0 |
-| `mef` | make edge and face: split a loop in two | 0 | 1 | 1 | 0 | 0 | 0 | 0 | 0 |
-| `kemr` | kill an edge, make a ring | 0 | −1 | 0 | 1 | 0 | 0 | 0 | 0 |
-| `kfmrh` | kill a face, make a ring and a hole | 0 | 0 | −1 | 1 | 0 | 1 | −2 | −2 |
+| operator | what it does                            | $\Delta V$ | $\Delta E$ | $\Delta F$ | $\Delta R$ | $\Delta S$ | $\Delta G$ | $\Delta L$ | $\Delta R_{\text{hs}}$ |
+| -------- | --------------------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------------------- |
+| `mvfs`   | make vertex, face, shell: the seed      | 1          | 0          | 1          | 0          | 1          | 0          | 2          | 2                      |
+| `mev`    | make edge and vertex                    | 1          | 1          | 0          | 0          | 0          | 0          | 0          | 0                      |
+| `mef`    | make edge and face: split a loop in two | 0          | 1          | 1          | 0          | 0          | 0          | 0          | 0                      |
+| `kemr`   | kill an edge, make a ring               | 0          | −1         | 0          | 1          | 0          | 0          | 0          | 0                      |
+| `kfmrh`  | kill a face, make a ring and a hole     | 0          | 0          | −1         | 1          | 0          | 1          | −2         | −2                     |
 
 **Claim.** Every operator, and every inverse, keeps $V - E + F - R = 2(S - G)$.
 
@@ -141,6 +144,43 @@ Can every valid solid be built this way? Mäntylä (1988) states that these oper
 **complete**: every orientable 2-manifold solid can be reached from `mvfs` by a sequence of them.
 That is cited, not proved here. The constructions above are evidence only for the solids they
 build.
+
+## In this implementation
+
+**Two layers of operators.**
+- The **low-level operators** take half-edges: `lmev(he1, he2, point)`, `lmef(he1, he2)`,
+  `lkemr`, `lmekr`, `lkfmrh(keep, kill)` and their inverses, after Mäntylä's names. A half-edge
+  names a position in a loop exactly.
+- The **vertex-addressed operators** `mev`, `mef` and `kemr` take a face and vertices, which is
+  how a builder thinks ("an edge from $v_1$ to $v_2$ across this face"). They find the half-edge
+  with `find_halfedge`, which searches the face and raises an error unless exactly one half-edge
+  of the face leaves that vertex (towards a named neighbour, if one is given).
+
+The second layer is ambiguous wherever a loop passes through one vertex twice: at the root of a
+spike, or at a seam vertex of a full revolve. There the code calls the low-level operators
+directly ([[../04_Modeling_Operations/Revolve#A full turn: seams and closed edges]]).
+
+**The genus is a counter.** `Solid.genus` starts at 0, and only `lkfmrh` (+1) and `lmfkrh` (−1)
+change it. `from_polygons` takes it as an argument. `lkfmrh` always adds 1, so it assumes the two
+faces lie in the same shell. Using it to glue two separate shells together, which would lower $S$
+instead of raising $G$, is not supported. Since $S$ is counted from the connectivity, the counts
+would then disagree with the formula and `check` would report it.
+
+**The shell count.** `count_shells` joins vertices along edges, then joins each face's rings to
+its outer loop. The first version joined along edges only; the formula failed on the block with
+a hole right after `kemr`, which is how that bug was found
+(`test_a_ring_is_connected_to_its_shell_only_through_its_face`).
+
+**Vertex anchors after a kill.** Each vertex stores one outgoing half-edge. When an operator
+removes the half-edge a vertex was anchored to, `_outgoing` finds a new one by scanning the whole
+solid. That costs time proportional to the size of the solid, which is acceptable at the sizes
+used here.
+
+**Recording steps.** The builders (`cube`, `block_with_hole`, and the module 04 operations) take
+an optional `steps` list. After each operator they append a `snapshot`: the faces and edges as
+point arrays, the counts, and the result of `check(geometric=False)`. Script 02 draws the
+snapshots. `test_every_step_of_every_construction_is_valid` asserts that no snapshot of the
+module 03 builders reports a problem; the module 04 tests do the same for their operations.
 
 **Status**: exact (topology). Implemented and tested in `tests/test_halfedge.py`: all ten operators,
 the three constructions, `from_polygons`. Script 02 replays the constructions. Proved inline:

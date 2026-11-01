@@ -13,8 +13,7 @@ A tensor-product patch lerps along two independent directions, $u$ and $v$. A Be
 instead lerps over a single triangular lattice, in **barycentric coordinates**
 $(\lambda_0,\lambda_1,\lambda_2)$ with $\lambda_0+\lambda_1+\lambda_2=1$. Control points are
 indexed by a multi-index $\mathbf{i}=(i,j,k)$ with $i+j+k=n$ — there is no "rows and columns"
-here, only the triangular lattice itself (`bezier_triangle_point` therefore keys its control net
-by a dict `{(i,j,k): point}`, not an array).
+here, only the triangular lattice itself.
 
 Let $e_0=(1,0,0)$, $e_1=(0,1,0)$, $e_2=(0,0,1)$. The recursion blends **three** neighbours per
 step, at the same fixed weights, instead of two:
@@ -77,10 +76,6 @@ that only used "non-negative weights summing to one" therefore survives verbatim
 - **Affine invariance**: the same partition-of-unity argument from
   [[Bernstein_Basis_Properties]] applies term for term (`test_triangle_affine_invariance`).
 
-`de_casteljau_triangle_stages` returns every level of the shrinking lattice rather than only the
-last, exactly as `de_casteljau_triangle` (curves) and `de_casteljau_surface_stages` (tensor
-patches) do — it is what the "De Casteljau stages" toggle in the script draws collapsing.
-
 ## What is different from the tensor product, and what is not built here
 
 A triangular patch has one **total** degree $n$, not a bidegree $(n,m)$ — the three barycentric
@@ -93,6 +88,16 @@ different derivation from the tensor-product case — column-wise curve subdivis
 lerp along here — and is left for [[../99_Not_Covered_In_Code]] alongside degree elevation.
 Evaluation, corner interpolation, hull containment and affine invariance are exercised above;
 subdivision and degree elevation are not.
+
+## In this implementation
+
+- The control net is a dict `{(i, j, k): point}`, not an array. A triangular lattice has no rows
+  and columns to map onto array axes, and the multi-index is the natural key.
+- `de_casteljau_triangle_stages` returns every level of the shrinking lattice, each a dict of the
+  same form, rather than only the last, exactly as `de_casteljau_triangle` (curves) and
+  `de_casteljau_surface_stages` (tensor patches) do. That is what the "De Casteljau stages"
+  toggle in the script draws collapsing. `bezier_triangle_point` takes the single point of the
+  last level.
 
 **Status**: exact (evaluation via both `bezier_triangle_point` and the closed
 `bernstein_triangle_basis` / `bezier_triangle`, agreeing to machine precision). Corner

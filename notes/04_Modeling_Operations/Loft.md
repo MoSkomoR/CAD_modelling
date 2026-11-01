@@ -26,8 +26,7 @@ direction.
   the same number $n$ of curves, and $C_k^s$ is curve $k$ of section $s$.
 - **Correspondence by index:** curve $k$ of every section belongs to side face $k$, and vertex
   $k$ (the start of curve $k$) of every section lies on one longitudinal edge. All sections must
-  run the same way round. `loft` reverses all of them together if needed, which keeps the
-  correspondence.
+  run the same way round. Reversing all of them together, if needed, keeps the correspondence.
 - **Caps:** the first and last sections must be planar. The ones in between need not be.
 - **End weights 1:** every section curve starts and ends with weight 1. That is true of lines,
   Beziers and `circle_arcs`; the reason is under [[#The longitudinal edges]].
@@ -42,8 +41,8 @@ one surface, the curves $C_k^0, \dots, C_k^K$ must first be written on one degre
 vector.
 
 In the square-to-circle loft of script 03, edge $k$ is a straight line in the squares (degree 1)
-and a rational quadratic arc in the circles (degree 2). `compatible` rewrites them without
-changing their shapes:
+and a rational quadratic arc in the circles (degree 2). Two steps rewrite them without changing
+their shapes:
 1. **Degree:** each curve is raised to the highest degree present, by `elevate_degree`
    ([[../01_Curves/De_Boor_Algorithm]]).
 2. **Knots:** every knot value is inserted into every curve until it has, in every curve, the
@@ -67,7 +66,7 @@ unknowns $Q_{ij}$ solve
 $$\sum_{j=0}^{K} N_{j,q}(v_s)\,Q_{ij}^w = (P_i^s)^w, \qquad s = 0, \dots, K,$$
 where $^w$ marks lifted points. That is one $(K+1) \times (K+1)$ matrix $M_{sj} = N_{j,q}(v_s)$ for
 every column. It is invertible by Schoenberg–Whitney (cited, as in
-[[../01_Curves/B_Spline_Interpolation]]). `skinned_surface` solves for all columns at once.
+[[../01_Curves/B_Spline_Interpolation]]).
 
 **Claim.** The surface passes through every section: $S(u, v_s) = C^s(u)$.
 
@@ -98,9 +97,9 @@ the solid to be watertight, that edge must lie on both skins. Two things make it
 
 **One set of parameters for the whole loft.** Face $k$'s boundary at $u = 0$ interpolates the
 vertices; so does face $(k-1)$'s boundary at $u = 1$. They are the same curve only if they
-interpolate at the same $v_s$ on the same knots. So `skin_parameters` computes the $v_s$ once, from
-every column of every face. Each column's parameters come from `interpolation_parameters`, and
-then they are averaged (Piegl & Tiller's averaging; cited).
+interpolate at the same $v_s$ on the same knots. So the $v_s$ are computed once, from every column
+of every face: each column gets its own parameters by the rule of curve interpolation, and then
+they are averaged (Piegl & Tiller's averaging; cited).
 
 **End weights 1.** At $u = 0$ only $N_{0,p}$ is non-zero (clamped knots), so
 $S^w(0, v) = \sum_j N_{j,q}(v)\,Q_{0j}^w$. That is the interpolant of the lifted vertices
@@ -115,19 +114,18 @@ $\blacksquare$
 
 With other end weights, the two faces would interpolate data scaled differently. A rational curve
 is unchanged when all its weights are multiplied by one constant, but each section could be scaled
-by a different constant, and the interpolant across would change. So `loft` requires end weights
-of 1.
+by a different constant, and the interpolant across would change. So the sections must have end
+weights of 1.
 
 `check` confirms every longitudinal edge lies on both of its skins
 (`test_every_step_is_valid_and_the_result_is_consistent`, three lofts).
 
 ## The topology: an extrusion
 
-Topologically a loft is an extrusion. `loft` calls `sweep_lamina` ([[Revolve#A partial turn: the extrusion construction]])
-with:
+Topologically a loft is an extrusion ([[Extrude#The construction]]), with:
 - the first section as the profile;
 - the last section as the far copy;
-- the longitudinal edges as rails, each one taken as the $u = 0$ column of a skin;
+- the longitudinal edges as rails;
 - the skins as side faces.
 
 So $V = 2n$, $E = 3n$ and $F = n + 2$ (`test_every_step_is_valid_and_the_result_is_consistent`).
@@ -181,10 +179,8 @@ graph $\rho = r(z)$ whose slope stays small. Chord length is then close to $z$ i
 parameter in which the data are a smooth function. In the second experiment the data turn sharply,
 and the long gap above the close pair gets a long stretch of $v$ to swing in.
 
-**The default.** `loft` and `skin_parameters` default to **centripetal**: the one rule that was
-never the worst. This departs from the textbook's chord length, which lost badly on the second
-experiment. It is also the default of curve interpolation, for the related reason measured there.
-Two experiments are evidence, not a theorem.
+No rule wins both experiments, and two experiments are evidence, not a theorem. The default this
+repo picks from them is under [[#In this implementation]].
 
 ## What loft doesn't do
 
@@ -197,6 +193,45 @@ Two experiments are evidence, not a theorem.
   seams, as in [[Revolve]].
 - **Detecting folds or self-intersections.** Interpolated weights that come out non-positive are
   rejected, but nothing else is checked.
+
+## In this implementation
+
+**Checks on the input** (`loft`).
+- At least two sections, all with the same number of curves, each closed (extrude's
+  `_check_profile`).
+- End weights must be `np.isclose` to 1.
+- **Orientation.** The axis is taken from the centroid of the first section's vertices to that of
+  the last section's. Each section's vector area is compared with it. Mixed signs are rejected;
+  if all are negative, every section is reversed.
+- The first and last sections must be planar: control points within $10^{-9}$ of their plane.
+- The degree across is lowered to $K$ without a warning when there are too few sections.
+
+**Compatibility** (`compatible`, `geometry/skinning.py`) works on the lifted points throughout.
+Knot values are compared **exactly**: two knots that should be equal but differ by rounding count
+as different values. Each is then inserted into the other curves, which adds a very short span
+instead of failing. No test covers this case.
+
+**Interpolation across** (`skinned_surface`). All columns share one matrix $M$, so one
+`np.linalg.solve` with all lifted control points as right-hand sides solves for the whole net. A
+dense solve, as in curve interpolation. If an interpolated weight comes out $\le 0$, the surface
+is rejected with an error: the rational surface would pass through infinity.
+
+**The parameters** (`skin_parameters`). Columns that don't move between sections (total length
+0) have no parameters of their own to contribute, and are skipped before averaging. If every
+column is skipped, the sections coincide and the loft is rejected.
+
+**The rails.** The longitudinal edge at vertex $k$ is built from the $u = 0$ column of skin $k$:
+its control points, weights (all 1, by the claim above), the knots in $v$ and the degree $q$.
+Skin $k-1$'s $u = 1$ column interpolates the same data with the same matrix, so `check` finds
+the rail on both faces to within its tolerance.
+
+**The default spacing.** `loft` and `skin_parameters` default to **centripetal**: the one rule
+that was never the worst in the two experiments above. This departs from the textbook's chord
+length, which lost badly on the second. It is also the default of curve interpolation, for a
+related reason measured there.
+
+**Topology.** `loft` calls `sweep_lamina` ([[Extrude#In this implementation]]) with no `None`
+rails or sides.
 
 **Status**: exact (planar caps and skinned NURBS faces, untrimmed; the skin is exact through the
 sections, and in between it is whatever the interpolation makes it). Implemented and tested:

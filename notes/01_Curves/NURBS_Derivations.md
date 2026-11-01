@@ -28,9 +28,9 @@ gives $A(t)/w(t) = C(t)$. $\blacksquare$
 The notes call $\mathbb{R}^{d+1}$, where the lifted points and $C^w$ live, **upstairs**, and the
 division back to $\mathbb{R}^d$ the projection.
 
-That one line is the whole implementation strategy of `nurbs.py`: lift, run the existing
-polynomial machinery ([[De_Boor_Algorithm]]), divide. Every result below that says "carries over"
-is this line applied once more. With all $w_i = 1$, $w(t) = \sum_i N_{i,p} = 1$ by partition of
+That one line means a rational curve needs no algorithm of its own: lift, run the existing
+polynomial machinery ([[De_Boor_Algorithm]]), divide ([[NURBS#In this implementation]]).
+Every result below that says "carries over" is this line applied once more. With all $w_i = 1$, $w(t) = \sum_i N_{i,p} = 1$ by partition of
 unity and $C$ is the B-spline (`test_nurbs_with_unit_weights_is_the_bspline`); on Bezier knots it is
 the rational Bezier curve (`test_rational_bezier_is_nurbs_on_bezier_knots`).
 

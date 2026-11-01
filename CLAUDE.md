@@ -97,6 +97,22 @@ The formulas are the easy part — the repo exists for the reasoning. Every note
 - **Separate the note types**: algorithm notes stay about the algorithm; property proofs live in
   their own properties note (`Bernstein_Basis_Properties.md`); one note per module acts as the
   motivation hub (`Bezier_Curves.md`).
+- **Separate the theory from this implementation.** Within a note (never as a duplicate note),
+  keep two layers apart:
+  1. **Theory**: the mathematics, and the representations and algorithms from the literature
+     (the half-edge structure, Euler operators, skinning): which problem each one solves, why it
+     is shaped that way, and its proofs and measurements. This is what carries over to any
+     kernel. A theory section may name a function as the place something is computed or
+     measured, but it does not describe how the code does it, and it uses field names only when
+     the literature uses them.
+  2. **`## In this implementation`**, the last section before `**Status**:`. It covers what this
+     code chose, and the problems those choices created and how they are handled: the data
+     layout (what is stored and what is derived, and what each stored extra costs), conventions
+     (parameter ranges, curve directions), defaults and where their measurement is, tolerances,
+     input checks, guards, dense versus banded solves, simplifications against the literature.
+  A note whose code is a direct transcription of its mathematics may omit the section. When
+  writing a theory sentence, ask whether it would still be true of OpenCASCADE; if not, it
+  belongs in the implementation section.
 - Open with a `Code:` link to the implementing script/module; close with a `**Status**:` line
   giving fidelity (exact / simplified / notes-only) and what is tested or visualized.
 - Cross-link liberally with `[[wikilinks]]`.

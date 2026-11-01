@@ -50,9 +50,9 @@ $C(t_k) = Q_k$:
 $$\sum_{i=0}^{n} N_{i,p}(t_k)\,P_i = Q_k, \qquad k = 0,\dots,n.$$
 That is $n+1$ linear equations in the $n+1$ unknown control points — one solve per coordinate,
 sharing one matrix $A_{ki} = N_{i,p}(t_k)$. By local support each row has at most $p+1$ non-zeros,
-so $A$ is **banded**; a production kernel uses a banded solver in $O(np^2)$, while
-`interpolate_points` uses a dense `np.linalg.solve`, which gives the same answer at this size.
-Every curve hits every point to $\sim10^{-16}$ (`test_interpolation_passes_through_every_point`).
+so $A$ is **banded**, and a banded solver needs $O(np^2)$ operations against $O(n^3)$ for a
+dense one. Every curve hits every point to $\sim10^{-16}$
+(`test_interpolation_passes_through_every_point`).
 
 Two choices are hidden in that setup, and the matrix is only invertible if they are made
 sensibly:
@@ -103,7 +103,7 @@ Chord length is the default in most textbooks. Measured on three deliberately aw
 | tight cluster | stray 0.14 | stray **5.61**, **self-intersects** | **stray 0.13** |
 
 Centripetal is the only rule that is clean on all three; chord length, the usual default, is the
-*worst* on two of them. So `interpolate_points` defaults to centripetal.
+*worst* on two of them.
 
 Why, qualitatively: the parameters decide how much "time" the curve spends between consecutive
 points. **Uniform** gives a tiny gap and a huge gap the same time, so the curve crawls through
@@ -126,6 +126,14 @@ Exact interpolation passes through every point, noise included. Real measured da
 **least-squares approximation** instead — fewer control points than data points, a curve that
 passes *near* the points within a tolerance — which is a different solve and is not implemented
 ([[../99_Not_Covered_In_Code]]). End-derivative constraints (clamped tangents) are also left out.
+
+## In this implementation
+
+- **The default parametrization is centripetal**, chosen from the table above: it is the only
+  rule that was clean on all three data sets.
+- **The solve is dense.** `interpolate_points` uses `np.linalg.solve` on the full matrix, not a
+  banded solver. At the sizes used here (tens of points) both give the same answer and the cost
+  doesn't matter; a production kernel would use the band.
 
 **Status**: exact. `interpolation_parameters`, `averaged_knots`, `interpolate_points`
 implemented; residuals, the parameter values, the Runge comparison, the parametrization table and
