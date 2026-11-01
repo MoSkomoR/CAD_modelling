@@ -11,7 +11,7 @@ already computing *are* the control polygons of the two halves of the curve, spl
 subdivision is what turns into adaptive tessellation, intersection by subdivide-and-cull, ray
 casting and trimming.
 
-Notes: notes/01_Curves/Bezier_Curves.md, notes/01_Curves/De_Casteljau_Derivation.md
+Notes: notes/01_Curves/02_Bezier_Curves.md, notes/01_Curves/03_De_Casteljau_Derivation.md
 Run:   python scripts/01_curves/02_bezier_de_casteljau.py
 """
 

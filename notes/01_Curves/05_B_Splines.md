@@ -3,12 +3,12 @@ Code: [[../../scripts/01_curves/05_bspline_basis.py]], [[../../scripts/01_curves
 # B-splines — Bezier, allowed to break into pieces
 
 The motivation hub for B-splines. The evaluation algorithm, knot insertion and degree elevation
-are in [[De_Boor_Algorithm]]; fitting a curve *through* points is in [[B_Spline_Interpolation]].
-The rational extension (the R in NURBS) comes after, in [[NURBS]].
+are in [[06_De_Boor_Algorithm]]; fitting a curve *through* points is in [[07_B_Spline_Interpolation]].
+The rational extension (the R in NURBS) comes after, in [[08_NURBS]].
 
 ## The problem being fixed
 
-[[Bernstein_Basis_Properties]] ended on the one Bezier property that is a liability: **global
+[[04_Bernstein_Basis_Properties]] ended on the one Bezier property that is a liability: **global
 support**. Every $B_i^n$ is strictly positive on all of $(0,1)$, so every control point moves
 every interior point of the curve. Measured on a 10-point zig-zag polygon
 (`test_moving_a_control_point_changes_only_p_plus_one_spans`): raising $P_5$ by one unit moves
@@ -105,14 +105,14 @@ knots; the dashed "sum" line in script 05 is flat at 1 however you drag the knot
 These are the same two facts Bezier curves rested on, so the same corollaries hold — and one gets
 sharper:
 
-- **Affine invariance** — identical proof to [[Bernstein_Basis_Properties]]
+- **Affine invariance** — identical proof to [[04_Bernstein_Basis_Properties]]
   (`test_bspline_affine_invariance`).
 - **Strong convex hull.** At $t$ in span $[u_k,u_{k+1})$ only $N_{k-p,p},\dots,N_{k,p}$ are
   non-zero, so $C(t)$ is a convex combination of just the $p+1$ points $P_{k-p},\dots,P_k$. Each
   piece lies in the hull of its *own* $p+1$ points — a far tighter bound than the hull of the whole
   polygon, and a better one to cull with (`test_strong_convex_hull`).
 - **Bezier is the special case.** With no interior knots, $0^{p+1}1^{p+1}$, every ramp is $t$ or
-  $1-t$, Cox–de Boor becomes Pascal's rule from [[De_Casteljau_Derivation]], and $N_{i,p} = B_i^p$
+  $1-t$, Cox–de Boor becomes Pascal's rule from [[03_De_Casteljau_Derivation]], and $N_{i,p} = B_i^p$
   (`test_bezier_is_a_special_case_of_bspline`, to $10^{-14}$ for degrees 1, 2, 3, 5). A B-spline
   is not a different kind of curve — it is a Bezier curve that has been allowed to break into
   pieces.
@@ -127,7 +127,7 @@ control points, and that shared data pins down the value and the first $p-1$ der
 repeat of the knot removes one shared point, and with it one order of continuity. At multiplicity
 $p$ the pieces share a single point: $C^0$, a corner is allowed, and the curve passes *through*
 that control point (this is also why the clamped ends interpolate). This is stated rather than
-proved here — the proof goes through the derivative formula in [[De_Boor_Algorithm]] applied $p-k+1$
+proved here — the proof goes through the derivative formula in [[06_De_Boor_Algorithm]] applied $p-k+1$
 times — and **measured** instead: for a cubic with a knot of multiplicity 1, 2, 3 at $t=0.5$,
 the derivative jumps are below $10^{-6}$ (finite-difference noise at $\varepsilon=10^{-9}$) up to
 order $3-k$, and $\ge 1$ — in practice tens to hundreds — at order $3-k+1$
@@ -142,11 +142,11 @@ them reaches 1.
 
 - **The knot vector is a second, less intuitive input.** Control points are geometry; knots are
   not anywhere on screen. Most users never touch them, which is why clamped uniform knots are the
-  default in almost every tool — and why fitting ([[B_Spline_Interpolation]]) has to *choose*
+  default in almost every tool — and why fitting ([[07_B_Spline_Interpolation]]) has to *choose*
   them.
-- **Still polynomial.** Every piece is a polynomial, so the circle proof in [[Lines_and_Arcs]]
+- **Still polynomial.** Every piece is a polynomial, so the circle proof in [[01_Lines_and_Arcs]]
   applies unchanged: no B-spline of any degree or knot vector is exactly a circle. That is the
-  remaining limitation, and the one weights fix ([[NURBS]]).
+  remaining limitation, and the one weights fix ([[08_NURBS]]).
 - **Evaluation needs a span search.** Bezier evaluation starts immediately; a B-spline must first
   find which span $t$ is in, by a binary search over the knots. Cheap, but a source of real bugs
   at the right end of the domain: the spans $[u_k, u_{k+1})$ are half-open, so none of them

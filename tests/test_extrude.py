@@ -55,7 +55,7 @@ def test_volumes():
 
 def test_oblique_extrusion_keeps_the_volume():
     """Cavalieri: tilting d keeps its component along the profile normal, so V = A (d . n) does
-    not change (Extrude.md proves it as a shear)."""
+    not change (02_Extrude.md proves it as a shear)."""
     upright = volume(extrude(SQUARE, (0, 0, 1.5), [CIRCLE]))
     for d in [(0.7, 0.3, 1.5), (-2.0, 1.0, 1.5), (3.0, 3.0, 1.5)]:
         assert np.isclose(volume(extrude(SQUARE, d, [CIRCLE])), upright, atol=1e-12)

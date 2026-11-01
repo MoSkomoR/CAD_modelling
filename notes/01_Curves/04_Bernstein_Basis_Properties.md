@@ -12,7 +12,7 @@ one panel of that figure.
 $$B_i^n(t) = \binom{n}{i}(1-t)^{n-i}t^i, \qquad i = 0,\dots,n,$$
 with the convention $B_j^k \equiv 0$ for $j<0$ or $j>k$, and the recursion
 $B_j^k = (1-t)B_j^{k-1} + t\,B_{j-1}^{k-1}$ (Pascal's rule — derived in
-[[De_Casteljau_Derivation]]).
+[[03_De_Casteljau_Derivation]]).
 
 **Fact 1 — non-negativity.** For $t \in [0,1]$: $\binom{n}{i} > 0$, $(1-t)^{n-i} \ge 0$ and
 $t^i \ge 0$, so $B_i^n(t) \ge 0$. ∎
@@ -55,7 +55,7 @@ This is the property that does the most work in real code, for three reasons:
    box of the control points bounds the curve too — no curve evaluation required. If two curves'
    boxes are disjoint, the curves provably do not intersect, and intersection code can discard
    the pair before any root-finding happens. Most candidate pairs die here.
-2. **Guaranteed tessellation error bounds.** Subdivide ([[De_Casteljau_Derivation]]) and the
+2. **Guaranteed tessellation error bounds.** Subdivide ([[03_De_Casteljau_Derivation]]) and the
    control polygons converge to the curve. Because the curve is trapped in the hull, "this
    control polygon is flat to within ε" *implies* "the curve is within ε of that polygon" —
    a guarantee, not an estimate. This flatness test is how a kernel turns a spline into a
@@ -91,8 +91,8 @@ you rotate and shear.)
 argument breaks — the denominators don't distribute. Polynomial Bezier curves are affinely but
 not projectively invariant. Rational curves are both, because a projective map is just a linear
 map upstairs in homogeneous coordinates, which is precisely where `rational_bezier` does its
-work. One more reason NURBS is the representation kernels standardize on ([[Bezier_Curves]]); the
-proof, and the catch that the weights change, are in [[NURBS_Derivations]] §5.
+work. One more reason NURBS is the representation kernels standardize on ([[02_Bezier_Curves]]); the
+proof, and the catch that the weights change, are in [[09_NURBS_Derivations]] §5.
 
 ## Global support (and why B-splines exist)
 
@@ -119,14 +119,14 @@ polynomial by segments glued with continuity conditions, and choose basis functi
 **compact support** — each nonzero on only a few spans. That is the B-spline basis
 $N_{i,p}$, nonzero only on $[u_i, u_{i+p+1})$, so moving a control point perturbs at most $p+1$
 spans and nothing else. Same convex-hull and affine-invariance guarantees, now local — built
-and measured in [[B_Splines]].
+and measured in [[05_B_Splines]].
 
 ## Variation diminishing
 
 Stated without proof (it follows from the corner-cutting view of subdivision): **no straight
 line crosses the curve more often than it crosses the control polygon.** So the curve cannot
 oscillate more than its control polygon suggests — no Runge-style wiggles appearing between the
-points you placed ([[B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]]). This
+points you placed ([[07_B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]]). This
 is the formal version of "Bezier curves do what they look like they will do", and it is a large part of why the control-point paradigm is usable for design at all.
 
 **Status**: proofs complete for the four properties above; variation diminishing is stated and

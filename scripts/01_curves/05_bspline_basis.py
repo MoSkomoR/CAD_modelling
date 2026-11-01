@@ -18,7 +18,7 @@ Move the five interior knots and raise the middle knot's multiplicity: a repeate
 the functions around it and makes one of them peak at 1 there -- the curve is pulled onto a
 control point and loses a degree of smoothness (script 06, and the continuity test).
 
-Notes: notes/01_Curves/B_Splines.md
+Notes: notes/01_Curves/05_B_Splines.md
 Run:   python scripts/01_curves/05_bspline_basis.py
 """
 

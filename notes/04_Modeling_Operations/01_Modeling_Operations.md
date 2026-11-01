@@ -8,9 +8,9 @@ the operations a CAD user actually performs: draw a closed profile, then **extru
 **loft** or **sweep** it into a solid.
 
 The operations are written up one per note:
-- [[Extrude]] — a profile moved along a vector;
-- [[Revolve]] — a profile turned about an axis: seams, closed edges and poles;
-- [[Loft]] — a solid through a stack of sections: compatible curves and skinning;
+- [[02_Extrude]] — a profile moved along a vector;
+- [[03_Revolve]] — a profile turned about an axis: seams, closed edges and poles;
+- [[04_Loft]] — a solid through a stack of sections: compatible curves and skinning;
 - sweep — planned.
 
 Extrude, a partial revolve and loft share one topological construction (`sweep_lamina`); they
@@ -21,7 +21,7 @@ differ only in the curves and surfaces they attach.
 A kernel could ask the user for faces directly: six patches for a box, glued along their edges.
 Nobody models that way, for two reasons:
 - **Validity is hard to get by hand.** Every edge must be shared by exactly two faces, and every
-  edge curve must lie on both of its surfaces ([[../03_Topology/B_Rep_Topology]]). Placing
+  edge curve must lie on both of its surfaces ([[../03_Topology/01_B_Rep_Topology]]). Placing
   patches so that this holds is the kernel's job, not the user's.
 - **A profile is the design intent.** A shaft is "this cross-section, this long". The profile
   plus one parameter (a length, an angle, a path) says that directly, and editing the parameter
@@ -29,7 +29,7 @@ Nobody models that way, for two reasons:
 
 So an operation takes a profile and produces a solid that is valid *by construction*. Its
 topology comes from Euler operators, which keep it valid at every step
-([[../03_Topology/Euler_Operators]]). Its geometry comes from the profile curves, which fix
+([[../03_Topology/03_Euler_Operators]]). Its geometry comes from the profile curves, which fix
 every surface exactly.
 
 ## Binding geometry to topology
@@ -47,7 +47,7 @@ How these are stored here is under [[#In this implementation]].
 **The rejected alternative: faceting.** An operation could stay polyhedral, for example revolving
 a profile in $N$ discrete steps. That would reuse module 03 unchanged. But a revolved circle
 would become a polygon, which throws away exactly what modules 01–02 built: a cylinder is a
-NURBS surface *exactly* ([[../02_Surfaces/Surfaces_of_Revolution]]). Facets are what a kernel
+NURBS surface *exactly* ([[../02_Surfaces/04_Surfaces_of_Revolution]]). Facets are what a kernel
 produces at the very end, for display or export, from exact geometry. They are not what it
 stores.
 
@@ -71,7 +71,7 @@ a NURBS surface $S$ is found by Gauss–Newton:
 
 For a point that does lie on the surface the residual tends to 0 and the iteration converges
 fast, which is the case the check is about (`test_distance_to_surface_finds_points_on_it_and_off_it`).
-The failure case is in [[Extrude#Checking the result]].
+The failure case is in [[02_Extrude#Checking the result]].
 
 **2. Which way is out?** A parametric surface comes with one normal direction, $S_u \times S_v$.
 A face of a solid needs its *outward* normal, and the two need not agree: the wall of a hole
@@ -81,7 +81,7 @@ points in. The surface stays as it is; only the flag changes. OpenCASCADE calls 
 orientation of a face (`TopAbs_FORWARD` / `TopAbs_REVERSED`; cited, not checked here).
 Whether a face's loop really runs counter-clockwise around $\sigma\,(S_u \times S_v)$, where
 $\sigma$ is the sense, is not something `check` sees; the tests check it with a Stokes identity
-([[Revolve#Checking the orientation: Stokes]]).
+([[03_Revolve#Checking the orientation: Stokes]]).
 
 **3. Which way does an edge curve run?** The two half-edges of an edge run in opposite
 directions, so the curve can't run "with" both of them. One of them traverses the curve
@@ -95,14 +95,14 @@ read off the vertices and has to be stated explicitly.
 the new edge, so it can't make an edge that starts and ends at the same vertex. `mef` and `mekr`
 *can*: they join two half-edges' origins, and when both half-edges leave the same vertex the new
 edge is closed. A full revolve uses exactly that, along with *seams*, edges whose two half-edges
-lie in the same face ([[Revolve#A full turn: seams and closed edges]]).
+lie in the same face ([[03_Revolve#A full turn: seams and closed edges]]).
 
 ## Measuring a solid with curved faces: volume
 
-[[../03_Topology/Half_Edge]] derived the volume of a polyhedron from the divergence theorem:
+[[../03_Topology/02_Half_Edge]] derived the volume of a polyhedron from the divergence theorem:
 $$\text{Vol} = \frac13 \oint_{\partial} x \cdot n \, dA ,$$
 where $x$ is the position on the boundary $\partial$ and $n$ the outward unit normal. Bound
-geometry changes how each face's share is computed, and [[Extrude#Volume]] derives both new
+geometry changes how each face's share is computed, and [[02_Extrude#Volume]] derives both new
 forms:
 - **a curved face**, the whole patch $[0,1]^2$ with sense $\sigma$:
   $\tfrac13\,\sigma \iint S \cdot (S_u \times S_v)\, du\, dv$;
@@ -147,11 +147,11 @@ and nothing else.
   or when the step is below $10^{-14}$.
 
 **Quadrature.** `volume`, `loop_vector_area` and `surface_vector_area` use 12 Gauss–Legendre
-points per knot span (`GAUSS_POINTS`), chosen from the error table in [[Extrude#Volume]].
+points per knot span (`GAUSS_POINTS`), chosen from the error table in [[02_Extrude#Volume]].
 
 **Status**: exact geometry (planes and NURBS), untrimmed curved faces only. Implemented and tested:
 the geometry objects, `attach_curve` (closed curves included), the consistency checks in `check`,
 `volume`, `surface_vector_area`. Proved inline
-here: nothing new (the derivations are in [[Extrude]]). Stated and measured: Gauss–Newton
+here: nothing new (the derivations are in [[02_Extrude]]). Stated and measured: Gauss–Newton
 convergence on and off a surface; agreement of `volume` with the polyhedral formula. Cited, not
 checked: OpenCASCADE's face orientation flag.

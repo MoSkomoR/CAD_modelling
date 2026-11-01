@@ -38,7 +38,7 @@ def test_every_step_is_valid_and_the_result_is_consistent(profile, angle):
 def test_counts(profile, full, partial):
     """n profile edges. Full turn off the axis: V = n, E = 2n, F = n, G = 1. Full turn with an
     axis edge: V = n, E = 2n - 3, F = n - 1. Partial turn: the extrusion counts, minus one rail
-    per pole and one side face for the axis edge (Revolve.md)."""
+    per pole and one side face for the axis edge (03_Revolve.md)."""
     for angle, expected in ((2 * np.pi, full), (1.0, partial)):
         c = revolve(profile, angle).counts()
         assert {k: c[k] for k in expected} == expected

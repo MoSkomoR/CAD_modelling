@@ -12,7 +12,7 @@ v_0 < ... < v_K with S(u, v_s) = C^s(u) for every s. Two steps (Piegl & Tiller, 
      gives column i of the net. Then S(u, v_s) = sum_i N_i(u) P_i^s = C^s(u).
 
 Both steps act on the lifted points (w P, w), as every NURBS operation must
-(notes/01_Curves/NURBS.md). Notes: notes/04_Modeling_Operations/Loft.md
+(notes/01_Curves/08_NURBS.md). Notes: notes/04_Modeling_Operations/04_Loft.md
 """
 from __future__ import annotations
 

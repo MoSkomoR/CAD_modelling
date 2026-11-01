@@ -6,7 +6,7 @@ of every section lies on one longitudinal edge, the skin's u = 0 boundary curve.
 last sections are planar and become the caps. Topologically this is an extrusion
 (sweep_lamina): only the curves and surfaces differ.
 
-Notes: notes/04_Modeling_Operations/Loft.md
+Notes: notes/04_Modeling_Operations/04_Loft.md
 """
 from __future__ import annotations
 
@@ -38,13 +38,13 @@ def loft(sections: list[list[NurbsCurve]], degree: int = 3,
     degree:          degree across the sections, lowered to K if there are too few sections.
     parametrization: how the sections are spaced in v ("uniform", "chord", "centripetal"),
                      as in curve interpolation (skin_parameters). Centripetal by default: in
-                     the two measurements of Loft.md it was never the best rule and never the
+                     the two measurements of 04_Loft.md it was never the best rule and never the
                      worst, while chord length (the textbook choice for skinning) was best on
                      one and pinched a waist into the solid on the other
                      (test_loft_parametrization_comparison, test_loft_overshoot_comparison).
 
     Every side face has sense +1: u runs along the sections counter-clockwise seen from the last
-    section, v from the first section to the last (Loft.md).
+    section, v from the first section to the last (04_Loft.md).
     """
     if len(sections) < 2:
         raise ValueError("a loft needs at least two sections")

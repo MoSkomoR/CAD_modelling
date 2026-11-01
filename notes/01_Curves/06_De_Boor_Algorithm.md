@@ -2,8 +2,8 @@ Code: [[../../scripts/01_curves/06_bspline_local_control.py]] — `de_boor`, `de
 
 # De Boor's algorithm — and the tools built on it
 
-The algorithm note for B-splines, the counterpart of [[De_Casteljau_Derivation]]. *Why*
-B-splines exist is in [[B_Splines]]. Here: how a point is evaluated, why that equals the basis
+The algorithm note for B-splines, the counterpart of [[03_De_Casteljau_Derivation]]. *Why*
+B-splines exist is in [[05_B_Splines]]. Here: how a point is evaluated, why that equals the basis
 sum, and the three curve operations a kernel builds on the same recursion — knot insertion,
 decomposition into Bezier pieces, and degree elevation.
 
@@ -42,7 +42,7 @@ those terms are zero. (Below, $\sum_i$ is shorthand for these ranges.)
 *Proof.* It suffices to show that level $r-1$ and level $r$ give the same value, for each
 $r = 1,\dots,p$; chaining these equalities from the trivial $r=0$ case up to $r=p$ finishes it.
 Fix $r$, write $d = p-r+1$ (the basis degree at level $r-1$), and substitute Cox–de Boor
-([[B_Splines]]) for $N_{i,d}$:
+([[05_B_Splines]]) for $N_{i,d}$:
 $$\sum_i N_{i,d}P_i^{r-1} = \sum_i \frac{t-u_i}{u_{i+d}-u_i}N_{i,d-1}P_i^{r-1}
 + \sum_i \frac{u_{i+d+1}-t}{u_{i+d+1}-u_{i+1}}N_{i+1,d-1}P_i^{r-1}.$$
 Both sums run over $i = k-p+r-1,\dots,k$, where $P_i^{r-1}$ exists. To combine them they must
@@ -60,14 +60,14 @@ $$= \sum_i N_{i,d-1}\left[\frac{t-u_i}{u_{i+d}-u_i}P_i^{r-1} + \frac{u_{i+d}-t}{
 = \sum_i N_{i,d-1}\Big[\alpha_{i,r}P_i^{r-1} + (1-\alpha_{i,r})P_{i-1}^{r-1}\Big],$$
 since $u_{i+d} = u_{i+p+1-r}$. The bracket is $P_i^r$. $\blacksquare$
 
-It is the same move as the Bernstein proof in [[De_Casteljau_Derivation]] — re-index, and the two
+It is the same move as the Bernstein proof in [[03_De_Casteljau_Derivation]] — re-index, and the two
 complementary ramps become one lerp — which is why the two algorithms look alike. Measured:
 de Boor against the basis sum agree to $10^{-14}$ on uneven knots
 (`test_de_boor_matches_the_basis_sum`).
 
 ## The derivative
 
-For Bezier curves, [[De_Casteljau_Derivation]] ("The derivative, for free") derives the
+For Bezier curves, [[03_De_Casteljau_Derivation]] ("The derivative, for free") derives the
 derivative in two equivalent forms: **constant points times a basis**,
 $C'(t) = \sum_j B_j^{n-1}(t)\,n(P_{j+1}-P_j)$ (the *hodograph*), and **the last level of the
 algorithm**, $C'(t) = n(P_1^{n-1} - P_0^{n-1})$. B-splines have both forms too, and they are derived
@@ -75,7 +75,7 @@ here in the same order: first the derivative of one basis function, then the cur
 algorithm.
 
 Throughout, $0/0 := 0$ as in Cox–de Boor, and derivatives are taken inside a span
-$u_k < t < u_{k+1}$. At a knot the curve may only be $C^{p-\text{mult}}$ ([[B_Splines]]), so there
+$u_k < t < u_{k+1}$. At a knot the curve may only be $C^{p-\text{mult}}$ ([[05_B_Splines]]), so there
 the formulas give the one-sided derivative.
 
 ### Step 1 — the derivative of one basis function
@@ -151,7 +151,7 @@ knot window $P_i$ and $P_{i+1}$ share, where Bezier had just $n$. On Bezier knot
 every such window is $[0,1]$ and $n = p$, so the formula is exactly the Bezier one.
 `bspline_derivative` implements it and matches central differences to $10^{-7}$
 (`test_bspline_derivative_matches_finite_differences`). Applying it repeatedly is how the continuity
-claim in [[B_Splines]] was measured.
+claim in [[05_B_Splines]] was measured.
 
 ### Step 3 — the last level of de Boor
 
@@ -194,7 +194,7 @@ tangent at no extra cost.
 ## Knot insertion — the B-spline form of subdivision
 
 For Bezier curves, the decisive by-product of De Casteljau was subdivision
-([[De_Casteljau_Derivation]]). The B-spline equivalent is **knot insertion** (Boehm, 1980): add a
+([[03_De_Casteljau_Derivation]]). The B-spline equivalent is **knot insertion** (Boehm, 1980): add a
 knot $\hat t$, gain a control point, and do not change the curve. Refining the knot vector only
 *enlarges* the space of piecewise polynomials (one more place where the pieces may change), so the
 old curve is certainly in the new space; the question is only what its new control points are.
@@ -246,7 +246,7 @@ Corner cutting again — the new polygon lies inside the old one's hull
 
 **B-splines.** The simplest method decomposes into Bezier pieces, elevates each, and stitches
 them back (`test_bspline_degree_elevation_keeps_the_curve`). **The honest caveat:** the stitched
-knot vector has every breakpoint at multiplicity $p+1$, which by [[B_Splines]] only *promises* $C^0$.
+knot vector has every breakpoint at multiplicity $p+1$, which by [[05_B_Splines]] only *promises* $C^0$.
 The curve itself is as smooth as before — elevation never changes a curve — but the representation
 has forgotten it and carries redundant knots and control points. Getting them back out needs **knot
 removal**, which is not implemented ([[../99_Not_Covered_In_Code]]). Production implementations
@@ -257,7 +257,7 @@ remove the redundant knots in the same pass.
 
 - `elevate_degree` is the simple method above: `bspline_to_bezier`, then `bezier_elevate` on each
   piece, then the pieces stitched together, with no knot removal. Every curve it returns carries
-  the redundant knots. [[../04_Modeling_Operations/Loft]] inherits this: lofted sections that
+  the redundant knots. [[../04_Modeling_Operations/04_Loft]] inherits this: lofted sections that
   needed elevation have larger control nets than necessary.
 
 **Status**: exact. `de_boor`, `de_boor_stages`, `bspline_derivative`, `insert_knot`,

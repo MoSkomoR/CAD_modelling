@@ -3,20 +3,20 @@ Code: [[../../scripts/02_surfaces/03_bspline_surface_tensor.py]], [[../../script
 # NURBS surfaces — the curve fixes, applied per direction
 
 The motivation hub for B-spline and NURBS surfaces. The analytic surfaces of mechanical CAD,
-built from this, are in [[Surfaces_of_Revolution]].
+built from this, are in [[04_Surfaces_of_Revolution]].
 
 ## Where we are
 
-[[Bezier_Surfaces]] ended where [[../01_Curves/Bezier_Curves]] did, with the same two limitations
+[[01_Bezier_Surfaces]] ended where [[../01_Curves/02_Bezier_Curves]] did, with the same two limitations
 inherited through the tensor product:
 
 1. **Global support.** Every control point moves the whole patch.
 2. **No exact quadrics.** A sphere, cylinder, cone or torus has circular isocurves, no polynomial
    is a circle, so no polynomial patch is any of them.
 
-Module 01 fixed both for curves: knots ([[../01_Curves/B_Splines]]) and weights
-([[../01_Curves/NURBS]]). The question for surfaces is only how to carry the two fixes over, and
-the answer is the one [[Bezier_Surfaces]] already gave for De Casteljau: run the curve algorithm
+Module 01 fixed both for curves: knots ([[../01_Curves/05_B_Splines]]) and weights
+([[../01_Curves/08_NURBS]]). The question for surfaces is only how to carry the two fixes over, and
+the answer is the one [[01_Bezier_Surfaces]] already gave for De Casteljau: run the curve algorithm
 once per direction.
 
 ## Why the tensor product again, and not something else
@@ -25,10 +25,10 @@ once per direction.
   kernels do keep them — see the last section. But on their own they cannot represent a free-form
   patch, a blend between a cylinder and a free-form face, or the perspective image of a sphere,
   and every algorithm needs a case for every pair of types. A kernel still needs one general type,
-  exactly the argument of [[../01_Curves/NURBS]].
+  exactly the argument of [[../01_Curves/08_NURBS]].
 - **Polynomial patches fitted to tolerance.** Never exact, and the semantics are lost; the same
-  argument [[../01_Curves/Lines_and_Arcs]] measured for curves, unchanged.
-- **Triangular patches** ([[Bezier_Triangles]]). A real alternative, but without the row/column
+  argument [[../01_Curves/01_Lines_and_Arcs]] measured for curves, unchanged.
+- **Triangular patches** ([[02_Bezier_Triangles]]). A real alternative, but without the row/column
   structure there is no "knot vector per direction", so the B-spline and NURBS curve algorithms do
   not transfer row by row. Kernels standardize on the tensor product.
 
@@ -53,7 +53,7 @@ through them. Move the $u$ slider and that isocurve sweeps out the surface.
 
 **Weights change nothing in this picture.** As for curves, lift each control point to
 $(w_{ij}P_{ij},\ w_{ij})$, evaluate the polynomial surface one dimension up, and divide by the last
-coordinate ([[../01_Curves/NURBS_Derivations]] §1, word for word with a double sum):
+coordinate ([[../01_Curves/09_NURBS_Derivations]] §1, word for word with a double sum):
 $$S(u,v) = \frac{\sum_{i,j} N_{i,p}(u)N_{j,q}(v)\,w_{ij}P_{ij}}{\sum_{i,j} N_{i,p}(u)N_{j,q}(v)\,w_{ij}}
 = \sum_{i,j} R_{ij}(u,v)\,P_{ij} .$$
 
@@ -73,7 +73,7 @@ Each of these is the curve result applied per direction, or the lift applied onc
 **Local support is a rectangle.** $N_{i,p}(u)N_{j,q}(v)$ is zero unless both factors are, so
 $P_{ij}$ acts only on
 $$[u_i, u_{i+p+1}) \times [v_j, v_{j+q+1}),$$
-the product of the two curve supports ([[../01_Curves/B_Splines]]). With weights the same holds,
+the product of the two curve supports ([[../01_Curves/05_B_Splines]]). With weights the same holds,
 since $w_{ij}$ only scales that one term. Moving one control point leaves the surface outside the
 rectangle unchanged to the last bit — the change there is exactly $0$ — while inside it moves
 (`test_moving_one_control_point_is_local_in_both_directions`). Script 03 shows the rectangle twice:
@@ -87,11 +87,11 @@ $\big(\sum_k a_kN_{k,p}\big)\big(\sum_l b_lN_{l,q}\big)$ and
 $$R_{ij} = \frac{a_iN_{i,p}(u)}{\sum_k a_kN_{k,p}(u)} \cdot \frac{b_jN_{j,q}(v)}{\sum_l b_lN_{l,q}(v)},$$
 two rational *curve* bases. $\blacksquare$ For general weights there is no such split. The surfaces
 of revolution are exactly the factoring case, and that is why their proof is short
-([[Surfaces_of_Revolution]] §2).
+([[04_Surfaces_of_Revolution]] §2).
 
 ## What it costs — the honest part
 
-All measured on the NURBS sphere ([[Surfaces_of_Revolution]]):
+All measured on the NURBS sphere ([[04_Surfaces_of_Revolution]]):
 
 - **Size.** A sphere is a centre and a radius, four numbers. As a NURBS surface it is a $5 \times 9$
   net with 45 weights and two knot vectors (`test_sphere_net_is_five_by_nine_with_product_weights`).
@@ -107,7 +107,7 @@ All measured on the NURBS sphere ([[Surfaces_of_Revolution]]):
   both inherit the circle's factor $4 - 2\sqrt2 \approx 1.17$
   (`test_sphere_speed_is_not_uniform_in_either_direction`). Equal steps in $(u, v)$ are not equal
   steps on the surface.
-- **Derivatives** are quotients, as for curves ([[../01_Curves/NURBS]]), now in two directions.
+- **Derivatives** are quotients, as for curves ([[../01_Curves/08_NURBS]]), now in two directions.
 
 **So real kernels keep the analytic types as well.** A cylinder stored as a cylinder answers "what
 is your axis and radius?" directly, has no poles or seams to special-case in its own formulas, and

@@ -9,7 +9,7 @@ when they came up. Answers, once written, go under each question.
 
 ## Q1 — Does the tensor product dictate how surfaces must be modelled?
 
-*2026-10-25, while on [[02_Surfaces/NURBS_Surfaces]].*
+*2026-10-25, while on [[02_Surfaces/03_NURBS_Surfaces]].*
 
 Does the tensor product expression for surface affect how should I model the parametric
 surfaces — do they need to be constructed in a way to suit the tensor product? Or do most modern

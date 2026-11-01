@@ -10,8 +10,8 @@ evaluation algorithm lives here.
 Conventions: every curve and surface is clamped with knots normalized to [0, 1], so a parameter
 always runs over [0, 1]. Points are 3D.
 
-Notes: notes/04_Modeling_Operations/Modeling_Operations.md, notes/04_Modeling_Operations/Extrude.md,
-       notes/04_Modeling_Operations/Revolve.md
+Notes: notes/04_Modeling_Operations/01_Modeling_Operations.md, notes/04_Modeling_Operations/02_Extrude.md,
+       notes/04_Modeling_Operations/03_Revolve.md
 """
 from __future__ import annotations
 
@@ -216,7 +216,7 @@ def extruded_surface(curve: NurbsCurve, d) -> NurbsSurface:
 
     Exactly a NURBS surface of degree (p, 1): the net has two columns, the curve's control points
     and the same points moved by d, with the curve's weights in both. Because the rational basis
-    R_i(u) sums to 1, sum_i R_i(u) (P_i + v d) = C(u) + v d. Derived in Extrude.md.
+    R_i(u) sums to 1, sum_i R_i(u) (P_i + v d) = C(u) + v d. Derived in 02_Extrude.md.
     """
     d = np.asarray(d, dtype=float)
     net = np.stack([curve.points, curve.points + d], axis=1)

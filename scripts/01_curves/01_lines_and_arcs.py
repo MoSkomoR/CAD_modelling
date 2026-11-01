@@ -6,7 +6,7 @@ representations let you say: two endpoints, or a centre plus two angles. Anythin
 straight line or a piece of a circle has no home here at all -- which is the motivation for
 everything that follows.
 
-Notes: notes/01_Curves/Lines_and_Arcs.md
+Notes: notes/01_Curves/01_Lines_and_Arcs.md
 Run:   python scripts/01_curves/01_lines_and_arcs.py
 """
 

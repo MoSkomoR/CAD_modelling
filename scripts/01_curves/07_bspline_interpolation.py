@@ -71,7 +71,7 @@ to a few neighbouring points. The dashed curve here is the degree-6 polynomial t
 seven dots with the same centripetal t_k: it strays 4.1 units from the data polygon against the
 green spline's 0.72 (test_single_polynomial_strays_further_than_the_spline).
 
-Notes: notes/01_Curves/B_Spline_Interpolation.md
+Notes: notes/01_Curves/07_B_Spline_Interpolation.md
 Run:   python scripts/01_curves/07_bspline_interpolation.py
 """
 

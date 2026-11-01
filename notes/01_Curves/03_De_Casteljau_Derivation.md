@@ -5,7 +5,7 @@
 This note is about the **algorithm**: what it computes, why it equals the Bernstein form, and
 the things it gives us besides the point (subdivision, the derivative). The *properties* of the resulting curve
 (convex hull, affine invariance, global support) are proved separately in
-[[Bernstein_Basis_Properties]]; the *motivation* for Bezier curves at all is in [[Bezier_Curves]].
+[[04_Bernstein_Basis_Properties]]; the *motivation* for Bezier curves at all is in [[02_Bezier_Curves]].
 
 ## The recursion
 
@@ -159,7 +159,7 @@ places the closed form would need re-deriving:
   results;
 - **rational curves** — run it in homogeneous coordinates and project at the end, which is
   exactly how `rational_bezier` (`geometry/nurbs.py`) handles the weights that make exact circles possible
-  ([[Lines_and_Arcs]]).
+  ([[01_Lines_and_Arcs]]).
 
 **Status**: implemented exactly in code. Proved inline: the Bernstein equivalence and the
 derivative (hodograph and last-level forms). Stated and measured: subdivision, stability, and the

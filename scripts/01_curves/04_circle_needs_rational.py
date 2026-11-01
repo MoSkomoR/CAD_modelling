@@ -8,7 +8,7 @@ arithmetic. Polynomials approximate circles extremely well.
 
 So the case for rational curves is not "polynomials aren't accurate enough". It is:
 
-  * **Never exact, even in principle.** notes/01_Curves/Lines_and_Arcs.md proves no real
+  * **Never exact, even in principle.** notes/01_Curves/01_Lines_and_Arcs.md proves no real
     polynomial parametrization of a circle exists. Whatever degree you spend, you are carrying
     an approximation whose error must be tracked in tolerances forever after.
   * **Cost.** Machine-precision agreement costs 14 control points. The rational quadratic costs
@@ -24,8 +24,8 @@ Tick "rational quadratic" to see 3 control points land on the circle at machine 
 (The polynomial fit is least-squares in the natural uniform-angle parametrization. A cleverer
 parametrization moves the constant, never the conclusion.)
 
-Notes: notes/01_Curves/Lines_and_Arcs.md, notes/01_Curves/Bezier_Curves.md,
-       notes/01_Curves/NURBS.md
+Notes: notes/01_Curves/01_Lines_and_Arcs.md, notes/01_Curves/02_Bezier_Curves.md,
+       notes/01_Curves/08_NURBS.md
 Run:   python scripts/01_curves/04_circle_needs_rational.py
 """
 

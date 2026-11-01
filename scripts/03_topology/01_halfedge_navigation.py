@@ -13,7 +13,7 @@ half-edge belongs to (on the block, the top and bottom faces also have an inner 
 of the hole -- which runs the other way round), and "vertex star" for every half-edge leaving its
 start vertex: the edges you reach by pressing twin.next repeatedly.
 
-Notes: notes/03_Topology/Half_Edge.md
+Notes: notes/03_Topology/02_Half_Edge.md
 Run:   python scripts/03_topology/01_halfedge_navigation.py
 """
 

@@ -21,7 +21,7 @@ Right: the same profile revolved about the z-axis.
     the parallels shrinking into them -- the surface is singular there (no tangent plane from
     S_u x S_v), although it looks perfectly smooth.
 
-Notes: notes/02_Surfaces/Surfaces_of_Revolution.md
+Notes: notes/02_Surfaces/04_Surfaces_of_Revolution.md
 Run:   python scripts/02_surfaces/04_surface_of_revolution.py
 """
 

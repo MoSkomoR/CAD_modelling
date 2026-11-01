@@ -15,7 +15,7 @@ each direction on its own knot vector.
     v. The small square on the right is the (u, v) parameter domain with the knot lines drawn,
     so you can see the same rectangle where it is defined -- a product of two curve supports.
 
-Notes: notes/02_Surfaces/NURBS_Surfaces.md
+Notes: notes/02_Surfaces/03_NURBS_Surfaces.md
 Run:   python scripts/02_surfaces/03_bspline_surface_tensor.py
 """
 

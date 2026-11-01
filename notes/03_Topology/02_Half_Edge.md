@@ -3,7 +3,7 @@ Code: [[../../scripts/03_topology/01_halfedge_navigation.py]] — `HalfEdge`, `L
 # The half-edge data structure
 
 Why a B-rep needs topology at all, and why the half-edge beats the alternatives, is argued in
-[[B_Rep_Topology]]. This note is the structure itself: its pointers, the invariants that make it
+[[01_B_Rep_Topology]]. This note is the structure itself: its pointers, the invariants that make it
 valid, and the walks those pointers allow.
 
 ## The pointers
@@ -40,12 +40,12 @@ A structure is valid when all of these hold. `check` tests each one and reports 
    predecessor is stored as well (`prev`), it must be the inverse of `next`.
 3. **Every vertex is manifold:** the half-edges leaving it form a single cycle under the star walk
    below.
-4. **Euler–Poincaré** holds for the counts ([[Euler_Operators]]).
+4. **Euler–Poincaré** holds for the counts ([[03_Euler_Operators]]).
 5. **Faces are planar** — geometry, not topology, and checkable only to a tolerance. A
    polyhedral face is a piece of one plane; a construction in progress may violate this
-   ([[Euler_Operators#Two constructions, step by step]]). Once faces carry surfaces
+   ([[03_Euler_Operators#Two constructions, step by step]]). Once faces carry surfaces
    (module 04), this becomes "the geometry agrees with the topology"
-   ([[../04_Modeling_Operations/Modeling_Operations#Binding geometry to topology]]).
+   ([[../04_Modeling_Operations/01_Modeling_Operations#Binding geometry to topology]]).
 
 Breaking a single twin pointer, or a single `next`, is caught
 (`test_check_catches_a_broken_twin`, `test_check_catches_a_broken_next`). The broken `next`
@@ -119,7 +119,7 @@ fields (`__slots__`):
 - **`prev`.** It makes the backward step constant time, and lets an operator insert a half-edge
   just before a given one (`_add_halfedge`) without walking the loop. The price is invariant 2's
   second half: every operator must update `prev` alongside `next`. The "missed `prev`" danger in
-  [[Euler_Operators#Why operators, and not pointer surgery]] exists only because this field is
+  [[03_Euler_Operators#Why operators, and not pointer surgery]] exists only because this field is
   stored.
 - **`Loop` as its own object**, between half-edges and faces. A half-edge points to its loop, not
   its face. Moving a whole loop to another face, which `kfmrh` does, then changes one field (the
@@ -133,7 +133,7 @@ it, and the first `mev` reuses it.
 start. `Loop.halfedges` stops after 100 000 steps and `vertex_star` after 10 000, so a corrupted
 structure makes `check` report a problem instead of hanging.
 
-**Not stored at all:** shells and the genus. See [[B_Rep_Topology#In this implementation]].
+**Not stored at all:** shells and the genus. See [[01_B_Rep_Topology#In this implementation]].
 
 **Tolerances in `check`.** Invariants 1–4 are exact comparisons of references and integers.
 Invariant 5 compares distances: a face is planar if its vertices lie within $10^{-9}$ of the plane

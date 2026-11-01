@@ -18,7 +18,7 @@ raise or lower it with "height" to feel how the patch responds. Tick "subdivide"
 patch at (u, v) into four sub-patches -- the surface version of subdivision-for-free, and the
 reason kernels can intersect surfaces by recursive culling.
 
-Notes: notes/02_Surfaces/Bezier_Surfaces.md
+Notes: notes/02_Surfaces/01_Bezier_Surfaces.md
 Run:   python scripts/02_surfaces/01_bezier_surface_de_casteljau.py
 """
 

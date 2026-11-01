@@ -15,39 +15,39 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 ## 01 — Curves
 | Topic | Script | Fidelity | Note |
 |---|---|---|---|
-| Lines & arcs; why analytic-only isn't enough | [[../scripts/01_curves/01_lines_and_arcs.py]] | exact | [[01_Curves/Lines_and_Arcs]] |
-| Bezier curves — the motivation hub | [[../scripts/01_curves/02_bezier_de_casteljau.py]] | exact | [[01_Curves/Bezier_Curves]] |
-| De Casteljau: ⇔ Bernstein, subdivision, stability | [[../scripts/01_curves/02_bezier_de_casteljau.py]] | exact (proof) | [[01_Curves/De_Casteljau_Derivation]] |
-| Bernstein basis & the property proofs | [[../scripts/01_curves/03_bezier_properties.py]] | exact (proofs) | [[01_Curves/Bernstein_Basis_Properties]] |
-| Rational Bezier — why a circle needs it | [[../scripts/01_curves/04_circle_needs_rational.py]] | exact | [[01_Curves/Lines_and_Arcs]] |
-| B-splines — Cox–de Boor basis, local support, continuity | [[../scripts/01_curves/05_bspline_basis.py]], [[../scripts/01_curves/06_bspline_local_control.py]] | exact (proofs; continuity measured) | [[01_Curves/B_Splines]] |
-| De Boor, knot insertion, Bezier decomposition, degree elevation | [[../scripts/01_curves/06_bspline_local_control.py]] | exact (no knot removal) | [[01_Curves/De_Boor_Algorithm]] |
-| B-spline interpolation & parametrization choice | [[../scripts/01_curves/07_bspline_interpolation.py]] | exact | [[01_Curves/B_Spline_Interpolation]] |
-| NURBS — weights, exact conics, projective invariance | [[../scripts/01_curves/08_nurbs_weights.py]] | exact (proofs; one classification cited) | [[01_Curves/NURBS]], [[01_Curves/NURBS_Derivations]] |
+| Lines & arcs; why analytic-only isn't enough | [[../scripts/01_curves/01_lines_and_arcs.py]] | exact | [[01_Curves/01_Lines_and_Arcs]] |
+| Bezier curves — the motivation hub | [[../scripts/01_curves/02_bezier_de_casteljau.py]] | exact | [[01_Curves/02_Bezier_Curves]] |
+| De Casteljau: ⇔ Bernstein, subdivision, stability | [[../scripts/01_curves/02_bezier_de_casteljau.py]] | exact (proof) | [[01_Curves/03_De_Casteljau_Derivation]] |
+| Bernstein basis & the property proofs | [[../scripts/01_curves/03_bezier_properties.py]] | exact (proofs) | [[01_Curves/04_Bernstein_Basis_Properties]] |
+| Rational Bezier — why a circle needs it | [[../scripts/01_curves/04_circle_needs_rational.py]] | exact | [[01_Curves/01_Lines_and_Arcs]] |
+| B-splines — Cox–de Boor basis, local support, continuity | [[../scripts/01_curves/05_bspline_basis.py]], [[../scripts/01_curves/06_bspline_local_control.py]] | exact (proofs; continuity measured) | [[01_Curves/05_B_Splines]] |
+| De Boor, knot insertion, Bezier decomposition, degree elevation | [[../scripts/01_curves/06_bspline_local_control.py]] | exact (no knot removal) | [[01_Curves/06_De_Boor_Algorithm]] |
+| B-spline interpolation & parametrization choice | [[../scripts/01_curves/07_bspline_interpolation.py]] | exact | [[01_Curves/07_B_Spline_Interpolation]] |
+| NURBS — weights, exact conics, projective invariance | [[../scripts/01_curves/08_nurbs_weights.py]] | exact (proofs; one classification cited) | [[01_Curves/08_NURBS]], [[01_Curves/09_NURBS_Derivations]] |
 
 ## 02 — Surfaces
 | Topic | Script | Fidelity | Note |
 |---|---|---|---|
-| Bezier surfaces — tensor product, De Casteljau twice | [[../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] | exact | [[02_Surfaces/Bezier_Surfaces]] |
-| Triangular Bezier patches (barycentric De Casteljau) | [[../scripts/02_surfaces/02_bezier_triangle_de_casteljau.py]] | exact (subdivision not-started) | [[02_Surfaces/Bezier_Triangles]] |
-| B-spline & NURBS surfaces — curve of curves, local support, weights | [[../scripts/02_surfaces/03_bspline_surface_tensor.py]] | exact | [[02_Surfaces/NURBS_Surfaces]] |
-| Analytic surfaces (cylinder/cone/sphere/torus) as NURBS surfaces of revolution; poles | [[../scripts/02_surfaces/04_surface_of_revolution.py]] | exact (hairy ball theorem cited) | [[02_Surfaces/Surfaces_of_Revolution]] |
-| Normals & curvature | partial (`bezier_surface_normal`, `nurbs_surface_normal`; no curvature) | exact | [[02_Surfaces/Bezier_Surfaces]], [[02_Surfaces/Surfaces_of_Revolution]] |
+| Bezier surfaces — tensor product, De Casteljau twice | [[../scripts/02_surfaces/01_bezier_surface_de_casteljau.py]] | exact | [[02_Surfaces/01_Bezier_Surfaces]] |
+| Triangular Bezier patches (barycentric De Casteljau) | [[../scripts/02_surfaces/02_bezier_triangle_de_casteljau.py]] | exact (subdivision not-started) | [[02_Surfaces/02_Bezier_Triangles]] |
+| B-spline & NURBS surfaces — curve of curves, local support, weights | [[../scripts/02_surfaces/03_bspline_surface_tensor.py]] | exact | [[02_Surfaces/03_NURBS_Surfaces]] |
+| Analytic surfaces (cylinder/cone/sphere/torus) as NURBS surfaces of revolution; poles | [[../scripts/02_surfaces/04_surface_of_revolution.py]] | exact (hairy ball theorem cited) | [[02_Surfaces/04_Surfaces_of_Revolution]] |
+| Normals & curvature | partial (`bezier_surface_normal`, `nurbs_surface_normal`; no curvature) | exact | [[02_Surfaces/01_Bezier_Surfaces]], [[02_Surfaces/04_Surfaces_of_Revolution]] |
 
 ## 03 — Topology
 | Topic                                                                    | Script                                               | Fidelity                                      | Note                            |
 | ------------------------------------------------------------------------ | ---------------------------------------------------- | --------------------------------------------- | ------------------------------- |
-| B-rep topology — why topology, why half-edges                            | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact (polyhedral)                            | [[03_Topology/B_Rep_Topology]]  |
-| Half-edge structure: invariants, navigation, orientation, validity check | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact                                         | [[03_Topology/Half_Edge]]       |
-| Euler operators, Euler's formula, Euler–Poincaré, genus                  | [[../scripts/03_topology/02_euler_operators.py]]     | exact (Euler–Poincaré and completeness cited) | [[03_Topology/Euler_Operators]] |
+| B-rep topology — why topology, why half-edges                            | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact (polyhedral)                            | [[03_Topology/01_B_Rep_Topology]]  |
+| Half-edge structure: invariants, navigation, orientation, validity check | [[../scripts/03_topology/01_halfedge_navigation.py]] | exact                                         | [[03_Topology/02_Half_Edge]]       |
+| Euler operators, Euler's formula, Euler–Poincaré, genus                  | [[../scripts/03_topology/02_euler_operators.py]]     | exact (Euler–Poincaré and completeness cited) | [[03_Topology/03_Euler_Operators]] |
 
 ## 04 — Modeling operations
 | Topic | Script | Fidelity | Note |
 |---|---|---|---|
-| Why operations work from profiles; binding curves and surfaces to topology; consistency, face sense; volume | [[../scripts/04_modeling_ops/01_extrude.py]] | exact (untrimmed curved faces) | [[04_Modeling_Operations/Modeling_Operations]] |
-| Extrude — Euler-operator sweep, extruded surface, holes, orientation, volume by quadrature, tilt | [[../scripts/04_modeling_ops/01_extrude.py]] | exact | [[04_Modeling_Operations/Extrude]] |
-| Revolve — partial and full turns, seams, closed edges, poles, Stokes orientation check, Pappus | [[../scripts/04_modeling_ops/02_revolve.py]] | exact (Stokes, Green cited) | [[04_Modeling_Operations/Revolve]] |
-| Loft — compatible sections, skinning, shared parameters, spacing measured | [[../scripts/04_modeling_ops/03_loft.py]] | exact through the sections | [[04_Modeling_Operations/Loft]] |
+| Why operations work from profiles; binding curves and surfaces to topology; consistency, face sense; volume | [[../scripts/04_modeling_ops/01_extrude.py]] | exact (untrimmed curved faces) | [[04_Modeling_Operations/01_Modeling_Operations]] |
+| Extrude — Euler-operator sweep, extruded surface, holes, orientation, volume by quadrature, tilt | [[../scripts/04_modeling_ops/01_extrude.py]] | exact | [[04_Modeling_Operations/02_Extrude]] |
+| Revolve — partial and full turns, seams, closed edges, poles, Stokes orientation check, Pappus | [[../scripts/04_modeling_ops/02_revolve.py]] | exact (Stokes, Green cited) | [[04_Modeling_Operations/03_Revolve]] |
+| Loft — compatible sections, skinning, shared parameters, spacing measured | [[../scripts/04_modeling_ops/03_loft.py]] | exact through the sections | [[04_Modeling_Operations/04_Loft]] |
 
 Planned next: sweep (Frenet versus rotation-minimizing frames; simplified).
 

@@ -18,7 +18,7 @@ Three panels:
     1 and sqrt(2)/2, interior knots doubled. Radial error at machine precision -- but the ticks
     at equal steps of t are *not* equally spaced: exact geometry, inexact speed.
 
-Notes: notes/01_Curves/NURBS.md, notes/01_Curves/NURBS_Derivations.md
+Notes: notes/01_Curves/08_NURBS.md, notes/01_Curves/09_NURBS_Derivations.md
 Run:   python scripts/01_curves/08_nurbs_weights.py
 """
 

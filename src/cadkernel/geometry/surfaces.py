@@ -8,9 +8,9 @@ De Casteljau are points, so they can be fed straight back into De Casteljau.
 
 The bottom of the module holds the *other* generalization: triangular Bezier patches, built by
 lerping over a triangular control lattice in barycentric coordinates instead of a rectangular
-net in (u, v). See notes/02_Surfaces/Bezier_Triangles.md.
+net in (u, v). See notes/02_Surfaces/02_Bezier_Triangles.md.
 
-Notes: notes/02_Surfaces/Bezier_Surfaces.md
+Notes: notes/02_Surfaces/01_Bezier_Surfaces.md
 """
 
 from __future__ import annotations
@@ -112,7 +112,7 @@ def bezier_surface_partials(
 
     Differentiating the Bernstein form in u drops the degree by one and replaces the control
     net by its forward differences, scaled by n -- the surface analogue of the curve hodograph
-    C'(t) = n (P_1^{n-1} - P_0^{n-1}) from notes/01_Curves/Bezier_Curves.md. The cross product
+    C'(t) = n (P_1^{n-1} - P_0^{n-1}) from notes/01_Curves/02_Bezier_Curves.md. The cross product
     of the two is the (unnormalized) surface normal.
     """
     net = _as_net(control_net)
@@ -175,7 +175,7 @@ def bezier_surface_subdivide(
 # lattice in barycentric coordinates (l0, l1, l2), l0+l1+l2=1, instead of a rectangular net in
 # (u, v). Control points sit at multi-indices (i, j, k) with i+j+k=n -- there is no natural
 # "rows and columns" shape to a triangular lattice, so a dict {(i, j, k): point} is the natural
-# container instead of an ndarray. See notes/02_Surfaces/Bezier_Triangles.md.
+# container instead of an ndarray. See notes/02_Surfaces/02_Bezier_Triangles.md.
 
 
 def _triangle_indices(n: int) -> list[tuple[int, int, int]]:
@@ -240,7 +240,7 @@ def bernstein_triangle_basis(
     evaluated at each row of (l0, l1, l2). Returns (indices, values), values of shape
     (len(l0), C(n+2, 2)) with columns matching indices. The bivariate analogue of
     bernstein_basis: the same non-negativity and partition-of-unity facts hold, now by the
-    multinomial theorem instead of the binomial one (notes/02_Surfaces/Bezier_Triangles.md).
+    multinomial theorem instead of the binomial one (notes/02_Surfaces/02_Bezier_Triangles.md).
     """
     l0 = np.atleast_1d(np.asarray(l0, dtype=float))
     l1 = np.atleast_1d(np.asarray(l1, dtype=float))

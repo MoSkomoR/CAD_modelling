@@ -10,7 +10,7 @@ vector area A_f from the shoelace formula. Bound geometry changes two things:
 
 Both integrands are smooth inside each knot span (rational, not polynomial, when weights are not
 all equal), so the integrals are split at the knots and each span gets an n-point Gauss-Legendre
-rule. Derived and measured in notes/04_Modeling_Operations/Extrude.md.
+rule. Derived and measured in notes/04_Modeling_Operations/02_Extrude.md.
 """
 from __future__ import annotations
 
@@ -78,7 +78,7 @@ def surface_vector_area(surface, n: int = GAUSS_POINTS) -> np.ndarray:
     """\\iint (S_u \\times S_v) du dv over [0, 1]^2: the integral of the unit normal times the area
     element. By Stokes' theorem it equals 1/2 \\oint x \\times dx around the patch's boundary,
     traversed counter-clockwise in (u, v) -- which is how the tests check that a face's loop runs
-    the way its sense says (Revolve.md, "Checking the orientation")."""
+    the way its sense says (03_Revolve.md, "Checking the orientation")."""
     spans_u, spans_v = surface.spans()
     u, wu = _gauss_on_spans(spans_u, n)
     v, wv = _gauss_on_spans(spans_v, n)

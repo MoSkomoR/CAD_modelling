@@ -69,7 +69,7 @@ intersection — applies to it unchanged. That is the payoff: the second dimensi
 ## What carries over, and why
 
 All of it descends from the same two facts as the curve case
-([[../01_Curves/Bernstein_Basis_Properties]]), because a **product of Bernstein bases is still a
+([[../01_Curves/04_Bernstein_Basis_Properties]]), because a **product of Bernstein bases is still a
 partition of unity of non-negative functions**:
 $$B_{ij}^{nm}(u,v) = B_i^n(u)B_j^m(v) \ge 0, \qquad
 \sum_{i}\sum_{j} B_i^n(u)B_j^m(v) = \Big(\sum_i B_i^n(u)\Big)\Big(\sum_j B_j^m(v)\Big) = 1\cdot1 = 1.$$
@@ -86,7 +86,7 @@ combination of the $(n+1)(m+1)$ net points, and every corollary follows verbatim
 | **global support** | every net point moves every interior point of the patch | the same ceiling as curves, and the same fix (B-splines) |
 
 Subdivision is worth dwelling on, since it was the decisive argument for De Casteljau on curves
-([[../01_Curves/Bezier_Curves]]). It survives *because* the structure is a tensor product: apply
+([[../01_Curves/02_Bezier_Curves]]). It survives *because* the structure is a tensor product: apply
 the curve algorithm one direction at a time and you get four patches of the same bidegree,
 covering the four quarters of the parameter square, reproducing the original exactly
 (`test_surface_subdivide_reproduces_original`; the "subdivide" checkbox colours them). Surface/
@@ -138,7 +138,7 @@ on a triangular lattice, each step of the recursion blends *three* neighbours at
 of two, and it has a single total degree instead of a bidegree. This is the **Bezier triangle**
 — naturally three-sided, which is precisely what a tensor-product patch cannot be. The recursion,
 its Bernstein-form equivalence, and what it does and does not inherit from the curve case are in
-[[Bezier_Triangles]].
+[[02_Bezier_Triangles]].
 
 Kernels standardize on the tensor product anyway: it composes with the B-spline knot machinery
 that fixes global support, it is what STEP and IGES interchange, and its grid structure makes
@@ -153,16 +153,16 @@ tensor product inherited them along with everything else:
 - **Global support** → the same fix, applied per direction: B-spline bases in $u$ and $v$, giving
   local control and letting one patch cover what would otherwise need many.
 - **No exact conics** → and now with a corollary worth naming. A sphere, a cylinder and a torus
-  all have circular isocurves; a polynomial curve is never a circle ([[../01_Curves/Lines_and_Arcs]], with proof); therefore **no polynomial tensor-product patch is exactly a sphere, cylinder, cone or torus.** The most common surfaces in mechanical CAD are all outside reach until weights arrive.
+  all have circular isocurves; a polynomial curve is never a circle ([[../01_Curves/01_Lines_and_Arcs]], with proof); therefore **no polynomial tensor-product patch is exactly a sphere, cylinder, cone or torus.** The most common surfaces in mechanical CAD are all outside reach until weights arrive.
 
 Add both fixes to the tensor product and you have the NURBS surface — one representation holding
 planes, cylinders, spheres, tori and free-form patches alike, with the curve algorithms of module
-01 still doing the work underneath, one direction at a time. Delivered in [[NURBS_Surfaces]], and
-the sphere, cylinder, cone and torus in [[Surfaces_of_Revolution]].
+01 still doing the work underneath, one direction at a time. Delivered in [[03_NURBS_Surfaces]], and
+the sphere, cylinder, cone and torus in [[04_Surfaces_of_Revolution]].
 
 **Status**: implemented exactly in code (`bezier_surface_point`, `bezier_surface`,
 `de_casteljau_surface_stages`, `bezier_isocurve`, `bezier_surface_partials`,
 `bezier_surface_normal`, `bezier_surface_subdivide`); every claim above with a number attached is
 covered in `tests/test_surfaces.py`, except the variation-diminishing remark, which is flagged as
-stated-not-verified. Triangular Bezier patches are now implemented too, in [[Bezier_Triangles]].
-Rational and B-spline surfaces are in [[NURBS_Surfaces]].
+stated-not-verified. Triangular Bezier patches are now implemented too, in [[02_Bezier_Triangles]].
+Rational and B-spline surfaces are in [[03_NURBS_Surfaces]].

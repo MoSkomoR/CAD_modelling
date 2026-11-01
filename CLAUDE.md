@@ -25,6 +25,12 @@ notes/                                       Obsidian vault content (vault root 
 The Obsidian vault is the **repo root**, not `notes/`, so notes can link straight to the `.py`
 files that implement them. `.obsidian/` is gitignored.
 
+Notes inside a module folder are numbered in **reading order** (`notes/01_Curves/01_Lines_and_Arcs.md`,
+`02_Bezier_Curves.md`, ...), the hub first unless a note motivates it, so Obsidian's alphabetical
+file list is the order to read them in. A new note takes the number of its place in that order,
+and the notes after it are renumbered with every reference updated (wikilinks, `notes/...` paths
+in docstrings, `Name.md` mentions).
+
 ## Module sequencing
 
 Curves → surfaces → topology (half-edge + Euler operators) → modeling ops → booleans/fillets.
@@ -91,12 +97,12 @@ The formulas are the easy part — the repo exists for the reasoning. Every note
 
 - Lead with the motivation, and name the alternative being rejected and why (analytic-only
   geometry, the power basis, the closed Bernstein form, polynomial-only curves…).
-- **Full derivations inline**, not just references — e.g. `De_Casteljau_Derivation.md` proves
-  the Bernstein equivalence from Pascal's rule, `Lines_and_Arcs.md` proves no polynomial
+- **Full derivations inline**, not just references — e.g. `03_De_Casteljau_Derivation.md` proves
+  the Bernstein equivalence from Pascal's rule, `01_Lines_and_Arcs.md` proves no polynomial
   parametrizes a circle.
 - **Separate the note types**: algorithm notes stay about the algorithm; property proofs live in
-  their own properties note (`Bernstein_Basis_Properties.md`); one note per module acts as the
-  motivation hub (`Bezier_Curves.md`).
+  their own properties note (`04_Bernstein_Basis_Properties.md`); one note per module acts as the
+  motivation hub (`02_Bezier_Curves.md`).
 - **Separate the theory from this implementation.** Within a note (never as a duplicate note),
   keep two layers apart:
   1. **Theory**: the mathematics, and the representations and algorithms from the literature

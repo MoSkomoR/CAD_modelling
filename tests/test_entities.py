@@ -33,7 +33,7 @@ def test_reversed_traverses_the_same_points_backwards():
 
 def test_extruded_surface_is_the_curve_plus_v_d():
     """S(u, v) = C(u) + v d exactly, rational curve included: the net [P_i, P_i + d] with the
-    curve's weights in both columns (Extrude.md)."""
+    curve's weights in both columns (02_Extrude.md)."""
     d = np.array([0.4, -0.3, 2.0])
     v = np.linspace(0, 1, 7)
     for curve in (circle_arcs([0, 0], 1.0)[0], NurbsCurve.bezier([[0, 0], [1, 2], [3, -1]])):

@@ -2,9 +2,9 @@ Code: [[../../scripts/01_curves/02_bezier_de_casteljau.py]], [[../../scripts/01_
 
 # Bezier curves — why this representation
 
-The motivation hub for module 01. The algorithm is in [[De_Casteljau_Derivation]], the property
-proofs in [[Bernstein_Basis_Properties]], and the case against analytic-only geometry in
-[[Lines_and_Arcs]]. This note answers the three "why" questions those don't.
+The motivation hub for module 01. The algorithm is in [[03_De_Casteljau_Derivation]], the property
+proofs in [[04_Bernstein_Basis_Properties]], and the case against analytic-only geometry in
+[[01_Lines_and_Arcs]]. This note answers the three "why" questions those don't.
 
 A Bezier curve of degree $n$ is defined by $n+1$ control points and evaluated either as
 $C(t) = \sum_{i=0}^n B_i^n(t)P_i$ or by De Casteljau's algorithm (proved equivalent).
@@ -31,7 +31,7 @@ them (Lagrange). Now the numbers *are* geometric — but:
 - **Runge's phenomenon**: as points are added, the interpolating polynomial (whose degree grows
   with the number of points) oscillates more and more between them, worst near the ends. The
   curve does things you did not ask for. Defined and measured in
-  [[B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]].
+  [[07_B_Spline_Interpolation#Why not one polynomial: Runge's phenomenon]].
 - Still no local control, and no containment guarantee.
 - Interpolation is the wrong interface anyway: a designer wants to *pull* a shape into place,
   not to guess a sequence of points the curve must hit exactly.
@@ -39,7 +39,7 @@ them (Lagrange). Now the numbers *are* geometric — but:
 **The Bernstein basis fixes exactly these.** Same polynomial curves — it is a change of basis,
 nothing more — but:
 - The coefficients **are points in space**. That is the whole trick: $C(t)$ is a convex
-  combination of the $P_i$ at every $t$ ([[Bernstein_Basis_Properties]]), so the coefficients
+  combination of the $P_i$ at every $t$ ([[04_Bernstein_Basis_Properties]]), so the coefficients
   live in the same space as the curve and can be drawn, dragged, transformed and bounded.
 - The curve is **predictable**: it stays in the convex hull, it is variation-diminishing (no
   oscillation the control polygon doesn't suggest), and it transforms with its control points.
@@ -89,14 +89,14 @@ Things worth noticing, with the functions in front of you:
 
 - **The leading coefficients are a row of Pascal's triangle** — $1$; $1,2,1$; $1,3,3,1$;
   $1,4,6,4,1$. That is not decoration: Pascal's rule is precisely what makes De Casteljau's
-  recursion equal the closed form ([[De_Casteljau_Derivation]]).
+  recursion equal the closed form ([[03_De_Casteljau_Derivation]]).
 - **Only the first and last survive at the endpoints.** Every $B_i^n$ with $0<i<n$ carries both a
   $t^i$ and a $(1-t)^{n-i}$ factor, so it vanishes at both ends. That single observation *is* the
   endpoint-interpolation proof.
 - **Each one is a single bump.** $B_i^n$ rises to its unique maximum at $t = i/n$ and falls away —
   e.g. $B_1^3$ peaks at $t=1/3$ with value $4/9 \approx 0.444$. So $P_i$ has most influence
   roughly $i/n$ of the way along the curve, which is why dragging a control point feels local
-  even though it strictly is not ([[Bernstein_Basis_Properties]]).
+  even though it strictly is not ([[04_Bernstein_Basis_Properties]]).
 - **They are mirror images**: $B_i^n(t) = B_{n-i}^n(1-t)$, so reversing the control points
   reverses the curve and nothing else.
 - **The expanded column is the argument against the power basis, made concrete.** Those
@@ -113,7 +113,7 @@ watching next to the bottom-right panel, which shows how much of the curve that 
 
 ## Why De Casteljau rather than the closed Bernstein form?
 
-Both compute the same curve — that equivalence is proved in [[De_Casteljau_Derivation]]. The
+Both compute the same curve — that equivalence is proved in [[03_De_Casteljau_Derivation]]. The
 closed form is shorter and asymptotically cheaper ($O(n)$ with a Horner-style scheme against
 $O(n^2)$). Kernels use De Casteljau anyway. Before the reasons, it is worth doing both by hand
 once, on the same curve, to see exactly what each one spends its work on.
@@ -159,7 +159,7 @@ Same point, $\left(\tfrac79, 2\right)$, as it must be. (Pinned in
 | cost per parameter value        | $\Theta(n)$ with a Horner-style scheme     | $\Theta(n^2)$                                                                                                         |
 | needs binomials & powers        | yes                                        | no — only $t$ and $1-t$                                                                                               |
 | intermediate quantities         | scalars: numbers with no geometric meaning | **points**: every one lies in the hull, and the whole triangle is on screen in script 02                              |
-| by-products                     | none                                       | both half-curves' control polygons, and $C'(t)=n\,(P_1^{n-1}-P_0^{n-1})$ — the last lerp's direction *is* the tangent ([[De_Casteljau_Derivation]], with proof) |
+| by-products                     | none                                       | both half-curves' control polygons, and $C'(t)=n\,(P_1^{n-1}-P_0^{n-1})$ — the last lerp's direction *is* the tangent ([[03_De_Casteljau_Derivation]], with proof) |
 | extends to surfaces / rationals | needs new algebra                          | unchanged (affine combinations only)                                                                                  |
 
 The bottom two rows are the whole argument. Route 1 turns the control points into numbers and
@@ -213,7 +213,7 @@ rather than an advantage it wins.
 
 ## Properties, and the one that limits us
 
-All proved in [[Bernstein_Basis_Properties]], all visible live in
+All proved in [[04_Bernstein_Basis_Properties]], all visible live in
 [[../../scripts/01_curves/03_bezier_properties.py]]:
 
 - **Endpoint interpolation** — $C(0)=P_0$, $C(1)=P_n$; interior points only pull.
@@ -245,21 +245,21 @@ that positions those spans is the "non-uniform" part, and it also lets the curve
 made to interpolate its ends by repeating knots.
 
 **Rational (the R).** The fix for the fact that *no polynomial of any degree is exactly a
-circle* ([[Lines_and_Arcs]], with proof). One weight per control point, evaluated in homogeneous
+circle* ([[01_Lines_and_Arcs]], with proof). One weight per control point, evaluated in homogeneous
 coordinates:
 $$C(t) = \frac{\sum_i B_i^n(t)\,w_i P_i}{\sum_i B_i^n(t)\,w_i}.$$
 This buys the exact conics — circles, ellipses, parabolas, hyperbolas — at three control points
 instead of fourteen, and it upgrades affine invariance to **projective** invariance, since a
 projective map is just a linear map one dimension up. The weights are also an extra shape handle
-in their own right — less of one than this suggests, as [[NURBS]] measures.
+in their own right — less of one than this suggests, as [[08_NURBS]] measures.
 
 The two fixes compose, and the result is the single representation kernels standardize on and
 STEP/IGES interchange: NURBS can express every line, arc and conic *exactly*, every free-form
 shape to tolerance, with local control, one code path for intersection, offsetting and
-tessellation — which is exactly the closure [[Lines_and_Arcs]] argued a kernel cannot do without.
+tessellation — which is exactly the closure [[01_Lines_and_Arcs]] argued a kernel cannot do without.
 
 **Status**: implemented exactly in code (`bezier_curve`, `bezier_de_casteljau`,
 `de_casteljau_triangle`, `bezier_subdivide`, `bernstein_basis`); tested in `tests/test_curves.py` — the explicit expansions, the peak and
 symmetry facts, the worked $t=\tfrac13$ evaluation (both routes, exact fractions), the tangent
 by-product and the high-degree accuracy comparison each have a test. B-splines are implemented in
-[[B_Splines]], [[De_Boor_Algorithm]] and [[B_Spline_Interpolation]], and the weights in [[NURBS]].
+[[05_B_Splines]], [[06_De_Boor_Algorithm]] and [[07_B_Spline_Interpolation]], and the weights in [[08_NURBS]].

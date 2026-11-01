@@ -17,7 +17,7 @@ The block with a hole is the interesting one. Watch for:
   * kfmrh -- the swept square merges into the bottom face as a second ring, and the hole goes
     through (G goes to 1). The left side of the formula drops from 2 to 0 in this single step.
 
-Notes: notes/03_Topology/Euler_Operators.md
+Notes: notes/03_Topology/03_Euler_Operators.md
 Run:   python scripts/03_topology/02_euler_operators.py
 """
 

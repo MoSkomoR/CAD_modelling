@@ -11,8 +11,8 @@ A clamped knot vector repeats each end knot p+1 times; that is what makes the cu
 and end at P_n. With no interior knots at all it *is* a Bezier curve (test_bezier_is_a_special_
 case_of_bspline) -- a B-spline is a Bezier curve that has been allowed to break into pieces.
 
-Notes: notes/01_Curves/B_Splines.md, notes/01_Curves/De_Boor_Algorithm.md,
-       notes/01_Curves/B_Spline_Interpolation.md
+Notes: notes/01_Curves/05_B_Splines.md, notes/01_Curves/06_De_Boor_Algorithm.md,
+       notes/01_Curves/07_B_Spline_Interpolation.md
 """
 
 from __future__ import annotations
@@ -93,7 +93,7 @@ def bspline_basis(knots: np.ndarray, p: int, t) -> np.ndarray:
 
     The piecewise analogue of bernstein_basis: still non-negative and a partition of unity on the
     valid domain, but each function is now non-zero on at most p+1 knot spans instead of on the
-    whole interval. See notes/01_Curves/B_Splines.md for the proofs.
+    whole interval. See notes/01_Curves/05_B_Splines.md for the proofs.
     """
     return bspline_basis_levels(knots, p, t)[-1]
 

@@ -2,16 +2,16 @@ Code: [[../../scripts/01_curves/08_nurbs_weights.py]] — `nurbs_curve`, `nurbs_
 
 # NURBS — B-splines with weights
 
-The motivation hub for the last piece of module 01. The proofs are in [[NURBS_Derivations]].
+The motivation hub for the last piece of module 01. The proofs are in [[09_NURBS_Derivations]].
 
 ## Where we are
 
-[[Bezier_Curves]] ended with two limitations and promised a fix for each ("NURBS as *Bezier + two
+[[02_Bezier_Curves]] ended with two limitations and promised a fix for each ("NURBS as *Bezier + two
 fixes*"):
 
-1. **Global support** — every control point moves the whole curve. Fixed by [[B_Splines]]: a
+1. **Global support** — every control point moves the whole curve. Fixed by [[05_B_Splines]]: a
    piecewise basis on a knot vector, local control, bounded degree. That is the **NU** and the **B**.
-2. **No polynomial is a circle** — proved in [[Lines_and_Arcs]], for any degree, and B-splines are
+2. **No polynomial is a circle** — proved in [[01_Lines_and_Arcs]], for any degree, and B-splines are
    still polynomial on every span. That is what is left, and it is the **R**.
 
 ## Why rational, and not something else
@@ -19,12 +19,12 @@ fixes*"):
 The problem is narrow: circles, and conics in general, are the most common curves in mechanical
 CAD, and no polynomial can be one. The candidate fixes:
 
-- **Fit them with polynomials to tolerance.** [[Lines_and_Arcs]] measured this honestly: it works
+- **Fit them with polynomials to tolerance.** [[01_Lines_and_Arcs]] measured this honestly: it works
   numerically (machine precision by degree ~13), and that is *not* the argument against it. The
   argument is that it is never exact, costs 14 control points against 3, and cannot answer "is this
   a circle?" — the semantics a kernel needs for offsets, tangency and feature recognition.
 - **Keep analytic circles beside the polynomials.** Real kernels do this — analytic where you
-  can ([[Lines_and_Arcs]]). But then every algorithm has a separate case for every pair of types,
+  can ([[01_Lines_and_Arcs]]). But then every algorithm has a separate case for every pair of types,
   and a construction that leaves the analytic world (a perspective view of a circle, a blend between
   an arc and a free-form curve) has nowhere to go. A kernel still needs one general type.
 - **Trigonometric or other non-polynomial bases.** Exact for circles, but they give up everything
@@ -36,11 +36,11 @@ the last coordinate:
 $$C(t) = \frac{\sum_i N_{i,p}(t)\,w_iP_i}{\sum_j N_{j,p}(t)\,w_j} = \sum_i R_{i,p}(t)\,P_i,
 \qquad R_{i,p} = \frac{w_iN_{i,p}}{\sum_j w_jN_{j,p}} .$$
 Every algorithm from the polynomial case runs unchanged on the lifted points, and one division
-comes at the end ([[NURBS_Derivations]] §1). No new evaluation algorithm is needed.
+comes at the end ([[09_NURBS_Derivations]] §1). No new evaluation algorithm is needed.
 
 ## What carries over, what is new, what is lost
 
-Section numbers (§) refer to [[NURBS_Derivations]].
+Section numbers (§) refer to [[09_NURBS_Derivations]].
 
 | | property | status with weights |
 |---|---|---|
@@ -61,7 +61,7 @@ Section numbers (§) refer to [[NURBS_Derivations]].
   middle weight $<1$ ellipse, $=1$ parabola, $>1$ hyperbola
   (`test_middle_weight_selects_the_conic_type`) — the middle panel of script 08.
 - **Projective invariance.** Affine invariance was already true of Bezier curves and B-splines
-  ([[Bernstein_Basis_Properties]] said where it stops: perspective). A projective map is linear on
+  ([[04_Bernstein_Basis_Properties]] said where it stops: perspective). A projective map is linear on
   the lifted points, so a NURBS is mapped exactly by mapping its control data — but the *weights
   change* with it, which is why a polynomial curve, having no weights, cannot follow. Exact to
   $10^{-14}$, against an error above $0.4$ for moving the points alone
@@ -80,7 +80,7 @@ Section numbers (§) refer to [[NURBS_Derivations]].
   that is cited, not proved here, see [[../99_Not_Covered_In_Code]].)
 - **Derivatives get expensive.** $C' = (A'w - Aw')/w^2$: a quotient of degree $2n-2$ over $2n$, not a
   curve of degree $n-1$ (`test_derivative_degree_inflates`). The curve analogue of the normal-field
-  blow-up in [[../02_Surfaces/Bezier_Surfaces]]; everything built from derivatives (curvature,
+  blow-up in [[../02_Surfaces/01_Bezier_Surfaces]]; everything built from derivatives (curvature,
   offsets, intersections) inherits it.
 - **Weights are a second non-geometric input, and partly redundant.** Like knots, they are not
   visible on screen. Worse, they are not even unique: scaling them geometrically, $w_i \to \lambda^iw_i$,
@@ -100,7 +100,7 @@ Section numbers (§) refer to [[NURBS_Derivations]].
   The wrong one moves the curve by $0.22$ (`test_knot_insertion_must_happen_in_homogeneous_space`).
   The bug is silent: the result is still a valid NURBS with positive weights, smooth and close to
   the original — just the wrong curve. Subdivision, Bezier decomposition and degree elevation obey
-  the same rule ([[NURBS_Derivations]] §9).
+  the same rule ([[09_NURBS_Derivations]] §9).
 - **Non-positive weights forfeit the guarantees.** Zero switches a control point off; negative ones
   leave the convex hull (to $y = -2$ under a triangle in $y \ge 0$,
   `test_negative_weight_leaves_the_convex_hull`) or put a pole on the curve (weights $(1,-1,1)$,
@@ -111,7 +111,7 @@ Section numbers (§) refer to [[NURBS_Derivations]].
 
 ## Are weights a design handle?
 
-[[Bezier_Curves]] called weights "an extra shape handle in their own right". Measured, they are a
+[[02_Bezier_Curves]] called weights "an extra shape handle in their own right". Measured, they are a
 real one: raising $w_i$ pulls the curve toward $P_i$ — for the quadratic, to distance
 $|P_1 - M|/(1+w)$ from it, $M$ the chord midpoint (`test_large_weight_pulls_the_curve_to_its_point`) —
 and only over the support of $N_{i,p}$, the same locality as moving the point
@@ -129,7 +129,7 @@ claim is cited, not tested.
 
 Module 01 is now complete: Bezier → B-splines → NURBS, each fix proved or measured. The same lift
 works for tensor-product surfaces, one direction at a time, and closes the gap
-[[../02_Surfaces/Bezier_Surfaces]] named: sphere, cylinder, cone and torus all have circular
+[[../02_Surfaces/01_Bezier_Surfaces]] named: sphere, cylinder, cone and torus all have circular
 isocurves, so none of them is a polynomial patch — and all of them are NURBS surfaces. That is the
 next step, in module 02.
 
@@ -143,12 +143,12 @@ next step, in module 02.
 - Weights are a separate array next to the control points, not a fourth (or third) coordinate
   stored in them. The lifted form exists only inside those calls.
 - Later modules reuse `_lift` and `_unlift` wherever they change a rational curve's
-  representation (`compatible` in [[../04_Modeling_Operations/Loft]]).
+  representation (`compatible` in [[../04_Modeling_Operations/04_Loft]]).
 
 **Status**: exact. `nurbs_curve`, `nurbs_basis`, `nurbs_derivative`, `nurbs_insert_knot`,
 `nurbs_circle`, `nurbs_projective_map`, `rational_bezier`, `rational_arc_quadratic` implemented and
 tested in `tests/test_nurbs.py`; script 08 visualizes weight pull, conic type, projective invariance
-and the full circle. Proved inline in [[NURBS_Derivations]]: the homogeneous form, the rational basis
+and the full circle. Proved inline in [[09_NURBS_Derivations]]: the homogeneous form, the rational basis
 properties, exact arcs, projective invariance, the derivative and its degree bound, the
 reparametrization freedom. Stated and measured: the speed variation of the circle, that the degree
 bound is attained. Cited, not proved: the classification of conics by their points at infinity, that

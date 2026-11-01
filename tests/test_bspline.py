@@ -193,7 +193,7 @@ def test_bspline_derivative_matches_finite_differences():
 
 def test_derivative_from_the_last_de_boor_level():
     """The de Boor counterpart of the Bezier last-lerp tangent, stated in
-    notes/01_Curves/De_Boor_Algorithm.md: in span k, C'(t) = p (P_k^{p-1} - P_{k-1}^{p-1}) /
+    notes/01_Curves/06_De_Boor_Algorithm.md: in span k, C'(t) = p (P_k^{p-1} - P_{k-1}^{p-1}) /
     (u_{k+1} - u_k). Compared against the hodograph from bspline_derivative."""
     worst = 0.0
     for p in (1, 2, 3, 4):
@@ -295,7 +295,7 @@ PARAMETRIZATION_DATA = {
 
 def test_parameters_on_the_uneven_data():
     """The three rules on the "uneven" set, whose gaps are short, short, long, short, short, long.
-    Quoted in script 07 and B_Spline_Interpolation.md."""
+    Quoted in script 07 and 07_B_Spline_Interpolation.md."""
     data = np.asarray(PARAMETRIZATION_DATA["uneven"], dtype=float)
     gaps = np.linalg.norm(np.diff(data, axis=0), axis=1)
     assert np.allclose(gaps.round(2), [0.32, 0.22, 2.94, 0.28, 0.41, 3.14])

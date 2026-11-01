@@ -70,7 +70,7 @@ def test_bernstein_non_negative():
 
 def test_bernstein_matches_de_casteljau():
     """The closed Bernstein form and De Casteljau's algorithm evaluate the same curve --
-    the equivalence proved by induction in notes/01_Curves/De_Casteljau_Derivation.md."""
+    the equivalence proved by induction in notes/01_Curves/03_De_Casteljau_Derivation.md."""
     control_points = np.array([[0.0, 0.0], [1.0, 3.0], [2.0, -1.0], [4.0, 2.0], [5.0, 1.0]])
     t = np.linspace(0, 1, 37)
     basis = bernstein_basis(len(control_points) - 1, t)
@@ -85,7 +85,7 @@ def test_bernstein_global_support():
 
 
 def test_bernstein_expanded_power_form():
-    """The explicit expansions written out in notes/01_Curves/Bezier_Curves.md.
+    """The explicit expansions written out in notes/01_Curves/02_Bezier_Curves.md.
 
     Coefficients are listed low-order first, so [3, -6, 3] means 3t - 6t^2 + 3t^3. These are
     the numbers the note contrasts with the (non-negative, sum-to-one) factored form.
@@ -132,7 +132,7 @@ def test_bernstein_symmetry():
 
 
 def test_worked_cubic_example_from_the_notes():
-    """The side-by-side evaluation in notes/01_Curves/Bezier_Curves.md, pinned exactly.
+    """The side-by-side evaluation in notes/01_Curves/02_Bezier_Curves.md, pinned exactly.
 
     Both routes must land on C(1/3) = (7/9, 2), and the note's intermediate numbers -- the
     basis values 8/27, 4/9, 2/9, 1/27 and each De Casteljau level -- must be the real ones.
@@ -162,7 +162,7 @@ def test_worked_cubic_example_from_the_notes():
 
 
 def test_last_lerp_gives_the_tangent():
-    """The by-product claimed in notes/01_Curves/Bezier_Curves.md: the direction of De
+    """The by-product claimed in notes/01_Curves/02_Bezier_Curves.md: the direction of De
     Casteljau's final interpolation is the curve tangent, C'(t) = n * (P_1^{n-1} - P_0^{n-1}).
     Checked against a central difference."""
     rng = np.random.default_rng(7)
@@ -180,7 +180,7 @@ def test_last_lerp_gives_the_tangent():
 
 
 def test_bezier_hodograph_is_a_degree_n_minus_1_bezier_of_differences():
-    """The derivation in notes/01_Curves/De_Casteljau_Derivation.md ("The derivative"): C'(t) is
+    """The derivation in notes/01_Curves/03_De_Casteljau_Derivation.md ("The derivative"): C'(t) is
     the degree-(n-1) Bezier curve on the constant points n (P_{j+1} - P_j), and evaluating that
     curve by De Casteljau gives the same vector as the last level of the original triangle."""
     rng = np.random.default_rng(11)
@@ -259,7 +259,7 @@ def test_bezier_subdivide_halves_meet_on_curve():
 
 def test_bezier_affine_invariance():
     """Transform-then-evaluate == evaluate-then-transform, for any affine map. The proof turns
-    on partition of unity; see notes/01_Curves/Bernstein_Basis_Properties.md."""
+    on partition of unity; see notes/01_Curves/04_Bernstein_Basis_Properties.md."""
     control_points = np.array([[0.0, 0.0], [1.0, 3.0], [2.0, -1.0], [4.0, 2.0]])
     theta = 0.7
     A = np.array([[np.cos(theta), -np.sin(theta)], [np.sin(theta), np.cos(theta)]]) @ \

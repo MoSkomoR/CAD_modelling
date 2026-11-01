@@ -18,7 +18,7 @@ a vertex from the z-axis, the vertical axis the height z. Each marker is one sec
 drag it to resize the section or move it up and down. The curve is a longitudinal edge, drawn
 the same way: distance from the axis against height.
 
-How the surface is made (Loft.md):
+How the surface is made (04_Loft.md):
   1. COMPATIBILITY. Edge k of the four sections -- two straight lines and two circular arcs --
      is rewritten on one degree and one knot vector, without changing its shape (degree
      elevation, knot insertion; module 01). Their control points now line up: P_i^s, control
@@ -35,7 +35,7 @@ Controls:
     z_2 = 1.25) and switch: with chord spacing the longitudinal edges swing into a waist far
     thinner than any section (rho down to 0.23, against 0.6 for the thinnest section);
     centripetal swings less, uniform hardly at all. On
-    other data chord is the best of the three (Loft.md measures both); no rule wins everywhere,
+    other data chord is the best of the three (04_Loft.md measures both); no rule wins everywhere,
     and loft() defaults to centripetal, which was never the worst.
   * "degree across" is the degree of the B-splines in v: 1 gives straight longitudinal edges
     (a ruled surface between consecutive sections), 3 a smooth (C^2) one.
@@ -43,9 +43,9 @@ Controls:
     face twists.
   * "skin nets" draws the control nets of the side faces.
 
-The title gives V, E, F and the volume (divergence theorem over the faces, as in Extrude.md).
+The title gives V, E, F and the volume (divergence theorem over the faces, as in 02_Extrude.md).
 
-Notes: notes/04_Modeling_Operations/Loft.md
+Notes: notes/04_Modeling_Operations/04_Loft.md
 Run:   python scripts/04_modeling_ops/03_loft.py
 """
 
@@ -188,7 +188,7 @@ def main():
             radio_spacing.set_active(i)
             valid()
             waist[name] = state["rho"].min()
-        assert waist["chord"] < waist["centripetal"] < waist["uniform"]  # Loft.md
+        assert waist["chord"] < waist["centripetal"] < waist["uniform"]  # 04_Loft.md
         radio_degree.set_active(0)
         valid()
         check_boxes.set_active(0)

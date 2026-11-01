@@ -2,7 +2,7 @@ Code: [[../../scripts/02_surfaces/04_surface_of_revolution.py]] — `surface_of_
 
 # Surfaces of revolution — the analytic surfaces, as NURBS
 
-[[NURBS_Surfaces]] is the general machinery. This note uses it for the surfaces that dominate
+[[03_NURBS_Surfaces]] is the general machinery. This note uses it for the surfaces that dominate
 mechanical CAD — cylinder, cone, sphere, torus — and proves they come out exact.
 
 ## Why one construction, and not four formulas
@@ -25,7 +25,7 @@ the profile and watch this.
 
 Take a profile, a NURBS curve in the $(r, z)$ half-plane ($r$ is the distance from the $z$-axis):
 control points $(r_i, z_i)$, weights $a_i$, $i = 0..n$, degree $p$, knots in $u$. Take the exact
-NURBS circle of [[../01_Curves/NURBS_Derivations]] §4: nine control points $Q_j$ on the unit
+NURBS circle of [[../01_Curves/09_NURBS_Derivations]] §4: nine control points $Q_j$ on the unit
 square's corners and edge midpoints, weights $c_j$ alternating $1$ and $\tfrac{\sqrt2}{2}$, degree 2,
 knots in $v$.
 
@@ -54,7 +54,7 @@ $\dfrac{\sum_i N_ia_ir_i}{\sum_i N_ia_i}\cdot\dfrac{\sum_j M_jc_jQ_j}{\sum_j M_j
 because the first factor is the profile's $r$-coordinate and the second is the NURBS circle. The
 height becomes $\dfrac{\sum_i N_ia_iz_i}{\sum_i N_ia_i} = z(u)$, the $\sum_j M_jc_j$ cancelling. $\blacksquare$
 
-This is the factoring case of [[NURBS_Surfaces]] ("the basis no longer factors"): because the
+This is the factoring case of [[03_NURBS_Surfaces]] ("the basis no longer factors"): because the
 weights are a product, the surface is a product, and the proof needs nothing beyond the curve
 results.
 
@@ -82,7 +82,7 @@ Each implicit equation follows from the profile's, with $r = \sqrt{x^2+y^2}$:
 All four rows: `test_the_four_primitives_satisfy_their_implicit_equations`.
 
 The sphere's profile is the semicircle built like the full circle of
-[[../01_Curves/NURBS_Derivations]] §4, but with two quarter arcs instead of four: control points
+[[../01_Curves/09_NURBS_Derivations]] §4, but with two quarter arcs instead of four: control points
 $(0,-R), (R,-R), (R,0), (R,R), (0,R)$, weights $1, \tfrac{\sqrt2}{2}, 1, \tfrac{\sqrt2}{2}, 1$, knots
 $0,0,0,\tfrac12,\tfrac12,1,1,1$.
 
@@ -115,7 +115,7 @@ Tick "poles" in script 04 to see the collapsed rows and the parallels shrinking 
 whole sphere. Sketch: if it had no singular points, $S_v$ would be a tangent vector field on the sphere that
 vanishes nowhere, and the **hairy ball theorem** says no such field exists. That theorem is cited,
 not proved here. Kernels avoid the poles only by using more than one patch, or by keeping the sphere
-analytic ([[NURBS_Surfaces]], last section).
+analytic ([[03_NURBS_Surfaces]], last section).
 
 **Orientation.** With $u$ running south to north and $v$ counter-clockwise, $S_u \times S_v$ points
 inward: away from the poles the unit normal is exactly $-S/R$ (`test_sphere_normal_is_radial_inward`).

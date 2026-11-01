@@ -23,19 +23,19 @@ Controls:
   * "height" is the component of d along the z-axis, h; "tilt" leans d sideways by an angle a,
     so d = (h tan a, 0, h). Tilting shears the solid, and the volume printed in the title does
     not change: the volume is (profile area) x h for every tilt (Cavalieri's principle, proved in
-    Extrude.md as a shear with determinant 1).
+    02_Extrude.md as a shear with determinant 1).
   * "hole" adds a circle of radius 0.6 around the origin as a hole: the solid then has a
     through-hole, its genus G goes from 0 to 1, and the hole's walls are four quarter-cylinders.
   * "rulings" draws the straight lines u = const on each side face.
   * "side-face nets" draws each side face's control net: two columns, the curve's control points
     P_i and the same points moved by d. A degree-(3, 1) NURBS surface, with exactly that net,
-    is the extruded surface exactly (Extrude.md derives it).
+    is the extruded surface exactly (02_Extrude.md derives it).
 
 The title gives the counts V (vertices), E (edges), F (faces), R (rings: inner boundary loops of
 faces), G (genus: through-holes), and both sides of the Euler-Poincare formula
-V - E + F - R = 2 (S - G) with S = 1 shell (notes/03_Topology/Euler_Operators.md).
+V - E + F - R = 2 (S - G) with S = 1 shell (notes/03_Topology/03_Euler_Operators.md).
 
-Notes: notes/04_Modeling_Operations/Extrude.md
+Notes: notes/04_Modeling_Operations/02_Extrude.md
 Run:   python scripts/04_modeling_ops/01_extrude.py
 """
 

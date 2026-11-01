@@ -28,8 +28,8 @@ Euler-Poincare formula
 
 true, so every intermediate state is a valid topology by construction.
 
-Notes: notes/03_Topology/B_Rep_Topology.md, notes/03_Topology/Half_Edge.md,
-       notes/03_Topology/Euler_Operators.md
+Notes: notes/03_Topology/01_B_Rep_Topology.md, notes/03_Topology/02_Half_Edge.md,
+       notes/03_Topology/03_Euler_Operators.md
 """
 from __future__ import annotations
 

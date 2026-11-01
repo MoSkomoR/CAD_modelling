@@ -6,7 +6,7 @@ Every part made on a lathe is a solid of revolution: shafts, flanges, pulleys, b
 CAD user sketches half the cross-section, on one side of an axis, and turns it. Every point of
 the profile then moves on a circle about the axis, so every profile edge sweeps a surface of
 revolution. That surface is an exact NURBS surface
-([[../02_Surfaces/Surfaces_of_Revolution]]).
+([[../02_Surfaces/04_Surfaces_of_Revolution]]).
 
 **The rejected alternative: a construction per primitive.** A kernel could build a cylinder, a
 cone, a sphere and a torus each by its own code. Revolve makes all of them with one
@@ -30,7 +30,7 @@ The profile may touch the axis in only one way: **one whole edge lying on the ax
 point must have $r > 0$. This can be checked through the control points alone:
 - the profile lies in the $xz$-plane and has $x \ge 0$ if its control points do. A curve point is
   a combination of control points with coefficients $R_{i,p}(t) \ge 0$ summing to 1 (the argument
-  of [[Extrude#The input]]);
+  of [[02_Extrude#The input]]);
 - a curve whose *interior* control points have $x > 0$ has $x(t) > 0$ for $0 < t < 1$. For such
   $t$, at least one interior control point has a positive coefficient (a stated property of
   clamped B-spline bases, not proved here).
@@ -38,7 +38,7 @@ point must have $r > 0$. This can be checked through the control points alone:
 Why the restriction: a profile that touches the axis at a single vertex turns into two surfaces
 meeting at one point, like two cones tip to tip. A neighbourhood of that point is not a disc, so
 the boundary is not a 2-manifold, and the half-edge structure can't represent it
-([[../03_Topology/B_Rep_Topology]]). Two edges on the axis would split the solid the same way.
+([[../03_Topology/01_B_Rep_Topology]]). Two edges on the axis would split the solid the same way.
 Both are rejected (`test_bad_input_is_rejected`).
 
 **Orientation.** At angle 0, a point $(r, 0, z)$ of the profile starts to move in the direction
@@ -52,13 +52,13 @@ Profile edge $k$, the curve $(x(u), 0, z(u))$, sweeps
 $$S(u, v) = \big(x(u)\cos\varphi(v),\; x(u)\sin\varphi(v),\; z(u)\big), \qquad u, v \in [0,1],$$
 where $\varphi(v)$ increases from 0 to $a$. Here $\varphi$ is the angle of the NURBS arc. It is
 not proportional to $v$, since no rational parametrization of the circle has constant speed
-([[../01_Curves/NURBS]]).
+([[../01_Curves/08_NURBS]]).
 
-[[../02_Surfaces/Surfaces_of_Revolution]] proves this is exact for the full circle. The proof uses
+[[../02_Surfaces/04_Surfaces_of_Revolution]] proves this is exact for the full circle. The proof uses
 only one fact about the circle: it is an exact NURBS curve whose weights multiply with the
 profile's. So it holds unchanged for any exact arc. `nurbs_arc` builds the arc from 0 to $a$ out
 of $\lceil a / (\pi/2) \rceil$ equal pieces. Each piece is a `rational_arc_quadratic`, exact by
-[[../01_Curves/NURBS_Derivations]], and the pieces are joined with every interior knot doubled.
+[[../01_Curves/09_NURBS_Derivations]], and the pieces are joined with every interior knot doubled.
 
 Why pieces of at most a quarter turn: a single quadratic piece of angle $\delta$ has middle weight
 $\cos(\delta/2)$ and middle control point at distance $r / \cos(\delta/2)$. As $\delta \to \pi$
@@ -97,7 +97,7 @@ $e_\varphi(a) = (-\sin a, \cos a, 0)$.
 
 For $a < 2\pi$ the far copy of the profile is a different set of points, and the topology is
 extrude's: a lamina, a rail from every vertex, a side face for every edge
-([[Extrude#The construction]]). Only the geometry differs:
+([[02_Extrude#The construction]]). Only the geometry differs:
 
 | | extrude | partial revolve |
 |---|---|---|
@@ -130,11 +130,11 @@ surface of revolution has no natural place to be cut. One face per profile edge 
 user means: "the cylinder", not "two half-cylinders". OpenCASCADE stores a cylindrical face as one
 periodic face whose seam edge appears twice in its wire (cited).
 
-**Seams are valid half-edge topology.** None of the invariants of [[../03_Topology/Half_Edge]]
+**Seams are valid half-edge topology.** None of the invariants of [[../03_Topology/02_Half_Edge]]
 requires an edge's two half-edges to lie in different faces. Each half-edge has its twin, the
 twins run opposite ways, and `adjacent_faces` already skips the face itself.
 
-**Closed edges come from mef and mekr.** [[Modeling_Operations]] noted that `mev` cannot close an
+**Closed edges come from mef and mekr.** [[01_Modeling_Operations]] noted that `mev` cannot close an
 edge, because it always makes a new vertex. `lmef(h1, h2)` and `lmekr(h1, h2)`, however, join
 `h2.origin` to `h1.origin`. If both half-edges leave the *same* vertex, the new edge is closed.
 Revolve uses exactly that.
@@ -173,7 +173,7 @@ neighbourhood is a disc cut into four quadrants, and `vertex_star` walks all fou
 The edge on the axis would sweep the axis segment itself, a "surface" of zero area. It is
 dropped. Its two ends sweep nothing either, so they become **poles**: vertices with no circle,
 where the surface of revolution collapses a whole row of its net to one point
-([[../02_Surfaces/Surfaces_of_Revolution]]).
+([[../02_Surfaces/04_Surfaces_of_Revolution]]).
 
 **The construction.** Number the profile so that the axis edge is the last, $n - 1$, joining
 vertices $n-1$ and 0.
@@ -204,7 +204,7 @@ pole is just a vertex.
 ## Orientation of the closed edges
 
 A circle has two directions, and a closed edge can't be oriented by its endpoints
-([[Modeling_Operations#Binding geometry to topology]], question 3). The direction has to be
+([[01_Modeling_Operations#Binding geometry to topology]], question 3). The direction has to be
 chosen, and the choice decides whether the loops run the way the faces' senses say.
 
 **Claim.** If the circle of vertex $k$ runs with *increasing* angle along its half-edge in the face
@@ -240,7 +240,7 @@ $\oint (c \times x)\cdot dx = \iint \big(\nabla \times (c \times x)\big)\cdot n\
 $c$ the curl is $\nabla \times (c \times x) = c\,(\nabla\cdot x) - (c\cdot\nabla)\,x = 3c - c = 2c$.
 So $c \cdot \tfrac12\oint x \times dx = c \cdot \iint n\, dA$ for every $c$. $\blacksquare$
 
-For a planar loop this is the vector-area formula of [[Extrude#Volume]]. For a face it compares two
+For a planar loop this is the vector-area formula of [[02_Extrude#Volume]]. For a face it compares two
 computations from different sources:
 - **left side, from the topology:** `loop_vector_area` over the face's loops. Which half-edges
   they contain, and which way each traverses its curve, decide the result. The two halves of a
@@ -250,7 +250,7 @@ computations from different sources:
 
 They agree to $10^{-13}$ on every curved face of every revolve tested, partial and full, with and
 without poles (`test_every_loop_runs_the_way_its_sense_says`). The same holds for the extrusions
-with holes (`test_extrude_loops_run_the_way_their_sense_says`) and for the lofts of [[Loft]].
+with holes (`test_extrude_loops_run_the_way_their_sense_says`) and for the lofts of [[04_Loft]].
 Reversing one circle of a torus leaves `check` silent but breaks the identity for exactly the two
 faces the circle borders (`test_a_reversed_circle_is_caught_by_the_orientation_check`).
 
@@ -274,7 +274,7 @@ $$A = \frac12\oint (x\,dz - z\,dx), \qquad \iint x\, dA = \frac12 \oint x^2\, dz
 The second follows from Green's $\oint M\,dz = \iint \partial_x M\, dA$ with $M = x^2/2$.
 
 This gives two independent computations of one number. Pappus uses the 2D profile. `volume` uses
-the divergence theorem over the faces of the 3D solid ([[Extrude#Volume]]). They agree to better
+the divergence theorem over the faces of the 3D solid ([[02_Extrude#Volume]]). They agree to better
 than $10^{-12}$ for four profiles at three angles each (`test_pappus`). The remaining difference
 is quadrature error on the rational arcs, which enter both sides. The textbook volumes come out
 to $10^{-13}$ or better (`test_known_volumes`):
@@ -311,7 +311,7 @@ points; `revolve` takes the result.
 
 **Which construction.** The angle must lie in $(0, 2\pi]$. If it is `np.isclose` to $2\pi$, the
 full-turn construction runs (`_full_turn`, or `_full_turn_with_poles` with an axis edge).
-Otherwise `sweep_lamina` runs ([[Extrude#In this implementation]]), with:
+Otherwise `sweep_lamina` runs ([[02_Extrude#In this implementation]]), with:
 - rails `turning_arc(v, a)`, or `None` for a vertex on the axis;
 - far copies `C_k.rotated(a)`, which turns the control points about $z$;
 - sides `revolved_surface(C_k, a)`, or `None` for the axis edge.
@@ -320,7 +320,7 @@ Otherwise `sweep_lamina` runs ([[Extrude#In this implementation]]), with:
 two half-edges that leave the same vertex. Naming that vertex doesn't say which two half-edges
 are meant, so the vertex-addressed `mef(face, v1, v2)` can't express the step. The code calls
 `lmekr` and `lmef` with the half-edges themselves
-([[../03_Topology/Euler_Operators#In this implementation]]).
+([[../03_Topology/03_Euler_Operators#In this implementation]]).
 
 **Attaching a circle.** `_attach_circle` passes as `along` the circle's half-edge in the face of
 edge $k-1$, so the curve runs with increasing angle there, as the claim in

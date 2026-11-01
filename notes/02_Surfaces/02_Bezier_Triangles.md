@@ -2,9 +2,9 @@
 
 # Bezier triangles — De Casteljau over three neighbours
 
-This note is about the *algorithm*, the same split [[De_Casteljau_Derivation]] makes for curves.
+This note is about the *algorithm*, the same split [[03_De_Casteljau_Derivation]] makes for curves.
 *Why* a three-sided patch is wanted at all, and why kernels use it anyway only in finite elements
-rather than in mainstream B-rep, is argued in [[Bezier_Surfaces]] ("The other generalization").
+rather than in mainstream B-rep, is argued in [[01_Bezier_Surfaces]] ("The other generalization").
 Here: what the recursion is, and why it still computes a Bernstein sum.
 
 ## The recursion
@@ -21,7 +21,7 @@ $$P^0_{\mathbf{i}} = P_{\mathbf{i}}, \qquad
 P^{s}_{\mathbf{i}} = \lambda_0 P^{s-1}_{\mathbf{i}+e_0} + \lambda_1 P^{s-1}_{\mathbf{i}+e_1}
 + \lambda_2 P^{s-1}_{\mathbf{i}+e_2}, \qquad s=1,\dots,n.$$
 Level $s$ is defined over every $\mathbf{i}$ with $|\mathbf{i}| = n-s$: the lattice loses one row
-per level exactly as the curve triangle loses one point per level ([[De_Casteljau_Derivation]]),
+per level exactly as the curve triangle loses one point per level ([[03_De_Casteljau_Derivation]]),
 and after $n$ levels a single point remains, indexed $(0,0,0)$:
 $$C(\lambda_0,\lambda_1,\lambda_2) = P^n_{(0,0,0)}.$$
 That is the whole algorithm — the curve recursion with one extra term per step.
@@ -74,13 +74,13 @@ that only used "non-negative weights summing to one" therefore survives verbatim
   so it never leaves the net's bounding box (`test_triangle_stays_in_the_bounding_box_of_its_
   control_net`).
 - **Affine invariance**: the same partition-of-unity argument from
-  [[Bernstein_Basis_Properties]] applies term for term (`test_triangle_affine_invariance`).
+  [[04_Bernstein_Basis_Properties]] applies term for term (`test_triangle_affine_invariance`).
 
 ## What is different from the tensor product, and what is not built here
 
 A triangular patch has one **total** degree $n$, not a bidegree $(n,m)$ — the three barycentric
 directions are interchangeable, unlike $u$ and $v$. That symmetry is also *why* the patch is
-naturally three-sided rather than four (the geometric argument lives in [[Bezier_Surfaces]]).
+naturally three-sided rather than four (the geometric argument lives in [[01_Bezier_Surfaces]]).
 
 Not implemented: **subdivision**. Splitting a Bezier triangle into sub-triangles is a real
 algorithm (it also falls out of De Casteljau, run at more than one interior point), but it is a

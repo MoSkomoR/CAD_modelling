@@ -14,7 +14,7 @@ or the extruded surface S(u, v) = C(u) + v d. A profile with holes continues the
 block_with_hole does: each hole is drawn into the top face, cut free as a ring by kemr, swept
 down, and opened through the bottom by kfmrh (genus + 1 per hole).
 
-Notes: notes/04_Modeling_Operations/Extrude.md
+Notes: notes/04_Modeling_Operations/02_Extrude.md
 """
 from __future__ import annotations
 
@@ -45,7 +45,7 @@ def profile_vector_area(profile: list[NurbsCurve], n: int = GAUSS_POINTS) -> np.
 
 def _check_profile(profile: list[NurbsCurve], tol: float = 1e-9) -> None:
     """Closed, and at least two edges. Not checked: that the profile does not cross itself, and
-    that holes lie inside it without touching -- a real kernel must (Extrude.md)."""
+    that holes lie inside it without touching -- a real kernel must (02_Extrude.md)."""
     if len(profile) < 2:
         raise ValueError("a profile needs at least two edges (each edge has two vertices)")
     for a, b in zip(profile, profile[1:] + profile[:1]):
@@ -71,7 +71,7 @@ def extrude(profile: list[NurbsCurve], direction, holes=(), steps: list | None =
     profile sweeps side face k. Every side face's surface is S(u, v) = C_k(u) + v d with u
     running along the profile counter-clockwise (seen from the tip of d); S_u x S_v then points
     out of the solid on the outer boundary and into the hole on a hole's wall, which is what
-    `sense` records (+1 and -1). Proved in Extrude.md.
+    `sense` records (+1 and -1). Proved in 02_Extrude.md.
     """
     d = np.asarray(direction, dtype=float)
     _check_profile(profile)

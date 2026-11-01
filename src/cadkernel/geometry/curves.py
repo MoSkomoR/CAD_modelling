@@ -1,8 +1,8 @@
 """Parametric curves: lines, arcs, and Bezier curves via De Casteljau's algorithm.
 
-Notes: notes/01_Curves/Lines_and_Arcs.md, notes/01_Curves/Bezier_Curves.md,
-       notes/01_Curves/De_Casteljau_Derivation.md,
-       notes/01_Curves/Bernstein_Basis_Properties.md
+Notes: notes/01_Curves/01_Lines_and_Arcs.md, notes/01_Curves/02_Bezier_Curves.md,
+       notes/01_Curves/03_De_Casteljau_Derivation.md,
+       notes/01_Curves/04_Bernstein_Basis_Properties.md
 """
 from __future__ import annotations
 
@@ -46,7 +46,7 @@ def bezier_de_casteljau(control_points: np.ndarray, t: float) -> np.ndarray:
 
     and C(t) = P_0^n. This is numerically stable and geometrically intuitive: each level of
     the triangle is just linear interpolation ("lerp") between the points of the level below.
-    See notes/01_Curves/De_Casteljau_Derivation.md for the derivation and why this is
+    See notes/01_Curves/03_De_Casteljau_Derivation.md for the derivation and why this is
     equivalent to the Bernstein polynomial form.
     """
     points = np.asarray(control_points, dtype=float).copy()
@@ -70,7 +70,7 @@ def bernstein_basis(n: int, t: np.ndarray) -> np.ndarray:
     The two facts that give Bezier curves nearly all their useful properties live here rather
     than in the curve itself: the basis is non-negative on [0, 1], and it sums to 1 for every t
     (partition of unity, by the binomial theorem). See
-    notes/01_Curves/Bernstein_Basis_Properties.md.
+    notes/01_Curves/04_Bernstein_Basis_Properties.md.
     """
     t = np.atleast_1d(np.asarray(t, dtype=float))[:, None]
     i = np.arange(n + 1)

@@ -4,7 +4,7 @@ Code: [[../../scripts/01_curves/07_bspline_interpolation.py]] — `interpolate_p
 
 ## The tension with the Bezier note
 
-[[Bezier_Curves]] argued that interpolation is the **wrong interface** for design: a designer
+[[02_Bezier_Curves]] argued that interpolation is the **wrong interface** for design: a designer
 wants to *pull* a shape into place, not to guess points the curve must hit, and one polynomial
 through many points oscillates (Runge). Both statements stand. But a kernel also has to accept
 points that are **data**: a measured profile from a scanner, sections a loft must pass through,
@@ -12,7 +12,7 @@ a sketch snapped to fixed points, a path that must hit given waypoints. For thos
 these points" is the specification, and the control points are an *output*.
 
 So the question is not whether to interpolate but **with what**. The answer is a B-spline, and the
-reason is exactly the one that made B-splines worth building ([[B_Splines]]): low degree, piecewise,
+reason is exactly the one that made B-splines worth building ([[05_B_Splines]]): low degree, piecewise,
 local.
 
 ## Why not one polynomial: Runge's phenomenon

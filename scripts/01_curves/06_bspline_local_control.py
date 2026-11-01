@@ -16,7 +16,7 @@ The remaining toggles are the tools a kernel builds on top, and none of them cha
     Bezier control polygon per span, sharing end points. This is how every Bezier tool is reused.
   * "elevate degree": the same curve as a degree-4 B-spline.
 
-Notes: notes/01_Curves/B_Splines.md, notes/01_Curves/De_Boor_Algorithm.md
+Notes: notes/01_Curves/05_B_Splines.md, notes/01_Curves/06_De_Boor_Algorithm.md
 Run:   python scripts/01_curves/06_bspline_local_control.py
 """
 

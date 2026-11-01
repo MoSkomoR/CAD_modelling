@@ -2,11 +2,11 @@ Code: [[../../scripts/01_curves/08_nurbs_weights.py]] — `cadkernel/geometry/nu
 
 # NURBS — the derivations
 
-The proofs behind [[NURBS]], kept separate the way [[De_Casteljau_Derivation]] and
-[[Bernstein_Basis_Properties]] are separate from [[Bezier_Curves]]. *Why* weights exist, and what
+The proofs behind [[08_NURBS]], kept separate the way [[03_De_Casteljau_Derivation]] and
+[[04_Bernstein_Basis_Properties]] are separate from [[02_Bezier_Curves]]. *Why* weights exist, and what
 they cost, is argued in the hub; here is why each claim it makes is true.
 
-**Notation** (Piegl & Tiller, as in [[B_Splines]]): control points $P_0,\dots,P_n$, weights
+**Notation** (Piegl & Tiller, as in [[05_B_Splines]]): control points $P_0,\dots,P_n$, weights
 $w_0,\dots,w_n$, degree $p$, knots $u_0,\dots,u_m$ with $m = n+p+1$. Points are in $\mathbb{R}^d$
 (the examples are 2D). Two abbreviations used throughout:
 $$w(t) = \sum_{i=0}^{n} N_{i,p}(t)\,w_i \quad\text{(the weight function)}, \qquad
@@ -29,7 +29,7 @@ The notes call $\mathbb{R}^{d+1}$, where the lifted points and $C^w$ live, **ups
 division back to $\mathbb{R}^d$ the projection.
 
 That one line means a rational curve needs no algorithm of its own: lift, run the existing
-polynomial machinery ([[De_Boor_Algorithm]]), divide ([[NURBS#In this implementation]]).
+polynomial machinery ([[06_De_Boor_Algorithm]]), divide ([[08_NURBS#In this implementation]]).
 Every result below that says "carries over" is this line applied once more. With all $w_i = 1$, $w(t) = \sum_i N_{i,p} = 1$ by partition of
 unity and $C$ is the B-spline (`test_nurbs_with_unit_weights_is_the_bspline`); on Bezier knots it is
 the rational Bezier curve (`test_rational_bezier_is_nurbs_on_bezier_knots`).
@@ -49,7 +49,7 @@ on that interval (`test_rational_basis_is_a_partition_of_unity_with_local_suppor
 
 **Non-negativity — only for positive weights.** If every $w_i > 0$, each $R_{i,p}$ is a ratio of
 non-negative terms with a positive denominator, so $R_{i,p} \ge 0$. With partition of unity, every
-corollary in [[Bernstein_Basis_Properties]] that used only "non-negative weights summing to one" —
+corollary in [[04_Bernstein_Basis_Properties]] that used only "non-negative weights summing to one" —
 convex hull containment, affine invariance — survives verbatim. A negative $w_i$ makes $R_{i,p}$
 negative somewhere and the hull argument is gone; section 7 measures what that does.
 
@@ -87,13 +87,13 @@ Four quarter arcs ($\varphi = \pi/4$, middle weight $\cos\tfrac\pi4 = \tfrac{\sq
 degree-2 NURBS (`nurbs_circle`): nine control points around the circumscribed square — edge
 midpoints on the circle with weight 1, corners with weight $\tfrac{\sqrt2}{2}$ — and knots
 $$0,0,0,\ \tfrac14,\tfrac14,\ \tfrac12,\tfrac12,\ \tfrac34,\tfrac34,\ 1,1,1 .$$
-Each interior knot has multiplicity $2 = p$, so by [[De_Boor_Algorithm]] ("Decomposition into
+Each interior knot has multiplicity $2 = p$, so by [[06_De_Boor_Algorithm]] ("Decomposition into
 Bezier pieces") the curve on each quarter of $[0,1]$ *is* the rational Bezier on three consecutive
 control points — one of the arcs of section 3. Radial error below $10^{-15}$
 (`test_full_circle_is_exact`).
 
 **Smoother than the knots promise.** Multiplicity 2 on degree 2 only guarantees $C^0$
-([[B_Splines]]). But the end derivative of a rational Bezier is, from the quotient rule of section 6
+([[05_B_Splines]]). But the end derivative of a rational Bezier is, from the quotient rule of section 6
 at $t=0$ (where $A = w_0P_0$, $A' = n(w_1P_1 - w_0P_0)$, $w' = n(w_1 - w_0)$):
 $$C'(0) = \frac{A'(0) - w'(0)\,C(0)}{w(0)} = n\,\frac{w_1}{w_0}\,(P_1 - P_0),$$
 and symmetrically $C'(1) = n\frac{w_{n-1}}{w_n}(P_n - P_{n-1})$. At a joint of the circle both sides
@@ -136,7 +136,7 @@ though the curve is exact.
 
 Differentiate $A(t) = w(t)\,C(t)$ with the product rule: $A' = w'C + wC'$, so
 $$C'(t) = \frac{A'(t) - w'(t)\,C(t)}{w(t)} = \frac{A'(t)\,w(t) - A(t)\,w'(t)}{w(t)^2}.$$
-$A'$ and $w'$ are the hodographs of polynomial B-splines, which [[De_Boor_Algorithm]] already
+$A'$ and $w'$ are the hodographs of polynomial B-splines, which [[06_De_Boor_Algorithm]] already
 provides; `nurbs_derivative` computes them on the lifted control points and applies this formula
 (matches central differences to $10^{-8}$, `test_nurbs_derivative_matches_finite_differences`).
 
@@ -204,19 +204,19 @@ agree to $10^{-14}$ (`test_scaling_weights_geometrically_only_reparametrizes`).
 ## 9. Knot insertion, and why it must be done upstairs
 
 The lifted curve $C^w$ is a polynomial B-spline, so Boehm insertion on the lifted control points
-leaves $C^w$ unchanged ([[De_Boor_Algorithm]], proved there given blossoming), and so its projection
+leaves $C^w$ unchanged ([[06_De_Boor_Algorithm]], proved there given blossoming), and so its projection
 $C$ is unchanged too. Unlifting the new points gives the new weights (lerps of the old weights) and
 new control points (lerps of $w_iP_i$, divided by the new weight) — `nurbs_insert_knot`, unchanged to
 below $10^{-14}$. Inserting into the points and the weights *separately* is wrong, because
 $(1-\alpha)w_{i-1}P_{i-1} + \alpha w_iP_i$ is not $\big((1-\alpha)w_{i-1} + \alpha w_i\big)\big((1-\alpha)P_{i-1} + \alpha P_i\big)$;
 measured, the curve moves by more than $0.1$
 (`test_knot_insertion_must_happen_in_homogeneous_space`). The same rule holds for every operation
-in [[De_Boor_Algorithm]]: do it to $P_i^w$, never to $P_i$ and $w_i$ apart.
+in [[06_De_Boor_Algorithm]]: do it to $P_i^w$, never to $P_i$ and $w_i$ apart.
 
 **Status**: exact. Proved inline: the homogeneous form, partition of unity and local support of
 $R_{i,p}$, the exact arc (and its complementary arc), $C^1$ of the full circle, projective invariance,
 the derivative formula and its degree bound, the weight-pull limit, the reparametrization freedom,
-and knot insertion via the lift (given the blossoming theorem cited in [[De_Boor_Algorithm]]).
+and knot insertion via the lift (given the blossoming theorem cited in [[06_De_Boor_Algorithm]]).
 Cited, not proved: the classification of conics by their points at infinity. Stated and measured:
 that the derivative degree bound is attained, and that $t = \tfrac12$ is the closest approach in the
 pull example. Every number is from `tests/test_nurbs.py`.

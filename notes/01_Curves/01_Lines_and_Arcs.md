@@ -9,7 +9,7 @@ closed-form equation, not approximated by control points.
 
 **Line.** $C(t) = (1-t)\,P_0 + t\,P_1,\ t\in[0,1]$ — interpolation between two endpoints. The
 same lerp is the single operation De Casteljau's algorithm repeats to evaluate a Bezier curve of
-any degree ([[De_Casteljau_Derivation]]).
+any degree ([[03_De_Casteljau_Derivation]]).
 
 **Arc.** $C(t) = c + r\big(\cos\theta(t), \sin\theta(t)\big)$ with
 $\theta(t) = (1-t)\theta_0 + t\theta_1$. Exact and cheap — but note it is a **trigonometric**,
@@ -116,15 +116,15 @@ $$C(t) = \frac{\sum_i B_i^n(t)\,w_i P_i}{\sum_i B_i^n(t)\,w_i},$$
 and a circular arc becomes an *exact* rational quadratic: three control points (the two arc
 endpoints and the intersection of their tangents) with weights $(1, \cos(\delta/2), 1)$ for a
 sweep of $\delta$. Verified to 3.3e-16 in `test_rational_quadratic_is_an_exact_circular_arc`; proved in
-[[NURBS_Derivations]] §3.
+[[09_NURBS_Derivations]] §3.
 
 That is the **R** in NURBS, and it is why the letter is there: rational is not a refinement of
 the polynomial case, it is the thing that makes conics representable at all. The **NU** —
 non-uniform knots, giving local control — is the other half of the story, motivated at the end
-of [[Bernstein_Basis_Properties]] and in [[Bezier_Curves]].
+of [[04_Bernstein_Basis_Properties]] and in [[02_Bezier_Curves]].
 
 **Status**: lines, arcs, and the exact rational quadratic arc implemented in code
 (`cadkernel.geometry.curves.line`, `.arc`; `cadkernel.geometry.nurbs.rational_arc_quadratic`,
-`.rational_bezier`); the general NURBS machinery and the arc proof are in [[NURBS]] and
-[[NURBS_Derivations]];
+`.rational_bezier`); the general NURBS machinery and the arc proof are in [[08_NURBS]] and
+[[09_NURBS_Derivations]];
 impossibility proof complete above; approximation behaviour measured, not assumed.

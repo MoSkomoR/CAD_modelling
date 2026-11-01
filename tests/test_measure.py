@@ -64,7 +64,7 @@ def test_square_volume_needs_no_quadrature():
 def test_extrude_loops_run_the_way_their_sense_says():
     """Stokes on every curved face of an extrusion with holes: 1/2 \\oint x \\times dx around the
     face's loop equals sense * \\iint S_u x S_v du dv -- outer walls (sense +1) and hole walls
-    (sense -1) alike. Revolve.md derives the identity."""
+    (sense -1) alike. 03_Revolve.md derives the identity."""
     solid = extrude(circle_arcs([0, 0], 3.0), [0.4, 0.2, 1.5], [circle_arcs([0, 0], 1.0)])
     for face in solid.faces:
         if face.surface is not None and not hasattr(face.surface, "normal"):

@@ -20,7 +20,7 @@ Four panels, all live while you drag the control points:
                 endpoints, because B_i^n(t) > 0 on all of (0,1). No local control: this is the
                 limitation B-splines exist to fix.
 
-Notes: notes/01_Curves/Bernstein_Basis_Properties.md, notes/01_Curves/Bezier_Curves.md
+Notes: notes/01_Curves/04_Bernstein_Basis_Properties.md, notes/01_Curves/02_Bezier_Curves.md
 Run:   python scripts/01_curves/03_bezier_properties.py
 """
 

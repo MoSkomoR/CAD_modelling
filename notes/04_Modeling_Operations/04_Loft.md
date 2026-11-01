@@ -17,7 +17,7 @@ a **loft**, and its surface is a **skinned** surface.
 The standard construction, used here, is one surface through *all* the sections at once
 (Piegl & Tiller, *The NURBS Book*, §10.3; cited). Its curves across the sections are $C^2$ cubic
 interpolants, so there are no creases. That interpolation is the curve interpolation of
-[[../01_Curves/B_Spline_Interpolation]], and it brings the parametrization question back in a new
+[[../01_Curves/07_B_Spline_Interpolation]], and it brings the parametrization question back in a new
 direction.
 
 ## The input
@@ -44,12 +44,12 @@ In the square-to-circle loft of script 03, edge $k$ is a straight line in the sq
 and a rational quadratic arc in the circles (degree 2). Two steps rewrite them without changing
 their shapes:
 1. **Degree:** each curve is raised to the highest degree present, by `elevate_degree`
-   ([[../01_Curves/De_Boor_Algorithm]]).
+   ([[../01_Curves/06_De_Boor_Algorithm]]).
 2. **Knots:** every knot value is inserted into every curve until it has, in every curve, the
    highest multiplicity it has in any curve. This uses Boehm insertion, `insert_knot`.
 
 Both steps act on the lifted points $(w_i P_i, w_i)$, as every NURBS operation must
-([[../01_Curves/NURBS]]). Afterwards curve $C_k^s$ has control points
+([[../01_Curves/08_NURBS]]). Afterwards curve $C_k^s$ has control points
 $P_{0}^s, \dots, P_{m}^s$, the same $m$ for every $s$. Measured on a rational arc, a cubic with an
 interior knot and a line: one degree, one knot vector, and the same points at the same parameters
 to $10^{-14}$ (`test_compatible_keeps_every_shape_and_lines_up_the_representation`).
@@ -66,7 +66,7 @@ unknowns $Q_{ij}$ solve
 $$\sum_{j=0}^{K} N_{j,q}(v_s)\,Q_{ij}^w = (P_i^s)^w, \qquad s = 0, \dots, K,$$
 where $^w$ marks lifted points. That is one $(K+1) \times (K+1)$ matrix $M_{sj} = N_{j,q}(v_s)$ for
 every column. It is invertible by Schoenberg–Whitney (cited, as in
-[[../01_Curves/B_Spline_Interpolation]]).
+[[../01_Curves/07_B_Spline_Interpolation]]).
 
 **Claim.** The surface passes through every section: $S(u, v_s) = C^s(u)$.
 
@@ -82,7 +82,7 @@ faces; script 03 draws them in black.
 **The degree across** is $q = \min(\text{degree}, K)$, since $q + 1$ data points are needed.
 - With two sections, $q = 1$ and $Q_{i0} = P_i^0$, $Q_{i1} = P_i^1$.
 - If the second section is the first moved by $\mathbf d$, this net is $[P_i, P_i + \mathbf d]$:
-  exactly the extruded surface of [[Extrude]]. Two equal circles therefore loft to the
+  exactly the extruded surface of [[02_Extrude]]. Two equal circles therefore loft to the
   extrusion, face for face (`test_two_sections_give_the_ruled_surface`,
   `test_two_equal_circles_give_the_extruded_cylinder`).
 - Two circles of radii $a$ and $b$ loft to the exact cone frustum. When the weights of the two
@@ -122,7 +122,7 @@ weights of 1.
 
 ## The topology: an extrusion
 
-Topologically a loft is an extrusion ([[Extrude#The construction]]), with:
+Topologically a loft is an extrusion ([[02_Extrude#The construction]]), with:
 - the first section as the profile;
 - the last section as the far copy;
 - the longitudinal edges as rails;
@@ -130,16 +130,16 @@ Topologically a loft is an extrusion ([[Extrude#The construction]]), with:
 
 So $V = 2n$, $E = 3n$ and $F = n + 2$ (`test_every_step_is_valid_and_the_result_is_consistent`).
 
-Every side face gets sense $+1$. The argument of [[Extrude#Orientation: the sense of each side face]]
+Every side face gets sense $+1$. The argument of [[02_Extrude#Orientation: the sense of each side face]]
 applies at the first section, where $S_v$ points from the first section towards the next. A
 regular skin ($S_u \times S_v \ne 0$ everywhere) cannot change the side its normal points to, so
 the sense holds over the whole face. Twisted or folded skins can break regularity, and that isn't
-checked. On the square-to-circle loft, the Stokes identity of [[Revolve#Checking the orientation: Stokes]]
+checked. On the square-to-circle loft, the Stokes identity of [[03_Revolve#Checking the orientation: Stokes]]
 holds on every side face to $10^{-13}$ (`test_every_loop_runs_the_way_its_sense_says`).
 
 ## Spacing the sections: two measurements, two different winners
 
-The $v_s$ come from one of the three rules of [[../01_Curves/B_Spline_Interpolation]]: uniform,
+The $v_s$ come from one of the three rules of [[../01_Curves/07_B_Spline_Interpolation]]: uniform,
 chord length or centripetal. The usual textbook choice for skinning is chord length (Piegl &
 Tiller; cited). Two experiments, with four circular or square sections, compare them. In both,
 $\rho$ is the distance of the vertices from the $z$-axis.
@@ -190,7 +190,7 @@ repo picks from them is under [[#In this implementation]].
   correspondence does.
 - **Guide curves** that steer the surface between sections.
 - **Closed lofts**, where the last section joins back to the first to make a ring. That needs
-  seams, as in [[Revolve]].
+  seams, as in [[03_Revolve]].
 - **Detecting folds or self-intersections.** Interpolated weights that come out non-positive are
   rejected, but nothing else is checked.
 
@@ -230,7 +230,7 @@ that was never the worst in the two experiments above. This departs from the tex
 length, which lost badly on the second. It is also the default of curve interpolation, for a
 related reason measured there.
 
-**Topology.** `loft` calls `sweep_lamina` ([[Extrude#In this implementation]]) with no `None`
+**Topology.** `loft` calls `sweep_lamina` ([[02_Extrude#In this implementation]]) with no `None`
 rails or sides.
 
 **Status**: exact (planar caps and skinned NURBS faces, untrimmed; the skin is exact through the

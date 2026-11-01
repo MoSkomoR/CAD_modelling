@@ -41,7 +41,7 @@ def convex_hull_2d(points: np.ndarray) -> np.ndarray:
     """Convex hull of a 2D point set, counter-clockwise (monotone chain / Andrew's algorithm).
 
     Written out rather than pulled from scipy because the convex hull is the object the Bezier
-    containment proof is *about* -- see notes/01_Curves/Bernstein_Basis_Properties.md.
+    containment proof is *about* -- see notes/01_Curves/04_Bernstein_Basis_Properties.md.
     """
     pts = np.unique(np.asarray(points, dtype=float), axis=0)
     if len(pts) <= 2:

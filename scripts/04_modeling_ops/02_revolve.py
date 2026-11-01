@@ -14,13 +14,13 @@ Right, the SOLID that revolve() builds by turning the profile about the z-axis b
   * profile edge k sweeps the FACE in colour k. Its surface is the surface of revolution
         S(u, v) = (x(u) cos phi(v), x(u) sin phi(v), z(u)),    u, v in [0, 1],
     where (x(u), z(u)) is the curve of profile edge k and phi(v) runs from 0 to a. It is an exact
-    NURBS surface (notes/02_Surfaces/Surfaces_of_Revolution.md).
+    NURBS surface (notes/02_Surfaces/04_Surfaces_of_Revolution.md).
   * every vertex at distance r > 0 from the axis sweeps an ARC of radius r: an edge.
   * for a < 360 deg the solid has two PLANAR CAPS (grey): the profile where it starts and the
     profile turned by a.
 
 At a = 360 deg the far copy of the profile coincides with the profile, the caps disappear, and
-three things appear that a partial turn never needs (Revolve.md):
+three things appear that a partial turn never needs (03_Revolve.md):
   * SEAM (red): a profile edge becomes an edge whose two half-edges both belong to one face --
     the line where that face's surface meets itself (v = 0 and v = 1 are the same points).
   * CLOSED EDGE (blue): each vertex off the axis sweeps a full circle, an edge that starts and
@@ -34,13 +34,13 @@ the axis" makes a ring-shaped solid, G = 1; one "touching the axis" makes a ball
 
 The last line compares two volumes: the solid's, from the divergence theorem over its faces,
 and PAPPUS's theorem, V = a * x_bar * A, with A the area the profile encloses and x_bar the
-distance of the profile's centroid from the axis -- computed from the profile alone. Revolve.md
+distance of the profile's centroid from the axis -- computed from the profile alone. 03_Revolve.md
 proves Pappus; the two agree to rounding at every angle and every drag.
 
 Controls: the "profile" radio buttons switch between the two profiles, "angle a" turns, "nets"
 shows each face's control net (the profile's control points carried round on the circle's).
 
-Notes: notes/04_Modeling_Operations/Revolve.md
+Notes: notes/04_Modeling_Operations/03_Revolve.md
 Run:   python scripts/04_modeling_ops/02_revolve.py
 """
 

@@ -18,7 +18,7 @@ with "index" and raise or lower it with "height" to feel global support on the t
 lattice. Tick "De Casteljau stages" to draw every collapsing level of the lattice at the current
 parameter point.
 
-Notes: notes/02_Surfaces/Bezier_Triangles.md
+Notes: notes/02_Surfaces/02_Bezier_Triangles.md
 Run:   python scripts/02_surfaces/02_bezier_triangle_de_casteljau.py
 """
 

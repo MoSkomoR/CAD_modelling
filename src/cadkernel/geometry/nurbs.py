@@ -15,8 +15,8 @@ all reused unchanged from curves.py and bspline.py; only the projection is new. 
 Conventions follow bspline.py (Piegl & Tiller): control points P_0 .. P_n, weights w_0 .. w_n,
 degree p, knots u_0 .. u_m with m = n + p + 1.
 
-Notes: notes/01_Curves/NURBS.md, notes/01_Curves/NURBS_Derivations.md,
-       notes/01_Curves/Lines_and_Arcs.md
+Notes: notes/01_Curves/08_NURBS.md, notes/01_Curves/09_NURBS_Derivations.md,
+       notes/01_Curves/01_Lines_and_Arcs.md
 """
 from __future__ import annotations
 
@@ -56,7 +56,7 @@ def rational_bezier(control_points: np.ndarray, weights: np.ndarray, t: np.ndarr
 
     This is the smallest curve that does something polynomials provably cannot: an exact circular
     arc (see rational_arc_quadratic and the impossibility proof in
-    notes/01_Curves/Lines_and_Arcs.md).
+    notes/01_Curves/01_Lines_and_Arcs.md).
     """
     homogeneous = _lift(control_points, weights)
     t = np.atleast_1d(np.asarray(t, dtype=float))
@@ -71,7 +71,7 @@ def rational_arc_quadratic(center: np.ndarray, radius: float, theta0: float,
     nurbs_circle). The endpoints sit on the circle; the middle control point is where the two
     endpoint tangents meet, at distance radius / cos(delta/2) along the angle bisector; the
     weights are (1, cos(delta/2), 1) where delta = theta1 - theta0. Derived in
-    notes/01_Curves/NURBS_Derivations.md.
+    notes/01_Curves/09_NURBS_Derivations.md.
     """
     center = np.asarray(center, dtype=float)
     delta = theta1 - theta0
@@ -116,7 +116,7 @@ def nurbs_derivative(control_points: np.ndarray, weights: np.ndarray, knots: np.
         C'(t) = (A_x'(t) - w'(t) C(t)) / w(t).
 
     Unlike the polynomial case, C' is *not* a NURBS curve of degree p-1 with control points one
-    can write down: it is a quotient whose denominator is w(t)^2 (notes/01_Curves/NURBS.md
+    can write down: it is a quotient whose denominator is w(t)^2 (notes/01_Curves/08_NURBS.md
     measures the degree growth).
     """
     lifted = _lift(control_points, weights)

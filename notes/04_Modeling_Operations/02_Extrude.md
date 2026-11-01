@@ -5,7 +5,7 @@ Code: [[../../scripts/04_modeling_ops/01_extrude.py]] — `extrude` in [[../../s
 Extrusion is the most-used operation in mechanical CAD: sketch a closed profile, pull it a
 distance, and get a plate, a bar, a bracket. It is also the simplest operation that produces a
 solid with exact curved faces, which is why it comes first. Why operations work from profiles at
-all, and what binding geometry to topology involves, is in the hub [[Modeling_Operations]].
+all, and what binding geometry to topology involves, is in the hub [[01_Modeling_Operations]].
 
 ## The input
 
@@ -28,7 +28,7 @@ only on the region and $\mathbf d$, clockwise input and a downward $\mathbf d$ g
 
 ## The construction
 
-The topology is the box sweep of [[../03_Topology/Euler_Operators#Two constructions, step by step]],
+The topology is the box sweep of [[../03_Topology/03_Euler_Operators#Two constructions, step by step]],
 generalized from 4 edges to $n$, with geometry attached as each operator runs:
 
 | step | operators | creates | geometry attached |
@@ -40,7 +40,7 @@ generalized from 4 edges to $n$, with geometry attached as each operator runs:
 
 After step 4 the remaining lamina face is the top, the plane moved by $\mathbf d$ with normal
 $+\mathbf n$. Nothing in steps 1–4 depends on the rails being straight or the side surfaces being
-extruded: [[Revolve]] (a partial turn) and [[Loft]] run the same steps with their own rails and
+extruded: [[03_Revolve]] (a partial turn) and [[04_Loft]] run the same steps with their own rails and
 surfaces.
 
 **Counts.** A profile of $n$ edges gives $V = 2n$ (each profile vertex and its copy), $E = 3n$
@@ -117,7 +117,7 @@ the hole's walls get sense $-1$. $\blacksquare$
 Measured: on a disc with a hole, the four outer walls have $\sigma\,(S_u \times S_v)$ pointing away
 from the axis and the four hole walls pointing towards it
 (`test_sense_records_outward_normals`). Each wall's loop also runs the way its sense says, by the
-Stokes identity of [[Revolve#Checking the orientation: Stokes]]
+Stokes identity of [[03_Revolve#Checking the orientation: Stokes]]
 (`test_extrude_loops_run_the_way_their_sense_says`). The sense matters: flipping it on one quarter-cylinder of
 an extruded unit circle (height 1) turns the volume $\pi$ into $2\pi/3$. That face's share,
 $\pi/6$, is subtracted instead of added (`test_flipping_one_sense_breaks_the_volume`).
@@ -125,7 +125,7 @@ $\pi/6$, is subtracted instead of added (`test_flipping_one_sense_breaks_the_vol
 ## Volume
 
 The divergence theorem gives $\text{Vol} = \frac13 \oint_\partial x \cdot n\, dA$
-([[../03_Topology/Half_Edge#The invariants]] derives it). Each face contributes one integral.
+([[../03_Topology/02_Half_Edge#The invariants]] derives it). Each face contributes one integral.
 
 **A curved face.** For a surface patch $S(u,v)$ the vector $S_u \times S_v$ is normal to it, and
 its length is the area scale factor of the map $(u,v) \mapsto S(u,v)$. So $n\, dA = (S_u \times S_v)\,du\,dv$,
@@ -202,7 +202,7 @@ for three tilts, to $10^{-12}$ (`test_oblique_extrusion_keeps_the_volume`). In s
 
 After building, `check` verifies the topology and that the geometry agrees with it: vertices on
 their faces' surfaces, and each edge curve running between its vertices and lying on both of its
-faces ([[Modeling_Operations#Binding geometry to topology]]). Every construction in the tests
+faces ([[01_Modeling_Operations#Binding geometry to topology]]). Every construction in the tests
 passes, including tilted ones and ones with holes.
 
 The check is local, and its report says *where* a problem is. Pull the middle control point of one
@@ -215,7 +215,7 @@ quarter-cylinder. `check` reports exactly one problem, naming that side face
 
 - **A self-intersecting profile.** A figure-eight profile produces faces passing through each
   other. Every pointer is consistent and every edge lies on its faces, so `check` passes it. This
-  is the same gap as in [[../03_Topology/B_Rep_Topology]].
+  is the same gap as in [[../03_Topology/01_B_Rep_Topology]].
 - **Holes that leave the profile or touch each other.** Same reason.
 - **Extruding to a face** ("up to next", "through all"). That needs intersections, which this repo
   doesn't do ([[../99_Not_Covered_In_Code]]).
@@ -236,7 +236,7 @@ $\mathbf A \cdot \mathbf d < 0$, reverses the list and every curve in it.
 - `sweep_lamina(profile, far, rails, sides, start, end)`: steps 3 and 4. `far[k]` is the far copy
   of edge $k$, `rails[k]` the curve vertex $k$ travels along, `sides[k]` the surface edge $k$
   sweeps, and `start`, `end` the planes of the caps. A rail of `None` marks a vertex that doesn't
-  move, and a side of `None` an edge that sweeps no face; [[Revolve]] needs both for an edge on
+  move, and a side of `None` an edge that sweeps no face; [[03_Revolve]] needs both for an edge on
   the axis. Every side face gets sense $+1$.
 
 `extrude` passes segments as rails and `extruded_surface` as the sides; `revolve` and `loft` pass
@@ -246,7 +246,7 @@ their own.
 [[#The construction]].
 
 **Quadrature.** 12 points per knot span, the table's last column
-([[Modeling_Operations#In this implementation]]).
+([[01_Modeling_Operations#In this implementation]]).
 
 **Status**: exact (planar and extruded NURBS faces, untrimmed). Implemented and tested:
 `extrude`, with holes, upright and tilted, in `tests/test_extrude.py`; quadrature in

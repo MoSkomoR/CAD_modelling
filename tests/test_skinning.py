@@ -36,7 +36,7 @@ def test_skin_passes_through_every_section():
 
 def test_two_sections_give_the_ruled_surface():
     """Two sections a vector d apart, degree 1 across: the net is [P, P + d], the extruded
-    surface of Extrude.md -- so two equal circles skin to the exact cylinder."""
+    surface of 02_Extrude.md -- so two equal circles skin to the exact cylinder."""
     d = np.array([0.2, 0.1, 2.0])
     surface = skinned_surface([ARC, ARC.translated(d)], 1, np.array([0.0, 1.0]))
     reference = extruded_surface(ARC, d)

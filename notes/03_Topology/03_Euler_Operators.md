@@ -2,7 +2,7 @@ Code: [[../../scripts/03_topology/02_euler_operators.py]] — `mvfs`, `lmev`/`lk
 
 # Euler operators — building solids that are valid at every step
 
-[[Half_Edge]] says what a valid structure is. This note is about how to *change* one without ever
+[[02_Half_Edge]] says what a valid structure is. This note is about how to *change* one without ever
 leaving validity: how solids are built and edited.
 
 ## Why operators, and not pointer surgery
@@ -158,7 +158,7 @@ build.
 
 The second layer is ambiguous wherever a loop passes through one vertex twice: at the root of a
 spike, or at a seam vertex of a full revolve. There the code calls the low-level operators
-directly ([[../04_Modeling_Operations/Revolve#A full turn: seams and closed edges]]).
+directly ([[../04_Modeling_Operations/03_Revolve#A full turn: seams and closed edges]]).
 
 **The genus is a counter.** `Solid.genus` starts at 0, and only `lkfmrh` (+1) and `lmfkrh` (−1)
 change it. `from_polygons` takes it as an argument. `lkfmrh` always adds 1, so it assumes the two

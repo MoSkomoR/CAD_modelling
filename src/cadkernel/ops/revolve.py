@@ -17,7 +17,7 @@ topology must be depends on two things, and each case is built from Euler operat
     closed edge and face per vertex off the axis by mef. Genus 0.
 
 Proofs of the counts and the orientation, and Pappus's theorem for the volume, are in
-notes/04_Modeling_Operations/Revolve.md.
+notes/04_Modeling_Operations/03_Revolve.md.
 """
 from __future__ import annotations
 
@@ -82,7 +82,7 @@ def revolve(profile: list[NurbsCurve], angle: float = 2 * np.pi,
 
     Edge k of the oriented profile sweeps a face whose surface is revolved_surface(curve k), with
     u along the profile and v around the axis; S_u x S_v then points out of the solid, so every
-    face has sense +1 (Revolve.md).
+    face has sense +1 (03_Revolve.md).
     """
     if not 0 < angle <= 2 * np.pi + 1e-12:
         raise ValueError("the angle must lie in (0, 2 pi]")
@@ -107,7 +107,7 @@ def _attach_circle(circle_edge, vertex, before_face) -> None:
     """The circle a vertex sweeps runs with increasing angle along its half-edge in the face of
     the profile edge *before* the vertex (and so against it in the face after). With u along the
     profile and v around the axis, that makes every face's loop counter-clockwise in (u, v):
-    outward for sense +1 (Revolve.md, "Orientation of the closed edges")."""
+    outward for sense +1 (03_Revolve.md, "Orientation of the closed edges")."""
     he = circle_edge.he1 if circle_edge.he1.face is before_face else circle_edge.he2
     attach_curve(circle_edge, turning_arc(vertex.point, 2 * np.pi), along=he)
 
@@ -179,7 +179,7 @@ def profile_area_and_centroid(profile: list[NurbsCurve], n: int = GAUSS_POINTS):
         A = 1/2 \\oint (x dz - z dx),      A x_bar = \\iint x dA = 1/2 \\oint x^2 dz,
 
     signs taken for a counter-clockwise boundary in the (x, z) coordinates, then made positive.
-    Pappus: the volume of the revolve is angle * x_bar * A (Revolve.md)."""
+    Pappus: the volume of the revolve is angle * x_bar * A (03_Revolve.md)."""
     area = moment = 0.0
     for c in profile:
         t, w = _gauss_on_spans(c.spans(), n)

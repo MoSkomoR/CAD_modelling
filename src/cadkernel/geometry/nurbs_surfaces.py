@@ -18,7 +18,7 @@ weights multiplying. None of them is reachable without weights (no polynomial is
 Conventions follow Piegl & Tiller: degree p in u on knots_u, degree q in v on knots_v; nets are
 (n+1, m+1, d) arrays as in surfaces.py.
 
-Notes: notes/02_Surfaces/NURBS_Surfaces.md, notes/02_Surfaces/Surfaces_of_Revolution.md
+Notes: notes/02_Surfaces/03_NURBS_Surfaces.md, notes/02_Surfaces/04_Surfaces_of_Revolution.md
 """
 from __future__ import annotations
 
@@ -154,7 +154,7 @@ def nurbs_surface_insert_knot(control_net, weights, knots, degree: int, t: float
     """Insert t once in the u (or v) direction: Boehm on every column (or row) of the *lifted* net.
 
     Returns (net, weights, knots of that direction). Upstairs, for the same reason as for curves
-    (notes/01_Curves/NURBS.md, "operations must happen upstairs").
+    (notes/01_Curves/08_NURBS.md, "operations must happen upstairs").
     """
     lifted = _lift_net(control_net, weights)
     new_lifted, new_knots = _along(lifted, direction, lambda pts: insert_knot(pts, knots, degree, t))
@@ -177,7 +177,7 @@ def surface_of_revolution(profile_points, profile_weights, profile_knots, p: int
         S(u, v) = (r(u) cos theta(v), r(u) sin theta(v), z(u)),
 
     with (r(u), z(u)) the profile and (cos theta, sin theta) the NURBS circle
-    (notes/02_Surfaces/Surfaces_of_Revolution.md). Profile points on the axis (r_i = 0) collapse
+    (notes/02_Surfaces/04_Surfaces_of_Revolution.md). Profile points on the axis (r_i = 0) collapse
     a whole row of the net to one point: a pole.
 
     A partial `angle` replaces the circle by nurbs_arc; nothing else changes.

@@ -4,7 +4,7 @@ Code: [[../../scripts/03_topology/01_halfedge_navigation.py]], [[../../scripts/0
 
 Modules 01 and 02 produce shapes: curves and surfaces. A solid model needs more than a pile of
 surfaces. This note is about the "more", and the two notes below it do the work:
-[[Half_Edge]] (the data structure) and [[Euler_Operators]] (how solids are built and changed).
+[[02_Half_Edge]] (the data structure) and [[03_Euler_Operators]] (how solids are built and changed).
 
 ## What geometry alone cannot answer
 
@@ -25,14 +25,14 @@ stores the answers explicitly, as **topology**: who is connected to whom, kept s
 
 The split pays three ways:
 - The same topology can carry different geometry: a cube's 6 faces, 12 edges and 8 vertices can
-  be bound to planes, or to curved patches from [[../02_Surfaces/NURBS_Surfaces]]. Geometry can
+  be bound to planes, or to curved patches from [[../02_Surfaces/03_NURBS_Surfaces]]. Geometry can
   be edited (a vertex moved) without touching connectivity.
 - Topological validity is a matter of integers and pointers, so it can be checked **exactly**
   (`check` in `halfedge.py`). Geometry can only be checked to a tolerance.
-- Algorithms can navigate without geometry at all, as [[Half_Edge]] shows.
+- Algorithms can navigate without geometry at all, as [[02_Half_Edge]] shows.
 
 In module 03, vertices carry positions and nothing else. Edges and faces get curves and surfaces
-in module 04 ([[../04_Modeling_Operations/Modeling_Operations]]).
+in module 04 ([[../04_Modeling_Operations/01_Modeling_Operations]]).
 
 ## The hierarchy
 
@@ -63,14 +63,14 @@ constant time on average. That is half of a half-edge structure, built on the si
 lacks:
 - the *cyclic order*: the edges around a vertex in order, the edges of a face in order;
 - a way to make local edits — split a face, add an edge, open a hole — that update only the few
-  pointers involved ([[Euler_Operators]]).
+  pointers involved ([[03_Euler_Operators]]).
 
 **Winged edge** (Baumgart, 1975, cited) is the classic answer that came first. Each edge stores
 its two faces, its two vertices and the four neighbouring "wing" edges. It works, but an edge has
 one direction and two faces, so every traversal step has to test which side it is on before it
 knows which wing to follow. The half-edge splits the edge into two directed halves, one per face.
 Each half has exactly one face and one direction, so traversal needs no case analysis: `next`,
-`prev` and `twin` are always the right pointers ([[Half_Edge]]).
+`prev` and `twin` are always the right pointers ([[02_Half_Edge]]).
 
 ## The manifold assumption
 
@@ -94,14 +94,14 @@ kernels run one, and this repo does not ([[../99_Not_Covered_In_Code]]).
   code doesn't. A `Solid` holds flat lists of faces, edges and vertices, because every solid built
   here has a single shell. $S$ is computed when needed by `count_shells`, which joins vertices
   along edges and joins the loops of each face to each other
-  ([[Euler_Operators#In this implementation]] says why the second join is needed).
+  ([[03_Euler_Operators#In this implementation]] says why the second join is needed).
 - **The genus is a counter.** `Solid.genus` is changed by `kfmrh` and `mfkrh`, and nothing else
-  reads it from the structure ([[Euler_Operators#The general form: Euler–Poincaré]]).
+  reads it from the structure ([[03_Euler_Operators#The general form: Euler–Poincaré]]).
 - **The manifold test** compares two numbers at each vertex: how many half-edges leave it, and
   how many the star walk (`twin.next`) visits. They differ exactly when the faces around the
   vertex form more than one fan.
 - The layout of the half-edges themselves, and what is stored versus derived, is in
-  [[Half_Edge#In this implementation]].
+  [[02_Half_Edge#In this implementation]].
 
 **Status**: exact (polyhedral; vertices carry positions only). Implemented and tested in
 `tests/test_halfedge.py`: the half-edge structure, Euler operators, queries, `check`,
