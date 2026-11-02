@@ -20,7 +20,13 @@ from dataclasses import dataclass
 import numpy as np
 
 from .bspline import clamped_knots
-from .nurbs import nurbs_arc, nurbs_curve, nurbs_derivative, rational_arc_quadratic
+from .nurbs import (
+    nurbs_arc,
+    nurbs_curve,
+    nurbs_derivative,
+    nurbs_derivatives,
+    rational_arc_quadratic,
+)
 from .nurbs_surfaces import nurbs_surface, nurbs_surface_partials, surface_of_revolution
 
 
@@ -50,6 +56,17 @@ class NurbsCurve:
 
     def derivative(self, t) -> np.ndarray:
         return nurbs_derivative(self.points, self.weights, self.knots, self.p, np.atleast_1d(t))
+
+    def derivatives(self, t, k: int) -> list[np.ndarray]:
+        """[C(t), C'(t), ..., C^(k)(t)]."""
+        return nurbs_derivatives(self.points, self.weights, self.knots, self.p, t, k)
+
+    def transformed(self, origin, axes) -> NurbsCurve:
+        """The curve under x -> origin + axes^T x, where the rows of `axes` are the images of
+        the unit vectors. Affine, so mapping the control points (weights unchanged) maps the
+        curve exactly."""
+        return NurbsCurve(np.asarray(origin, dtype=float) + self.points @ np.asarray(axes),
+                          self.weights, self.knots, self.p)
 
     @property
     def start(self) -> np.ndarray:

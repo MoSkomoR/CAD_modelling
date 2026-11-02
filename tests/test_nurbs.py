@@ -9,6 +9,7 @@ from cadkernel.geometry.nurbs import (
     nurbs_circle,
     nurbs_curve,
     nurbs_derivative,
+    nurbs_derivatives,
     nurbs_insert_knot,
     nurbs_projective_map,
     projective_map,
@@ -236,6 +237,28 @@ def test_nurbs_derivative_matches_finite_differences():
     fd = (nurbs_curve(points, weights, knots, p, t + h)
           - nurbs_curve(points, weights, knots, p, t - h)) / (2 * h)
     assert np.abs(nurbs_derivative(points, weights, knots, p, t) - fd).max() < 1e-8
+
+
+def test_higher_derivatives_match_finite_differences_and_the_circle():
+    """nurbs_derivatives (Piegl & Tiller's eq. 4.8): each derivative is the finite difference of
+    the one before, the first agrees with nurbs_derivative, and on a rational arc of radius 2
+    the curvature |C' x C''| / |C'|^3 is 1/2 although the arc's speed is not constant."""
+    points, weights, knots, p = sample_nurbs()
+    t = np.array([0.1, 0.37, 0.52, 0.8])
+    h = 1e-5
+    derivs = nurbs_derivatives(points, weights, knots, p, t, 3)
+    above = nurbs_derivatives(points, weights, knots, p, t + h, 3)
+    below = nurbs_derivatives(points, weights, knots, p, t - h, 3)
+    assert np.allclose(derivs[1], nurbs_derivative(points, weights, knots, p, t), atol=1e-13)
+    for j in (1, 2, 3):
+        fd = (above[j - 1] - below[j - 1]) / (2 * h)
+        assert np.abs(derivs[j] - fd).max() < 1e-5 * np.abs(derivs[j]).max()
+    arc, w = rational_arc_quadratic(np.zeros(2), 2.0, 0.0, 2.0)
+    arc = np.c_[arc, np.zeros(3)]
+    _, d1, d2 = nurbs_derivatives(arc, w, [0, 0, 0, 1, 1, 1], 2, np.linspace(0, 1, 9), 2)
+    kappa = np.linalg.norm(np.cross(d1, d2), axis=1) / np.linalg.norm(d1, axis=1) ** 3
+    assert np.allclose(kappa, 0.5, atol=1e-14)
+    assert np.ptp(np.linalg.norm(d1, axis=1)) > 0.1
 
 
 def test_derivative_degree_inflates():

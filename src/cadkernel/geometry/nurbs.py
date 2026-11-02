@@ -20,6 +20,8 @@ Notes: notes/01_Curves/08_NURBS.md, notes/01_Curves/09_NURBS_Derivations.md,
 """
 from __future__ import annotations
 
+from math import comb
+
 import numpy as np
 
 from .bspline import bspline_basis, bspline_curve, bspline_derivative, clamped_knots, insert_knot
@@ -125,6 +127,36 @@ def nurbs_derivative(control_points: np.ndarray, weights: np.ndarray, knots: np.
     dA = bspline_curve(d_points, d_knots, d_p, t)
     C = _project(A)
     return (dA[:, :-1] - dA[:, -1:] * C) / A[:, -1:]
+
+
+def nurbs_derivatives(control_points: np.ndarray, weights: np.ndarray, knots: np.ndarray, p: int,
+                      t, k: int) -> list[np.ndarray]:
+    """[C, C', ..., C^(k)] at the parameters t: the quotient rule of nurbs_derivative, repeated.
+
+    Differentiating w C = A_x k times (Leibniz) and solving for the highest term gives
+    Piegl & Tiller's eq. (4.8):
+
+        C^(j) = (A_x^(j) - sum_{i=1}^{j} binom(j, i) w^(i) C^(j-i)) / w,
+
+    so each derivative of C needs the ones before it and the derivatives of the B-spline A, which
+    are B-splines again (bspline_derivative, called j times). Past degree p, A^(j) is zero.
+    """
+    t = np.atleast_1d(t)
+    points, d_knots, d_p = _lift(control_points, weights), np.asarray(knots, dtype=float), p
+    upstairs = []
+    for j in range(k + 1):
+        if d_p < 0:
+            upstairs.append(np.zeros((len(t), points.shape[1])))
+            continue
+        upstairs.append(bspline_curve(points, d_knots, d_p, t))
+        if j < k:
+            points, d_knots, d_p = bspline_derivative(points, d_knots, d_p)
+    w = [a[:, -1:] for a in upstairs]
+    out = []
+    for j in range(k + 1):
+        rest = sum((comb(j, i) * w[i] * out[j - i] for i in range(1, j + 1)), np.zeros(1))
+        out.append((upstairs[j][:, :-1] - rest) / w[0])
+    return out
 
 
 def nurbs_insert_knot(control_points: np.ndarray, weights: np.ndarray, knots: np.ndarray, p: int,
