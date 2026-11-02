@@ -2,7 +2,8 @@
 
 The profile is a loop of edges, each carrying a NURBS curve -- what a CAD sketch is. Extrusion
 is the box construction of module 03 (topology/halfedge.py, _box) with geometry attached as each
-Euler operator runs (sweep_lamina, which revolve and loft reuse with other curves and surfaces):
+Euler operator runs (sweep_lamina, which revolve, loft and sweep reuse with other curves and
+surfaces):
 
     mvfs, mev x (n-1), mef     the profile as a lamina: two faces back to back, one per side
     mev x n                    a straight edge from every profile vertex, along d

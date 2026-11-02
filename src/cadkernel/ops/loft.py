@@ -28,6 +28,16 @@ def _unit_normal(section: list[NurbsCurve], name: str) -> np.ndarray:
     return n
 
 
+def skin_faces(columns: list[list[NurbsCurve]], q: int, params: np.ndarray):
+    """The side faces and longitudinal edges of a loft (or a sweep) through compatible columns:
+    columns[k][s] is edge k of section s. Side k is the skin through column k; the rail at vertex
+    k is that skin's u = 0 boundary curve, which skin k - 1 shares as its u = 1 boundary because
+    both interpolate the same points with the same matrix (04_Loft.md)."""
+    sides = [skinned_surface(col, q, params) for col in columns]
+    rails = [NurbsCurve(side.net[0], side.weights[0], side.knots_v, q) for side in sides]
+    return sides, rails
+
+
 def loft(sections: list[list[NurbsCurve]], degree: int = 3,
          parametrization: str = "centripetal", steps: list | None = None) -> Solid:
     """A solid through closed sections, first to last.
@@ -68,9 +78,7 @@ def loft(sections: list[list[NurbsCurve]], degree: int = 3,
     params = skin_parameters([np.array([c.points[i] for c in col])
                               for col in columns for i in range(len(col[0].points))],
                              parametrization)
-    q = min(degree, len(sections) - 1)
-    sides = [skinned_surface(col, q, params) for col in columns]
-    rails = [NurbsCurve(side.net[0], side.weights[0], side.knots_v, q) for side in sides]
+    sides, rails = skin_faces(columns, min(degree, len(sections) - 1), params)
     first = [col[0] for col in columns]
     last = [col[-1] for col in columns]
     return sweep_lamina(
