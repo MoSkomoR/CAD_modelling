@@ -60,12 +60,13 @@ from cadkernel.viz.interactive import (
     DraggableControlPoints,
     add_checkbuttons,
     add_radiobuttons,
-    add_slider,
     run,
 )
 from cadkernel.viz.topology import face_collection, loop_polyline
 
-SECTIONS = np.array([[1.4, 0.0], [1.0, 1.0], [0.6, 2.6], [0.6, 3.0]])  # (rho, z) per section
+SECTIONS = np.array(
+    [[1.4, 0.0], [1.0, 1.0], [0.6, 2.6], [0.6, 3.0]]
+)  # (rho, z) per section
 SHAPES = ["square", "circle", "circle", "square"]
 T = np.linspace(0.0, 1.0, 40)
 
@@ -106,21 +107,30 @@ def main():
         points = widget.points
         points[:, 0] = np.maximum(points[:, 0], 0.1)
         points[0, 1] = 0.0
-        points[1:, 1] = np.maximum(points[1:, 1], points[:-1, 1] + 0.05)  # keep the order
+        points[1:, 1] = np.maximum(
+            points[1:, 1], points[:-1, 1] + 0.05
+        )  # keep the order
         widget.artist.set_data(points[:, 0], points[:, 1])
         turns = [0.0, 0.0, 0.0, np.radians(30) if show_twist else 0.0]
-        sections = [section(shape, rho, z, turn)
-                    for shape, (rho, z), turn in zip(SHAPES, points, turns)]
+        sections = [
+            section(shape, rho, z, turn)
+            for shape, (rho, z), turn in zip(SHAPES, points, turns)
+        ]
         degree = int(radio_degree.value_selected)
-        solid = loft(sections, degree=degree, parametrization=radio_spacing.value_selected)
+        solid = loft(
+            sections, degree=degree, parametrization=radio_spacing.value_selected
+        )
         state["solid"], state["sections"] = solid, sections
 
         # -- right: faces, longitudinal edges, sections ---------------------------------------
         sides = [f for f in solid.faces if not isinstance(f.surface, Plane)]
         for k, face in enumerate(sides):
             grid = face.surface(T, np.linspace(0, 1, 60))
-            artists.append(ax3.plot_surface(*grid.transpose(2, 0, 1), color=f"C{k}", alpha=0.4,
-                                            lw=0))
+            artists.append(
+                ax3.plot_surface(
+                    *grid.transpose(2, 0, 1), color=f"C{k}", alpha=0.4, lw=0
+                )
+            )
             if show_nets:
                 net = face.surface.net
                 for line in (*net, *net.transpose(1, 0, 2)):
@@ -128,11 +138,19 @@ def main():
         for face in solid.faces:
             if isinstance(face.surface, Plane):
                 loops = [loop_polyline(loop) for loop in face.loops]
-                artists.append(ax3.add_collection3d(face_collection([loops], ["0.7"], 0.4)))
-        rails = [e for e in solid.edges if e.curve.p == min(degree, 3) and
-                 abs(e.curve.start[2] - e.curve.end[2]) > 1e-9]
+                artists.append(
+                    ax3.add_collection3d(face_collection([loops], ["0.7"], 0.4))
+                )
+        rails = [
+            e
+            for e in solid.edges
+            if e.curve.p == min(degree, 3)
+            and abs(e.curve.start[2] - e.curve.end[2]) > 1e-9
+        ]
         for edge in rails:
-            artists.extend(ax3.plot(*edge.curve(np.linspace(0, 1, 120)).T, color="0.15", lw=2.2))
+            artists.extend(
+                ax3.plot(*edge.curve(np.linspace(0, 1, 120)).T, color="0.15", lw=2.2)
+            )
         for s in sections:
             for curve in s:
                 artists.extend(ax3.plot(*curve(T).T, color="k", lw=1.2))
@@ -143,10 +161,15 @@ def main():
         ax3.set_box_aspect((1, 1, 1))
 
         # -- left: (rho, z) of the sections and of one longitudinal edge ----------------------
-        rail = next(e.curve for e in rails if np.isclose(e.curve.start[2], 0.0)
-                    or np.isclose(e.curve.end[2], 0.0))
+        rail = next(
+            e.curve
+            for e in rails
+            if np.isclose(e.curve.start[2], 0.0) or np.isclose(e.curve.end[2], 0.0)
+        )
         p = rail(np.linspace(0, 1, 200))
-        artists.extend(ax2.plot(np.hypot(p[:, 0], p[:, 1]), p[:, 2], color="0.15", lw=2))
+        artists.extend(
+            ax2.plot(np.hypot(p[:, 0], p[:, 1]), p[:, 2], color="0.15", lw=2)
+        )
         for (rho, z), shape in zip(points, SHAPES):
             artists.append(ax2.text(rho + 0.06, z, shape, fontsize=9, va="center"))
 
@@ -162,13 +185,26 @@ def main():
         fig.canvas.draw_idle()
 
     widget = DraggableControlPoints(ax2, SECTIONS, on_change=redraw, show_polygon=False)
-    radio_spacing = add_radiobuttons(fig, [0.05, 0.04, 0.11, 0.13],
-                                     ["uniform", "chord", "centripetal"], 2, redraw)
-    radio_degree = add_radiobuttons(fig, [0.17, 0.04, 0.06, 0.13], ["1", "2", "3"], 2, redraw)
-    check_boxes = add_checkbuttons(fig, [0.24, 0.04, 0.09, 0.13], ["twist top", "skin nets"],
-                                   [False, False], redraw)
-    ax2.text(0.05, -0.17, "spacing          degree across", transform=ax2.transAxes,
-             fontsize=9)
+    radio_spacing = add_radiobuttons(
+        fig, [0.05, 0.04, 0.11, 0.13], ["uniform", "chord", "centripetal"], 2, redraw
+    )
+    radio_degree = add_radiobuttons(
+        fig, [0.17, 0.04, 0.06, 0.13], ["1", "2", "3"], 2, redraw
+    )
+    check_boxes = add_checkbuttons(
+        fig,
+        [0.24, 0.04, 0.09, 0.13],
+        ["twist top", "skin nets"],
+        [False, False],
+        redraw,
+    )
+    ax2.text(
+        0.05,
+        -0.17,
+        "spacing          degree across",
+        transform=ax2.transAxes,
+        fontsize=9,
+    )
     redraw()
 
     def smoke():
@@ -178,7 +214,12 @@ def main():
             sides = [f.surface for f in solid.faces if not isinstance(f.surface, Plane)]
             for s in state["sections"]:  # every section lies on the skin
                 for curve in s:
-                    assert min(f.distance(curve(np.linspace(0, 1, 5))).max() for f in sides) < 1e-9
+                    assert (
+                        min(
+                            f.distance(curve(np.linspace(0, 1, 5))).max() for f in sides
+                        )
+                        < 1e-9
+                    )
             assert state["volume"] > 0
 
         valid()

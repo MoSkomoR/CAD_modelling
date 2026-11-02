@@ -102,13 +102,13 @@ next ×4, twin ×2 and twin.next ×3 each return to the starting half-edge.
 `halfedge.py` follows the layout of Mäntylä's modeller (1988, cited). These are the stored
 fields (`__slots__`):
 
-| class | stored fields |
-|---|---|
-| `HalfEdge` | `origin`, `edge`, `loop`, `next`, `prev` |
-| `Edge` | `he1`, `he2`, and `curve` (module 04) |
-| `Loop` | `face`, and `he`, one of its half-edges |
-| `Face` | `solid`, `loops`, `outer`, and `surface`, `sense` (module 04) |
-| `Vertex` | `point`, and `he`, one outgoing half-edge |
+| class      | stored fields                                                 |
+| ---------- | ------------------------------------------------------------- |
+| `HalfEdge` | `origin`, `edge`, `loop`, `next`, `prev`                      |
+| `Edge`     | `he1`, `he2`, and `curve` (module 04)                         |
+| `Loop`     | `face`, and `he`, one of its half-edges                       |
+| `Face`     | `solid`, `loops`, `outer`, and `surface`, `sense` (module 04) |
+| `Vertex`   | `point`, and `he`, one outgoing half-edge                     |
 
 **Derived, not stored.**
 - `twin` is not a field. The half-edge stores its `edge`, and `he.twin` returns the edge's other

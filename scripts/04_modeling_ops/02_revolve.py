@@ -61,17 +61,33 @@ from cadkernel.viz.interactive import (
 from cadkernel.viz.topology import face_collection, loop_polyline
 
 PROFILES = {
-    "off the axis": np.array([
-        [2.6, -0.1], [2.7, 0.6], [2.2, 0.9],
-        [1.7, 0.9], [1.1, 0.9], [0.9, 0.5],
-        [0.9, 0.0], [0.9, -0.6], [1.2, -0.9],
-        [1.8, -0.9], [2.4, -0.9], [2.5, -0.6],
-    ]),
-    "touching the axis": np.array([
-        [0.0, -1.4], [0.9, -1.5], [1.6, -0.8],
-        [1.5, 0.0], [1.4, 0.8], [0.8, 1.4],
-        [0.0, 1.4],
-    ]),
+    "off the axis": np.array(
+        [
+            [2.6, -0.1],
+            [2.7, 0.6],
+            [2.2, 0.9],
+            [1.7, 0.9],
+            [1.1, 0.9],
+            [0.9, 0.5],
+            [0.9, 0.0],
+            [0.9, -0.6],
+            [1.2, -0.9],
+            [1.8, -0.9],
+            [2.4, -0.9],
+            [2.5, -0.6],
+        ]
+    ),
+    "touching the axis": np.array(
+        [
+            [0.0, -1.4],
+            [0.9, -1.5],
+            [1.6, -0.8],
+            [1.5, 0.0],
+            [1.4, 0.8],
+            [0.8, 1.4],
+            [0.0, 1.4],
+        ]
+    ),
 }
 T = np.linspace(0.0, 1.0, 40)
 
@@ -112,7 +128,9 @@ def main():
         clear()
         (show_nets,) = check_boxes.get_status()
         points = widget.points
-        points[:, 0] = np.maximum(points[:, 0], 0.05)  # keep the profile off the far side
+        points[:, 0] = np.maximum(
+            points[:, 0], 0.05
+        )  # keep the profile off the far side
         if state["mode"] == "touching the axis":
             points[[0, -1], 0] = 0.0
         widget.artist.set_data(points[:, 0], points[:, 1])
@@ -123,21 +141,33 @@ def main():
 
         # -- left: the profile ---------------------------------------------------------------
         for k, curve in enumerate(profile):
-            artists.extend(ax2.plot(curve(T)[:, 0], curve(T)[:, 2], color=f"C{k}", lw=2.4))
+            artists.extend(
+                ax2.plot(curve(T)[:, 0], curve(T)[:, 2], color=f"C{k}", lw=2.4)
+            )
         artists.extend(ax2.plot(*points[::3].T, "s", color="k", ms=9, zorder=6))
 
         # -- right: faces, edges, vertices ----------------------------------------------------
         for face in solid.faces:
             if isinstance(face.surface, Plane):
                 loops = [loop_polyline(loop) for loop in face.loops]
-                artists.append(ax3.add_collection3d(face_collection([loops], ["0.7"], 0.4)))
+                artists.append(
+                    ax3.add_collection3d(face_collection([loops], ["0.7"], 0.4))
+                )
                 continue
-            first = face.surface.net[:, 0]  # the profile curve, reversed if revolve reoriented it
-            k = next(i for i, c in enumerate(profile)
-                     if np.allclose(first, c.points) or np.allclose(first[::-1], c.points))
+            first = face.surface.net[
+                :, 0
+            ]  # the profile curve, reversed if revolve reoriented it
+            k = next(
+                i
+                for i, c in enumerate(profile)
+                if np.allclose(first, c.points) or np.allclose(first[::-1], c.points)
+            )
             grid = face.surface(T, np.linspace(0, 1, 48))
-            artists.append(ax3.plot_surface(*grid.transpose(2, 0, 1), color=f"C{k}", alpha=0.4,
-                                            lw=0))
+            artists.append(
+                ax3.plot_surface(
+                    *grid.transpose(2, 0, 1), color=f"C{k}", alpha=0.4, lw=0
+                )
+            )
             if show_nets:
                 net = face.surface.net
                 for line in (*net, *net.transpose(1, 0, 2)):
@@ -145,13 +175,20 @@ def main():
         seams = [e for e in solid.edges if e.he1.face is e.he2.face]
         closed = [e for e in solid.edges if e.he1.origin is e.he2.origin]
         for edge in solid.edges:
-            style = (dict(color="r", lw=3.0) if edge in seams
-                     else dict(color="b", lw=2.2) if edge in closed else dict(color="k", lw=1.3))
+            style = (
+                dict(color="r", lw=3.0)
+                if edge in seams
+                else dict(color="b", lw=2.2)
+                if edge in closed
+                else dict(color="k", lw=1.3)
+            )
             artists.extend(ax3.plot(*edge.curve(np.linspace(0, 1, 97)).T, **style))
         vertices = np.array([v.point for v in solid.vertices])
         poles = np.hypot(vertices[:, 0], vertices[:, 1]) < 1e-9
         artists.extend(ax3.plot(*vertices[~poles].T, "o", color="k", ms=4))
-        artists.extend(ax3.plot(*vertices[poles].T, "o", color="orange", ms=11, mec="k"))
+        artists.extend(
+            ax3.plot(*vertices[poles].T, "o", color="orange", ms=11, mec="k")
+        )
         artists.extend(ax3.plot([0, 0], [0, 0], [-2.0, 2.0], "k--", lw=1))
         for setter in (ax3.set_xlim, ax3.set_ylim):
             setter(-3.0, 3.0)
@@ -161,8 +198,14 @@ def main():
         c = solid.counts()
         lhs, rhs = euler_poincare(c)
         area, x_bar = profile_area_and_centroid(profile)
-        state.update(volume=volume(solid), pappus=angle * x_bar * area, sides=(lhs, rhs),
-                     seams=len(seams), closed=len(closed), poles=int(poles.sum()))
+        state.update(
+            volume=volume(solid),
+            pappus=angle * x_bar * area,
+            sides=(lhs, rhs),
+            seams=len(seams),
+            closed=len(closed),
+            poles=int(poles.sum()),
+        )
         fig.suptitle(
             f"V={c['V']}  E={c['E']}  F={c['F']}  R={c['R']}  G={c['G']}:   "
             f"V - E + F - R = {lhs},  2(S - G) = {rhs}      "
@@ -178,10 +221,15 @@ def main():
         state["mode"] = label
         widget.set_points(PROFILES[label])
 
-    widget = DraggableControlPoints(ax2, PROFILES["off the axis"], on_change=redraw,
-                                    show_polygon=True)
-    s_angle = add_slider(fig, [0.45, 0.04, 0.35, 0.03], "angle a (deg)", 10, 360, 360, redraw)
-    check_boxes = add_checkbuttons(fig, [0.06, 0.04, 0.12, 0.08], ["nets"], [False], redraw)
+    widget = DraggableControlPoints(
+        ax2, PROFILES["off the axis"], on_change=redraw, show_polygon=True
+    )
+    s_angle = add_slider(
+        fig, [0.45, 0.04, 0.35, 0.03], "angle a (deg)", 10, 360, 360, redraw
+    )
+    check_boxes = add_checkbuttons(
+        fig, [0.06, 0.04, 0.12, 0.08], ["nets"], [False], redraw
+    )
     radio = add_radiobuttons(fig, [0.19, 0.04, 0.13, 0.12], list(PROFILES), 0, choose)
     redraw()
 

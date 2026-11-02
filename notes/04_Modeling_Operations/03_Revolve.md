@@ -99,12 +99,12 @@ For $a < 2\pi$ the far copy of the profile is a different set of points, and the
 extrude's: a lamina, a rail from every vertex, a side face for every edge
 ([[02_Extrude#The construction]]). Only the geometry differs:
 
-| | extrude | partial revolve |
-|---|---|---|
-| rail of vertex $v$ | the segment from $v$ to $v + \mathbf d$ | the arc of angle $a$ that $v$ traces about the axis |
-| far copy of edge $k$ | $C_k + \mathbf d$ | $C_k$ turned by $a$ (rotation is linear, so turning the control points is exact) |
-| side face $k$ | the extruded surface $C_k(u) + v\,\mathbf d$ | the surface of revolution of $C_k$, through angle $a$ |
-| caps | planes with normals $\mp\mathbf n$ | planes with normals $-e_y$ and $e_\varphi(a)$ |
+|                      | extrude                                      | partial revolve                                                                  |
+| -------------------- | -------------------------------------------- | -------------------------------------------------------------------------------- |
+| rail of vertex $v$   | the segment from $v$ to $v + \mathbf d$      | the arc of angle $a$ that $v$ traces about the axis                              |
+| far copy of edge $k$ | $C_k + \mathbf d$                            | $C_k$ turned by $a$ (rotation is linear, so turning the control points is exact) |
+| side face $k$        | the extruded surface $C_k(u) + v\,\mathbf d$ | the surface of revolution of $C_k$, through angle $a$                            |
+| caps                 | planes with normals $\mp\mathbf n$           | planes with normals $-e_y$ and $e_\varphi(a)$                                    |
 
 **Poles in a partial turn.** A vertex on the axis doesn't move, so it gets no rail, and its far
 copy is itself. The edge on the axis sweeps nothing, so it gets no side face. It stays an edge,
@@ -143,12 +143,12 @@ Revolve uses exactly that.
 (*An Introduction to Solid Modeling*, 1988; cited). Write $e_k^+$ for the half-edge of profile
 edge $k$ that runs with the profile, from vertex $k$ to vertex $k+1$, and $e_k^-$ for its twin.
 
-| step | operator | what happens | $V, E, F, R, G$ | $V - E + F - R$ |
-|---|---|---|---|---|
-| 1 | lamina | front loop $e_0^+ \dots e_{n-1}^+$, back loop $e_{n-1}^- \dots e_0^-$ | $n, n, 2, 0, 0$ | 2 |
-| 2 | `kfmrh` | the back face's loop becomes a ring of the front face | $n, n, 1, 1, 1$ | 0 |
-| 3 | `mekr`($e_0^+$, $e_{n-1}^-$) | a closed edge $c_0$ at vertex 0 joins the two loops into one | $n, n+1, 1, 0, 1$ | 0 |
-| 4 | `mef`($e_{k-1}^-$, $e_k^+$), for $k = 1, \dots, n-1$ | a closed edge $c_k$ at vertex $k$ splits off the face of edge $k-1$ | $n, 2n, n, 0, 1$ | 0 |
+| step | operator                                             | what happens                                                          | $V, E, F, R, G$   | $V - E + F - R$ |
+| ---- | ---------------------------------------------------- | --------------------------------------------------------------------- | ----------------- | --------------- |
+| 1    | lamina                                               | front loop $e_0^+ \dots e_{n-1}^+$, back loop $e_{n-1}^- \dots e_0^-$ | $n, n, 2, 0, 0$   | 2               |
+| 2    | `kfmrh`                                              | the back face's loop becomes a ring of the front face                 | $n, n, 1, 1, 1$   | 0               |
+| 3    | `mekr`($e_0^+$, $e_{n-1}^-$)                         | a closed edge $c_0$ at vertex 0 joins the two loops into one          | $n, n+1, 1, 0, 1$ | 0               |
+| 4    | `mef`($e_{k-1}^-$, $e_k^+$), for $k = 1, \dots, n-1$ | a closed edge $c_k$ at vertex $k$ splits off the face of edge $k-1$   | $n, 2n, n, 0, 1$  | 0               |
 
 Throughout, the right side is $2(S - G)$: 2 before step 2 and 0 from then on. Step 2 is where the
 genus becomes 1. The finished solid has a hole through it, around the axis.

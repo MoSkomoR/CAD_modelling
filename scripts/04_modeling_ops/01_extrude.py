@@ -56,10 +56,18 @@ from cadkernel.viz.topology import face_collection, loop_polyline
 
 PROFILE = np.array(
     [
-        [2.2, -0.2], [2.4, 1.0], [1.4, 2.0],
-        [0.0, 2.0], [-1.2, 2.0], [-2.2, 1.4],
-        [-2.2, 0.0], [-2.2, -1.2], [-1.4, -2.2],
-        [0.2, -2.0], [1.4, -1.9], [2.0, -1.4],
+        [2.2, -0.2],
+        [2.4, 1.0],
+        [1.4, 2.0],
+        [0.0, 2.0],
+        [-1.2, 2.0],
+        [-2.2, 1.4],
+        [-2.2, 0.0],
+        [-2.2, -1.2],
+        [-1.4, -2.2],
+        [0.2, -2.0],
+        [1.4, -1.9],
+        [2.0, -1.4],
     ]
 )
 HOLE = circle_arcs([0.0, 0.0], 0.6)
@@ -76,8 +84,12 @@ def source_edge(face, profile):
     """Which profile edge swept this side face: its net's first column is that curve's control
     polygon (reversed if extrude had to reorient the profile)."""
     first = face.surface.net[:, 0, :2]
-    return next(k for k, c in enumerate(profile)
-                if np.allclose(first, c.points[:, :2]) or np.allclose(first[::-1], c.points[:, :2]))
+    return next(
+        k
+        for k, c in enumerate(profile)
+        if np.allclose(first, c.points[:, :2])
+        or np.allclose(first[::-1], c.points[:, :2])
+    )
 
 
 def main():
@@ -126,7 +138,9 @@ def main():
             color = f"C{source_edge(face, profile)}" if face.sense == 1 else "0.5"
             grid = face.surface(T, np.linspace(0, 1, 6))
             artists.append(
-                ax3.plot_surface(*grid.transpose(2, 0, 1), color=color, alpha=0.45, lw=0)
+                ax3.plot_surface(
+                    *grid.transpose(2, 0, 1), color=color, alpha=0.45, lw=0
+                )
             )
             if show_rulings:
                 for line in face.surface(np.linspace(0, 1, 7), [0.0, 1.0]):
@@ -134,7 +148,9 @@ def main():
             if show_nets:
                 net = face.surface.net
                 for column in net.transpose(1, 0, 2):
-                    artists.extend(ax3.plot(*column.T, "o--", color=color, ms=3, lw=0.8))
+                    artists.extend(
+                        ax3.plot(*column.T, "o--", color=color, ms=3, lw=0.8)
+                    )
                 for row in net:
                     artists.extend(ax3.plot(*row.T, ":", color=color, lw=0.8))
         for edge in solid.edges:
@@ -142,7 +158,9 @@ def main():
         points = np.array([v.point for v in solid.vertices])
         artists.extend(ax3.plot(*points.T, "o", color="k", ms=4))
 
-        all_points = np.vstack([points, np.c_[widget.points, np.zeros(len(widget.points))]])
+        all_points = np.vstack(
+            [points, np.c_[widget.points, np.zeros(len(widget.points))]]
+        )
         lo, hi = all_points.min(axis=0) - 0.3, all_points.max(axis=0) + 0.3
         span = (hi - lo).max()
         mid = 0.5 * (lo + hi)
@@ -166,11 +184,18 @@ def main():
         fig.canvas.draw_idle()
 
     widget = DraggableControlPoints(ax2, PROFILE, on_change=redraw, show_polygon=True)
-    s_height = add_slider(fig, [0.45, 0.07, 0.3, 0.03], "height h", 0.2, 3.0, 1.5, redraw)
-    s_tilt = add_slider(fig, [0.45, 0.03, 0.3, 0.03], "tilt a (deg)", -50, 50, 0, redraw)
+    s_height = add_slider(
+        fig, [0.45, 0.07, 0.3, 0.03], "height h", 0.2, 3.0, 1.5, redraw
+    )
+    s_tilt = add_slider(
+        fig, [0.45, 0.03, 0.3, 0.03], "tilt a (deg)", -50, 50, 0, redraw
+    )
     check_boxes = add_checkbuttons(
-        fig, [0.06, 0.05, 0.18, 0.15], ["hole", "rulings", "side-face nets"],
-        [False, True, False], redraw,
+        fig,
+        [0.06, 0.05, 0.18, 0.15],
+        ["hole", "rulings", "side-face nets"],
+        [False, True, False],
+        redraw,
     )
     redraw()
 
@@ -179,7 +204,9 @@ def main():
         assert np.isclose(state["volume"], state["area"] * 1.5)
         upright = state["volume"]
         s_tilt.set_val(35)
-        assert np.isclose(state["volume"], upright)  # Cavalieri: tilting keeps the volume
+        assert np.isclose(
+            state["volume"], upright
+        )  # Cavalieri: tilting keeps the volume
         check_boxes.set_active(0)  # the hole
         assert state["sides"] == (0, 0) and state["solid"].genus == 1
         assert check(state["solid"]) == []
