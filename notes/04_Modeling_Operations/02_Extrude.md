@@ -31,12 +31,12 @@ only on the region and $\mathbf d$, clockwise input and a downward $\mathbf d$ g
 The topology is the box sweep of [[../03_Topology/03_Euler_Operators#Two constructions, step by step]],
 generalized from 4 edges to $n$, with geometry attached as each operator runs:
 
-| step | operators | creates | geometry attached |
-|---|---|---|---|
-| 1 | `mvfs`, then $n-1$ × `mev` | the profile as an open wire | edge $k$ gets $C_k$ |
-| 2 | `mef` | closes the wire into a **lamina**: two faces back to back | last edge gets $C_{n-1}$; one face becomes the bottom, plane through the profile with normal $-\mathbf n$ |
-| 3 | $n$ × `mev` | a straight edge from every vertex $v$ to $v + \mathbf d$ | the segment |
-| 4 | $n$ × `mef` | side face $k$, between the straight edges at vertices $k$ and $k+1$ | the top copy of edge $k$ gets $C_k + \mathbf d$; the face gets the extruded surface (next section) |
+| step | operators                  | creates                                                             | geometry attached                                                                                         |
+| ---- | -------------------------- | ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| 1    | `mvfs`, then $n-1$ × `mev` | the profile as an open wire                                         | edge $k$ gets $C_k$                                                                                       |
+| 2    | `mef`                      | closes the wire into a **lamina**: two faces back to back           | last edge gets $C_{n-1}$; one face becomes the bottom, plane through the profile with normal $-\mathbf n$ |
+| 3    | $n$ × `mev`                | a straight edge from every vertex $v$ to $v + \mathbf d$            | the segment                                                                                               |
+| 4    | $n$ × `mef`                | side face $k$, between the straight edges at vertices $k$ and $k+1$ | the top copy of edge $k$ gets $C_k + \mathbf d$; the face gets the extruded surface (next section)        |
 
 After step 4 the remaining lamina face is the top, the plane moved by $\mathbf d$ with normal
 $+\mathbf n$. Nothing in steps 1–4 depends on the rails being straight or the side surfaces being
@@ -169,8 +169,8 @@ span:
   The error falls geometrically instead. On an extruded unit circle of height 1
   (`test_quadrature_convergence_on_a_rational_integrand`):
 
-| $N$ | 1 | 2 | 3 | 4 | 6 | 8 | 12 |
-|---|---|---|---|---|---|---|---|
+| $N$                    | 1    | 2                 | 3                 | 4                 | 6                 | 8                  | 12              |
+| ---------------------- | ---- | ----------------- | ----------------- | ----------------- | ----------------- | ------------------ | --------------- |
 | $\lvert V - \pi\rvert$ | 0.17 | $7.1\cdot10^{-3}$ | $2.9\cdot10^{-4}$ | $1.2\cdot10^{-5}$ | $1.9\cdot10^{-8}$ | $2.9\cdot10^{-11}$ | $\sim 10^{-15}$ |
 
 At $N = 12$ the error is at rounding level.
@@ -231,7 +231,7 @@ $\lvert\mathbf n \cdot \mathbf d\rvert < 10^{-12}$ is rejected as lying in the p
 **Orientation.** `_oriented` computes the profile's vector area by quadrature and, if
 $\mathbf A \cdot \mathbf d < 0$, reverses the list and every curve in it.
 
-**One construction for three operations.** Steps 1–4 are two functions in `ops/extrude.py`:
+**One construction for four operations.** Steps 1–4 are two functions in `ops/extrude.py`:
 - `lamina(profile)`: steps 1 and 2. It returns the solid, the two lamina faces and the vertices.
 - `sweep_lamina(profile, far, rails, sides, start, end)`: steps 3 and 4. `far[k]` is the far copy
   of edge $k$, `rails[k]` the curve vertex $k$ travels along, `sides[k]` the surface edge $k$
@@ -239,8 +239,8 @@ $\mathbf A \cdot \mathbf d < 0$, reverses the list and every curve in it.
   move, and a side of `None` an edge that sweeps no face; [[03_Revolve]] needs both for an edge on
   the axis. Every side face gets sense $+1$.
 
-`extrude` passes segments as rails and `extruded_surface` as the sides; `revolve` and `loft` pass
-their own.
+`extrude` passes segments as rails and `extruded_surface` as the sides; `revolve`, `loft` and
+`sweep` pass their own.
 
 **Holes** are drilled by `_drill` after `sweep_lamina`, with the operators listed under
 [[#The construction]].

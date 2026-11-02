@@ -11,10 +11,11 @@ The operations are written up one per note:
 - [[02_Extrude]] — a profile moved along a vector;
 - [[03_Revolve]] — a profile turned about an axis: seams, closed edges and poles;
 - [[04_Loft]] — a solid through a stack of sections: compatible curves and skinning;
-- sweep — planned.
+- [[05_Sweep]] — a profile carried along a path: Frenet against rotation-minimizing frames, and
+  a skin through exact sections (simplified).
 
-Extrude, a partial revolve and loft share one topological construction (`sweep_lamina`); they
-differ only in the curves and surfaces they attach.
+Extrude, a partial revolve, loft and sweep share one topological construction (`sweep_lamina`);
+they differ only in the curves and surfaces they attach.
 
 ## Why solids are made from profiles
 
@@ -36,11 +37,11 @@ every surface exactly.
 
 Each topological element now carries geometry:
 
-| element | carries |
-|---|---|
-| vertex | a point |
-| edge | a curve, running between the edge's two vertices; a closed curve (a full circle) if both ends are the same vertex |
-| face | a surface: a plane, or a parametric patch $S(u, v)$ |
+| element | carries                                                                                                           |
+| ------- | ----------------------------------------------------------------------------------------------------------------- |
+| vertex  | a point                                                                                                           |
+| edge    | a curve, running between the edge's two vertices; a closed curve (a full circle) if both ends are the same vertex |
+| face    | a surface: a plane, or a parametric patch $S(u, v)$                                                               |
 
 How these are stored here is under [[#In this implementation]].
 

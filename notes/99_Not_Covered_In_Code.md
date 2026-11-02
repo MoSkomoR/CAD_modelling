@@ -65,6 +65,11 @@ topic comes up during a script/note session that we decide not to implement.
 - **Loft refinements** — sections with different edge counts, automatic vertex correspondence
   (minimizing twist), guide curves, and closed lofts that join the last section back to the first
   ([[04_Modeling_Operations/04_Loft]]).
+- **Exact and general sweeps** — the exact swept surface (not NURBS in general; `sweep` skins
+  exact sections), closed paths with a correction twist, frame laws other than Frenet and
+  rotation-minimizing (fixed binormal, twist law, guide curves), profiles with holes or placed off
+  the path's normal plane, and recognising exact special cases such as a circle swept along a
+  line or a circle ([[04_Modeling_Operations/05_Sweep]]).
 - **Adaptive tessellation** — real kernels tessellate curved surfaces adaptively (denser mesh
   where curvature is higher) for display/export; this repo uses uniform parameter-space
   sampling throughout.

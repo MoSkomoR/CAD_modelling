@@ -48,8 +48,7 @@ Scripts are **interactive** — run them and drag things; they produce no files.
 | Extrude — Euler-operator sweep, extruded surface, holes, orientation, volume by quadrature, tilt | [[../scripts/04_modeling_ops/01_extrude.py]] | exact | [[04_Modeling_Operations/02_Extrude]] |
 | Revolve — partial and full turns, seams, closed edges, poles, Stokes orientation check, Pappus | [[../scripts/04_modeling_ops/02_revolve.py]] | exact (Stokes, Green cited) | [[04_Modeling_Operations/03_Revolve]] |
 | Loft — compatible sections, skinning, shared parameters, spacing measured | [[../scripts/04_modeling_ops/03_loft.py]] | exact through the sections | [[04_Modeling_Operations/04_Loft]] |
-
-Planned next: sweep (Frenet versus rotation-minimizing frames; simplified).
+| Sweep — Frenet versus rotation-minimizing frames (double reflection), closure mismatch, Pappus along a path, skin convergence | [[../scripts/04_modeling_ops/04_sweep.py]] | simplified (exact at the sections; double reflection cited) | [[04_Modeling_Operations/05_Sweep]] |
 
 ## 05 — Booleans & fillets (simplified tier)
 Not started. Planned: BSP-tree mesh CSG, boolean union/cut/intersect, constant-radius fillet

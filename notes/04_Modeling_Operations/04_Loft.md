@@ -148,21 +148,21 @@ $\rho$ is the distance of the vertices from the $z$-axis.
 given heights $z_s$. The error is the largest $\lvert\rho - r(z)\rvert$ along a longitudinal edge
 (`test_loft_parametrization_comparison`):
 
-| heights $z_s$ | uniform | chord | centripetal |
-|---|---|---|---|
-| 0, 0.3, 0.6, 2.5, 3 | 0.221 | 0.0279 | 0.169 |
-| 0, 1, 2, 3, 4 | 0.033 | 0.0543 | 0.0435 |
-| 0, 0.2, 1.5, 1.7, 3.2, 3.4 | 0.150 | 0.00344 | 0.101 |
+| heights $z_s$              | uniform | chord   | centripetal |
+| -------------------------- | ------- | ------- | ----------- |
+| 0, 0.3, 0.6, 2.5, 3        | 0.221   | 0.0279  | 0.169       |
+| 0, 1, 2, 3, 4              | 0.033   | 0.0543  | 0.0435      |
+| 0, 0.2, 1.5, 1.7, 3.2, 3.4 | 0.150   | 0.00344 | 0.101       |
 
 **2. Wiggles on the script's stack.** The stack is: a square ($\rho = 1.4$, $z = 0$), two circles
 pulled close ($\rho = 1.0$ at $z = 1.0$, $\rho = 0.7$ at $z = 1.25$), and a square ($0.6$, $3.0$).
 From section to section $\rho$ only decreases, by 0.8 in total. Any extra total variation of $\rho$
 along a longitudinal edge is a wiggle the data doesn't have (`test_loft_overshoot_comparison`):
 
-| | uniform | chord | centripetal |
-|---|---|---|---|
-| total variation of $\rho$ beyond 0.8 | 0.0038 | 0.745 | 0.186 |
-| smallest $\rho$ along the edge | 0.598 | 0.234 | 0.507 |
+|                                      | uniform | chord | centripetal |
+| ------------------------------------ | ------- | ----- | ----------- |
+| total variation of $\rho$ beyond 0.8 | 0.0038  | 0.745 | 0.186       |
+| smallest $\rho$ along the edge       | 0.598   | 0.234 | 0.507       |
 
 With chord spacing, the solid pinches into a waist of radius 0.23, far thinner than its thinnest
 section (0.6). Script 03 shows it when the two circles are pulled together.
@@ -223,7 +223,8 @@ column is skipped, the sections coincide and the loft is rejected.
 **The rails.** The longitudinal edge at vertex $k$ is built from the $u = 0$ column of skin $k$:
 its control points, weights (all 1, by the claim above), the knots in $v$ and the degree $q$.
 Skin $k-1$'s $u = 1$ column interpolates the same data with the same matrix, so `check` finds
-the rail on both faces to within its tolerance.
+the rail on both faces to within its tolerance. The skins and rails are built by `skin_faces`,
+which `sweep` shares ([[05_Sweep]]).
 
 **The default spacing.** `loft` and `skin_parameters` default to **centripetal**: the one rule
 that was never the worst in the two experiments above. This departs from the textbook's chord
